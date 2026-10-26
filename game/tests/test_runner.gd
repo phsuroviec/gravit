@@ -23,6 +23,7 @@ func _init() -> void:
 	test_vi_rigid_bodies_share_applied_gravity()
 	test_vii_carry_place_break()
 	test_viii_telegraphing()
+	test_ix_content_wired()
 	if _failures == 0:
 		print("=== ALL 4 INVARIANTS PASSED ===")
 		quit(0)
@@ -262,3 +263,25 @@ func test_viii_telegraphing() -> void:
 	var tick = Sfx.tick()
 	_assert(tick is AudioStreamWAV and tick.data.size() > 1000, "(viii) countdown tick synthesizes")
 	fold.free()
+
+# Invariant (ix): generated content is wired in — briefing plates mounted and
+# textured in every room (billboarded, opaque).
+func test_ix_content_wired() -> void:
+	var specs := {
+		"res://room1.tscn": ["PlateWarn", "PlateArrow"],
+		"res://room2.tscn": ["PlateCarry", "PlateBreak"],
+		"res://room3.tscn": ["PlateClock", "PlateExit"],
+	}
+	for path in specs:
+		var packed := load(path) as PackedScene
+		var room = packed.instantiate()
+		var ok := true
+		for plate_name in specs[path]:
+			var plate = room.get_node_or_null(plate_name) as MeshInstance3D
+			var mat = plate.get_active_material(0) as StandardMaterial3D if plate != null else null
+			if plate == null or mat == null:
+				ok = false
+			elif mat.billboard_mode != BaseMaterial3D.BILLBOARD_ENABLED or mat.albedo_texture == null:
+				ok = false
+		_assert(ok, "(ix) plates textured in " + path.get_file())
+		room.free()

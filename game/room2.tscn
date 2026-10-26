@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1"]
 [ext_resource type="PackedScene" path="res://fold_box.tscn" id="2"]
@@ -6,6 +6,8 @@
 [ext_resource type="PackedScene" path="res://door.tscn" id="4"]
 [ext_resource type="Script" path="res://scripts/scope_body.gd" id="5"]
 [ext_resource type="Script" path="res://scripts/consequence_queue.gd" id="6"]
+[ext_resource type="Texture2D" path="res://assets/decals/decal_carry.webp" id="7"]
+[ext_resource type="Texture2D" path="res://assets/decals/decal_break.webp" id="8"]
 
 [sub_resource type="SphereShape3D" id="cube_shape"]
 radius = 0.3
@@ -17,6 +19,19 @@ albedo_color = Color(0.85, 0.85, 0.9, 1)
 material = SubResource("cube_mat")
 radius = 0.3
 height = 0.6
+
+[sub_resource type="QuadMesh" id="plate_mesh"]
+size = Vector2(1.4, 1.4)
+
+[sub_resource type="StandardMaterial3D" id="plate_mat_a"]
+billboard_mode = 1
+shading_mode = 0
+albedo_texture = ExtResource("7")
+
+[sub_resource type="StandardMaterial3D" id="plate_mat_b"]
+billboard_mode = 1
+shading_mode = 0
+albedo_texture = ExtResource("8")
 
 [node name="Room2" type="Node3D"]
 script = ExtResource("1")
@@ -67,3 +82,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 1.05, 0)
 
 [node name="Queue" type="Node3D" parent="."]
 script = ExtResource("6")
+
+[node name="PlateCarry" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 1.6, -2.2)
+mesh = SubResource("plate_mesh")
+material_override = SubResource("plate_mat_a")
+
+[node name="PlateBreak" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 1.6, 2.2)
+mesh = SubResource("plate_mesh")
+material_override = SubResource("plate_mat_b")

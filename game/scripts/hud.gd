@@ -7,6 +7,8 @@ extends CanvasLayer
 const GameText = preload("res://scripts/game_text.gd")
 
 var _hint_index := {}
+var _last_room := ""
+var _brief_until_ms := 0
 
 func _ready() -> void:
 	GameState.run_start_ms = Time.get_ticks_msec()
@@ -38,7 +40,8 @@ func show_completion() -> void:
 	var ms := Time.get_ticks_msec() - GameState.run_start_ms
 	if GameState.best_ms < 0 or ms < GameState.best_ms:
 		GameState.best_ms = ms
-	($Complete as Label).text = "COURSE COMPLETE in " + _fmt(ms) + "\n" + GameText.fold_log("room3")
+	var best := "best " + _fmt(GameState.best_ms)
+	($Complete as Label).text = "COURSE COMPLETE in " + _fmt(ms) + " (" + best + ")\n" + GameText.fold_log("room3") + "\n[R] run it again"
 	($Complete as Label).visible = true
 	($Timer as Label).visible = true
 
@@ -52,6 +55,20 @@ func _fmt(ms: int) -> String:
 func _process(_delta: float) -> void:
 	if timer_unlocked():
 		($Timer as Label).text = _fmt(Time.get_ticks_msec() - GameState.run_start_ms)
+	_track_room()
+
+# Briefing card on room entry: generated text, shown 6 s, never blocks play.
+func _track_room() -> void:
+	var id := current_room_id()
+	if id == _last_room:
+		if _brief_until_ms > 0 and Time.get_ticks_msec() > _brief_until_ms:
+			($Brief as Label).visible = false
+			_brief_until_ms = 0
+		return
+	_last_room = id
+	($Brief as Label).text = GameText.briefing(id)
+	($Brief as Label).visible = true
+	_brief_until_ms = Time.get_ticks_msec() + 6000
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_H:
