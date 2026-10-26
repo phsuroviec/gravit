@@ -20,9 +20,12 @@ Any agent (pi, Claude Code, Codex, Muse Code, Gemini, a human) working in this r
 5. **Scope.** One playable course beats five unfinished systems. If a mechanic cannot be demonstrated in the
    three-minute demo video, it is out of scope for this deadline.
 
-**Thinking level per phase.** `max` for the architectural slices (T1 harness/invariants, T6 generation schemas),
-`high` for implementation and bug-fix work. The level is sticky now that the lane extension leaves a self-managed
-project alone — shift-tab before the turn, and it survives.
+**Thinking level per phase.** Every ticket carries a `thinking:` header — `max` for the architectural slices
+(T1 harness/invariants, T6 generation schemas), `high` for implementation and bug-fix work. An agent **cannot**
+change the TUI thinking level itself (it is a keystroke), so: at the start of a ticket whose header differs from the
+current level, say one line — "ticket T4 wants high, currently max — shift-tab twice before the next prompt" — and
+continue. Do not silently run a whole ticket at the wrong level. The level is sticky now that the lane extension
+leaves a self-managed project alone.
 
 ## Workflow
 
