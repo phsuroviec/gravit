@@ -67,8 +67,10 @@ static func deepest_scope_for_body(body: Node3D, scopes: Array) -> FoldScope:
 	var best: FoldScope = null
 	var best_depth := -1
 	for candidate in scopes:
+		if not is_instance_valid(candidate):
+			continue
 		var scope := candidate as FoldScope
-		if scope == null or not is_instance_valid(scope):
+		if scope == null:
 			continue
 		if scope.has_body(body):
 			var depth := scope.get_depth()

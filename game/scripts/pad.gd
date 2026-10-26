@@ -17,6 +17,9 @@ const ConsequenceQueue = preload("res://scripts/consequence_queue.gd")
 var active_scopes: Array = []
 var pending_item = null
 var last_countdown := ""
+# Fold clock sampled while the fold is alive: the pad must keep working after
+# its fold is picked up, carried off and broken (that is the whole game).
+var last_clock := 1.0
 
 func _ready() -> void:
 	monitoring = true
@@ -27,16 +30,18 @@ func _on_body_entered(body: Node3D) -> void:
 		trigger(body)
 
 func trigger(_body: Node3D) -> void:
-	var queue := get_node(queue_path) as ConsequenceQueue
-	var fold := get_node(fold_path) as FoldScope
-	var door := get_node(door_path) as Node3D
-	if queue == null or fold == null or door == null:
+	var queue := get_node_or_null(queue_path) as ConsequenceQueue
+	var door := get_node_or_null(door_path) as Node3D
+	if queue == null or door == null:
 		return
-	pending_item = queue.enqueue(door, impulse, delay_base * fold.clock_factor)
+	pending_item = queue.enqueue(door, impulse, delay_base * last_clock)
 
 func _process(_delta: float) -> void:
 	var label := $Countdown as Label3D
-	var queue := get_node(queue_path) as ConsequenceQueue
+	var queue := get_node_or_null(queue_path) as ConsequenceQueue
+	var fold := get_node_or_null(fold_path) as FoldScope
+	if fold != null:
+		last_clock = fold.clock_factor
 	if pending_item != null and queue != null and not pending_item.fired:
 		var remaining: float = pending_item.due_time - queue.sim_time
 		last_countdown = "%.1f" % maxf(0.0, remaining)

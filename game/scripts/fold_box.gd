@@ -30,10 +30,14 @@ func _physics_process(_delta: float) -> void:
 		global_position = carry_anchor.global_position
 
 func _on_body_entered(body: Node3D) -> void:
+	if is_carried():
+		return
 	if body is PhysicsBody3D:
 		get_scope().add_body(body)
 
 func _on_body_exited(body: Node3D) -> void:
+	if is_carried():
+		return
 	if body is PhysicsBody3D:
 		get_scope().remove_body(body)
 
