@@ -37,6 +37,24 @@ reads and short prompts). Our build-time generation is a few million tokens at m
 constraint — wall-clock time is. Do not buy a subscription plan to "save credits"; the plan does not spend
 against Model API usage.
 
+## Standard vs Contributor mode (same model, different deal)
+
+The `-contributor` suffix is **not** a capability tier — it is a data deal, chosen by model ID on pay-as-you-go:
+
+| | Standard (`muse-spark-1.3`) | Contributor (`muse-spark-1.3-contributor`) |
+| --- | --- | --- |
+| Your prompts/code/files used to train Meta models | **no** | **yes** ("in exchange for a lower price") |
+| Reasoning effort | all levels, incl. `max` | all levels **except `max`** |
+| Price (per M) | $1.25 in / $4.25 out / $0.15 cache read | $0.10 in / $0.20 out / $0.002 cache read |
+| Switch | pick the model ID; no other change | same endpoint, same request shape |
+
+Contributor mode is ~12x cheaper. For Gravit, contents are public MIT code and generated flavour text, so
+contributor mode is acceptable for **bulk build-time generation**; keep Standard mode for anything that would be
+awkward to see in a training set later, and for `max`-effort reasoning runs. Never send credentials, private repos
+or personal data to contributor mode.
+
+Muse Spark 1.1 exists in Standard mode only.
+
 ## Models
 
 | Model ID | Input → output | Notes |
