@@ -68,6 +68,30 @@ and/or code with **Muse Code**.
   | Demo | 25% |
 - **Stage 3** — top 5 per track present live; final-round judges watch video demos and rank on the same rubric.
 
+## Bonus prizes (from the Discord FAQ, itemised)
+
+| Award | Amount |
+| --- | --- |
+| Most Viral Project | $20,000 |
+| **Best Build on Meta Open Weight Models** | $10,000 |
+| Community Vote | $10,000 |
+| Best Agentic Use-Case | $5,000 |
+| **Best Creative Build** | $5,000 |
+
+Three of these are reachable for a game built the way we are building it: **Best Creative Build** (a game about an
+invented law of physics), **Best Build on Meta Open Weight Models** (if a visible part of the build genuinely runs
+on `muse-spark-open-1026`), and **Best Agentic Use-Case** (only if the build has an agent, not a prompt).
+
+## Rubric discrepancy — record both readings
+
+- Guide page (screenshot): Impact 30%, Use of Meta AI Tooling 25%, Technical Depth & Execution 20%, Demo 25%.
+- Discord FAQ: projects are "scored equally on Impact, Use of Meta AI tooling, Technical depth and execution,
+  Demo quality".
+
+FAQ prose is looser than the rubric table, so we plan against the **weighted** version (Impact and Demo lead)
+and treat "equally" as a rounding of the same four axes. Nothing in our plan changes under either reading:
+Impact and Demo are the two we invest in, Tooling is made visible, Depth comes from the tested gravity core.
+
 ## Prizes
 
 - **Indie Developer track — $400,000:** 1st $150K, 2nd $100K, 3rd $75K, 4th $50K, 5th $25K.
@@ -83,9 +107,12 @@ Gravit competes in the **Indie Developer** track (solo, no company entity).
 - Claim via the Google form linked on the event page **by Wed Nov 4, 9:00 PM ET**; credits land in batches
   (check Billing) within ~2 business days.
 - A **payment method must be on file** to make API calls even with credits; a temporary pre-authorisation
-  charge appears and is released within a few business days. Set a **Spend Limit** on the Billing page.
+  charge appears and is released within a few business days. Set a **Spend Limit** on the Billing page, but the
+  FAQ is explicit: **do not assume a Spend Limit automatically stops billing**. Monitor Billing; the limit is a
+  notification, not a hard cap. Treat `$150` as a hard budget we police ourselves.
 - **Baseten:** $100 credits + 2M TPM for up to 2,000 participants (per individual, use-case review). Use
   model id `meta-models/muse-spark-open-1026` (not the docs' `muse-spark-open`).
 - **Modal:** $100 credits, first 1,000 participants (open-weight models via Endpoints).
-- **Fireworks:** $25 credits for shortlisted teams, emailed.
+- **Fireworks:** the guide said $25 for shortlisted teams; the FAQ now says **details TBC** — treat as unavailable
+  until announced.
 - Partner credits are not guaranteed and are at each partner's discretion.

@@ -34,6 +34,15 @@ Building window: Oct 26 (kickoff 12:00 PM ET) – **Nov 4, 9:00 PM ET** (submiss
 | Art eats days | untextured primitives + strong lighting; Muse Image only for 3 hero assets |
 | Meta API credits late | build against the OpenAI-compatible interface; swap the base URL last |
 
+## Bonus prize alignment (Discord FAQ list)
+
+| Award | How we aim at it | Cost |
+| --- | --- | --- |
+| Best Creative Build ($5k) | A game about an invented law of gravity/time, demonstrated by play | already the plan |
+| Best Build on Meta Open Weight Models ($10k) | room-architect variants generated on `muse-spark-open-1026` (Baseten free credits), shown running in the demo | ~half a day, after the cut line |
+| Best Agentic Use-Case ($5k) | only if the room-architect pass becomes a real multi-step agent (propose → validate → play-test). Stretch, not planned | 1-2 days, likely cut |
+| Most Viral ($20k), Community Vote ($10k) | out of scope: needs distribution we do not have | 0 |
+
 ## Meta model plan (see `docs/meta-usage-log.md`)
 
 1. Build-time text: puzzle hints, room names, journal fragments — `muse-spark-1.3` structured output.

@@ -74,7 +74,13 @@ QUESTIONS I NEED ANSWERED
 7. DEMO SCRIPT for exactly 3:00: second-by-second beats, what is on screen, what the voice-over says (max ~45
    seconds of speech total), and which rubric axis each beat targets.
 
-FORMAT: sections 1-7, each starting with a one-paragraph recommendation, then evidence with links. Mark anything
+8. BONUS PRIZES. The event awards: Most Viral $20k, Best Build on Meta Open Weight Models $10k, Community Vote
+   $10k, Best Agentic Use-Case $5k, Best Creative Build $5k. For a solo 10-day game, which of these is realistically
+   winnable, and what is the minimum visible artefact for it? Specifically: what does a judge need to see to believe
+   "built on Meta open-weight models" for a Godot game, and is a build-time generation pass with a checked-in output
+   enough, or does it need a live inference call?
+
+FORMAT: sections 1-8, each starting with a one-paragraph recommendation, then evidence with links. Mark anything
 you could not verify as UNVERIFIED. No filler, no encouragement, no restating my constraints back to me.
 ```
 

@@ -71,6 +71,21 @@ states its fold numbers; no phase transitions, no automatic coupling to contents
 Every artefact carries the markers in [`attribution-policy.md`](attribution-policy.md) and a row in
 [`meta-usage-log.md`](meta-usage-log.md).
 
+### Open-weight component (targets the $10k "Best Build on Meta Open Weight Models" award)
+
+Hint ladders and room variants are generated **twice**: once as the shipped default, and once by a small
+*room-architect* pass on `meta-spark-open` (`meta-models/muse-spark-open-1026` via Baseten, free credits) that
+proposes a variant layout from a prompt. The variant is an authored JSON the game loads — no runtime server. The
+demo shows the open-weight call and the resulting variant playing, which is what makes the award claim honest.
+
+### Runtime call: one, optional, and offline-safe
+
+A puzzle game cannot put LLM latency in the loop, so at most **one** runtime call exists: an "explain what just
+happened" button that narrates the last fold event via `muse-spark-1.3`, cached per event, with the build-time
+text as fallback when offline or slow. It ships only if the Nov 2 cut line allows; the demo shows it once. Even
+without it, the build-time uses are real Meta usage — but a runtime call is the most legible evidence for
+"meaningfully used", which is the Stage-1 gate.
+
 ## Fallback (decided in advance)
 
 If by **end of Day 2 (Oct 28)** gravity override + delayed consequence are not both demonstrably working,

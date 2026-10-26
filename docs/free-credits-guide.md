@@ -12,8 +12,9 @@ in batches within ~2 business days.
    to register for the hackathon, since the form asks for your accepted-participant details).
 2. **Billing → add a payment method.** Required: no API call succeeds on credits alone. A temporary
    pre-authorisation charge appears and is released within a few business days.
-3. **Billing → set a Spend Limit** to the credit amount ($150). This is the guard against a runaway
-   generation loop billing the card.
+3. **Billing → set a Spend Limit** to the credit amount ($150). **The FAQ warns a Spend Limit notification does
+   not necessarily stop billing** — it is an alert, not a hard cap. The real guard is our own per-run budget
+   check in `scripts/meta_generate.py --check` plus the ledger rows; never launch an unbounded generation loop.
 4. Create an API key. It looks like `LLM|{numeric_id}|{secret}`. Store it **outside** this repo: append
    `MODEL_API_KEY=...` to the host env file (`~/.ccgram/.env` on this node) and never echo it.
 5. Submit the **Model API Credit Claims** Google form linked on the event page (also in the event Details
@@ -51,8 +52,8 @@ curl -s -o /dev/null -w '%{http_code}\n' https://api.meta.ai/v1/models \
 
 ## 4. Fireworks — $25 (shortlist)
 
-1. Request form on the event page; credits go to shortlisted teams reviewed with Fireworks.
-2. If selected, redemption details arrive by e-mail. Low priority — claim it, do not design around it.
+1. The FAQ lists Fireworks as **details TBC** (the guide had $25 for shortlisted teams).
+2. Treat it as unavailable until announced; design nothing around it.
 
 ## 4b. What we actually claim, and why
 
@@ -61,7 +62,7 @@ curl -s -o /dev/null -w '%{http_code}\n' https://api.meta.ai/v1/models \
 | Meta Model API ($150) | **Yes, first** | `muse-spark-1.3` hint ladders + room briefings, `muse-image-1.0` textures, `muse-voice-transcribe-1.0` narration | Only these count for the "Meta Model API" clause of the rules and the 25% tooling axis |
 | Baseten ($100 + 2M TPM) | **Yes** | bulk text generation on `meta-models/muse-spark-open-1026`: draft hint variants, flavour text, naming, rewrites | Saves the $150 Meta credits for demo-critical calls; also satisfies "run Meta open-weight models" |
 | Modal ($100) | Only if needed | nothing planned | A Godot game needs no GPU hosting or sandboxes; claiming it without using it is noise |
-| Fireworks ($25) | Claim if shortlisted | spare capacity for open-weight experiments | Slow, shortlist-gated, low value for this project |
+| Fireworks (TBC) | No | — | FAQ says details TBC; ignore until announced |
 
 Rule of thumb: **Meta credits buy the parts judges see; Baseten free credits buy the bulk drafts.** Both are
 logged in `docs/meta-usage.jsonl`, so the split is visible rather than implied.
