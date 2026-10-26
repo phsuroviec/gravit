@@ -1,0 +1,34 @@
+# Secrets and local state never enter this repository.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.keystore
+auth.json
+*.sqlite
+*.db
+
+# Godot
+.godot/
+*.import
+export_presets.cfg
+build/
+exports/
+*.translation
+
+# model/asset working dirs (generated, large, or licensed)
+tmp/
+cache/
+*.blend1
+*.psd
+research/raw/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
+.vscode/

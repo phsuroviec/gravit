@@ -1,0 +1,8 @@
+; Gravit — Godot 4 project.
+; Scenes and scripts stay plain text so agents can read and diff them.
+config_version=5
+
+[application]
+config/name="Gravit"
+config/description="A 3D puzzle game about folding space."
+config/features=PackedStringArray("4.3", "Forward Plus")
