@@ -89,6 +89,9 @@ func test_ii_gravity_inside_fold() -> void:
 	room.add_child(outsider)
 	var g_world: Vector3 = FoldScope.applied_gravity(outsider, 0.0, scopes)
 	_assert(g_world.is_equal_approx(Vector3(0, -GRAV, 0)), "(ii) body outside folds gets world gravity")
+	inner.clock_factor = 2.0
+	_assert(FoldScope.applied_clock_factor(body, scopes) == 2.0, "(ii) clock factor follows deepest fold")
+	_assert(FoldScope.applied_clock_factor(outsider, scopes) == 1.0, "(ii) outside folds clock is 1")
 	room.free()
 
 # Invariant (iii): a queued consequence fires exactly once at due_time.
