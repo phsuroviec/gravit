@@ -6,3 +6,4 @@ config_version=5
 config/name="Gravit"
 config/description="A 3D puzzle game about folding space."
 config/features=PackedStringArray("4.7", "Forward Plus")
+run/main_scene="res://main.tscn"
