@@ -74,6 +74,7 @@ def append_ledger(row: dict) -> None:
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true", help="report key presence and exit")
+    ap.add_argument("--spend", action="store_true", help="token totals from the ledger, per model")
     ap.add_argument("--model", help="Meta model id, e.g. muse-spark-1.3")
     ap.add_argument("--purpose", default="", help="one line: what this artefact is for")
     ap.add_argument("--prompt", help="file with the prompt (kept in prompts/)")
@@ -83,6 +84,24 @@ def main(argv: list[str]) -> int:
     args = ap.parse_args(argv[1:])
 
     key = os.environ.get("MODEL_API_KEY", "")
+    if args.spend:
+        # Token totals only: pricing lives in the provider's Billing page, not in this repo.
+        rows = [json.loads(l) for l in LEDGER.read_text().splitlines() if l.strip()] if LEDGER.exists() else []
+        per: dict[str, dict[str, int]] = {}
+        for r in rows:
+            m = per.setdefault(r.get("model", "?"), {"calls": 0, "prompt": 0, "completion": 0, "reasoning": 0})
+            u = r.get("usage") or {}
+            m["calls"] += 1
+            m["prompt"] += u.get("prompt_tokens") or 0
+            m["completion"] += u.get("completion_tokens") or 0
+            m["reasoning"] += u.get("reasoning_tokens") or 0
+        print(f"{'model':28} {'calls':>6} {'prompt':>9} {'completion':>11} {'reasoning':>10}")
+        for model, m in sorted(per.items()):
+            print(f"{model:28} {m['calls']:6} {m['prompt']:9} {m['completion']:11} {m['reasoning']:10}")
+        if not per:
+            print("(ledger empty: no Meta calls generated yet)")
+        print("\nCost = these tokens x the price shown in the provider's Billing page.")
+        return 0
     if args.check:
         print("MODEL_API_KEY present:", bool(key))
         print("base:", BASE)

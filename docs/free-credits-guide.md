@@ -89,6 +89,19 @@ logged in `docs/meta-usage.jsonl`, so the split is visible rather than implied.
 - Keep using the Meta credits for judge-visible artefacts (see the verdict table in §4b); partner credits are
   for bulk drafts.
 
+## 4c. Backup plan if a partner credit does not land
+
+**Nothing on the critical path depends on partner credits.** The $150 Meta credits cover every Meta model, and
+this project's build-time generation is small: three or four rooms of hint text, briefings and a handful of
+images — a few million tokens, not hundreds. If Baseten declines the application:
+
+1. Run the same bulk pass on the Meta Model API (`muse-spark-1.3`), accepting the higher per-token price.
+2. Cut the bulk pass to a fixed set of generated lines (regenerate only what the demo needs).
+3. Drop the "built on open-weight models" demo segment and its $10k bonus claim — the submission is unaffected.
+
+If Modal declines: no change. Modal is only for hosting open weights yourself (GPU + a server); this build has no
+server, so it was never in the plan.
+
 ## 6. What is still unknown (answer via Discord `#questions` / office hours)
 
 - Whether the $20/month Meta plan covers Model API usage or only the consumer apps (assume **API = credits**).

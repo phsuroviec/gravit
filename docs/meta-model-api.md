@@ -55,6 +55,21 @@ Recipes that matter for us: `01_chat_completions`, `03_tool_calling`, `04_struct
 | Long agent sessions (asset pipeline, refactors) | `muse-wonder-1.0` | built for long-horizon runs |
 | Code authoring | Muse Code or this harness | log which model wrote what |
 
+## Which wallet pays for which call
+
+Two independent balances. Neither is a discount on the other.
+
+| Wallet | Where it is spent | What it can run | State |
+| --- | --- | --- | --- |
+| **Meta Model API credits** ($150, applied) | `api.meta.ai` | every Meta model: `muse-spark-1.3`, `muse-wonder-1.0`, `muse-image-1.0`, `muse-voice-transcribe-1.0`, `sam-3.1` | **confirmed on the account** |
+| Baseten credits ($100 + 2M TPM, applied for) | Baseten's servers | only **open-weight** Meta models they host: `meta-models/muse-spark-open-1026` | pending approval |
+| Modal credits ($100, optional) | Modal GPUs / sandboxes | open-weight weights you host **yourself** (vLLM etc.) — same models, your own inference server | not needed for this build |
+| Fireworks (TBC) | Fireworks | open-weight inference | ignore until announced |
+
+Meta's API key routes to Meta's own hosted models and cannot spend a Baseten or Modal dollar: there is no
+"routing" between wallets. Conversely Baseten cannot run `muse-spark-1.3` (a hosted, non-open model) — it only
+serves the open-weight family.
+
 ## Open-weight route (optional, separate credits)
 
 Baseten `meta-models/muse-spark-open-1026` ($100 credits, 2M TPM); Modal $100 credits for Meta open-weight
