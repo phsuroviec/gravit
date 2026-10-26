@@ -20,12 +20,23 @@ Any agent (pi, Claude Code, Codex, Muse Code, Gemini, a human) working in this r
 5. **Scope.** One playable course beats five unfinished systems. If a mechanic cannot be demonstrated in the
    three-minute demo video, it is out of scope for this deadline.
 
-**Thinking level per phase.** Every ticket carries a `thinking:` header — `max` for the architectural slices
-(T1 harness/invariants, T6 generation schemas), `high` for implementation and bug-fix work. An agent **cannot**
-change the TUI thinking level itself (it is a keystroke), so: at the start of a ticket whose header differs from the
-current level, say one line — "ticket T4 wants high, currently max — shift-tab twice before the next prompt" — and
-continue. Do not silently run a whole ticket at the wrong level. The level is sticky now that the lane extension
-leaves a self-managed project alone.
+**Thinking level per phase — say it at the start AND the end.** Every ticket carries `thinking:` and `next:` headers.
+An agent **cannot** change the TUI thinking level (it is a keystroke), so the level must be asked for out loud:
+
+1. **First line of every turn**: `ticket T4 · thinking high (footer says max — shift-tab twice before sending)` when
+   the current level differs, or `ticket T4 · thinking high (matches)` when it does not. Never start work silently at
+   the wrong level.
+2. **Final line of every completed ticket** — the handoff footer, exactly this shape:
+
+   ```
+   DONE: T1 · commit b502d6d · tests 22/22 PASS
+   NEXT: T2 — player controller + camera · thinking high (you are on max: shift-tab twice) · blocked by: none open
+   ```
+
+   If the next ticket is still blocked, say so and name the blocker instead of the level.
+
+Read the `next:` header of the ticket you are working on — do not assume. A ticket is not "done" until the footer
+names the next ticket and the level it needs.
 
 ## Workflow
 
