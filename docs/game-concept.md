@@ -1,63 +1,93 @@
 # Game concept — Gravit
 
-Status: **seed**, not frozen. Frozen 2026-10-28 after the research report lands.
+**Status: FROZEN 2026-10-26** (council verdict, chair synthesis). Changes require editing this file first.
 
-## The law (one, and everything follows)
+## The law
 
-Space can be folded. A **fold** is a pocket universe you can pick up, carry, put down, or break open.
-Each fold has:
+> Gravity and time are properties of the **scope you are standing in**, not of the world.
+> Space can be folded: a fold is a bounded scope you can carry, place and break. Inside a fold you fall
+> toward the fold's own down, and your clock runs at the fold's rate. Anything you set going inside a fold
+> arrives in the parent world late — the deeper the fold, the later.
 
-- its own **gravity** (direction and strength),
-- its own **magnetic direction**,
-- its own **clock** — time runs faster the deeper the fold.
+One parameter set per fold: **gravity direction**, **clock factor** — that is it. Everything below derives
+from those two numbers.
 
-Magnets are how you drag a fold from outside, and how you keep two folds from colliding. Breaking a fold
-spills what was inside, in the parent world's geometry, at the parent's rate.
+## Why this version (council verdict, 5 seats)
 
-World: post-collapse. The collapse happened when people folded things they did not understand. Folds are now
-infrastructure (storage, smuggling, shortcuts) and hazard (unstable ones swallow city blocks). The interesting
-part: people built a life on the law, and the law keeps ruining it.
+| Seat | Candidate it picked | Decisive argument |
+| --- | --- | --- |
+| Design craft (rams) | Fold law | Only concept where an LLM is load-bearing, not decorative; unique in one sentence |
+| Player psychology (kahneman) | Fold law | "Break it → the world outside changes" is self-explaining in 30 s, no narration |
+| Systems (meadows) | Gravity lag | Fold's three free parameters are hand-waved; lag has exactly one caveat |
+| Mechanism (ada) | Fold law | Scope tree + affine clock = 6 invariants, testable headlessly, no viewport |
+| Feasibility (torvalds) | Gravity lag | Nested sub-worlds (SubViewport/World3D) are a 5-day transform-bug sink for a beginner |
 
-**Puzzle shape.** An obstacle course. Get yourself and a few objects from start to finish by deciding what to
-fold, where to place it, and what to break. Because a fold runs fast, a fix made inside it lands in the parent
-world seconds later — solving small now, resolving big later, is the core verb.
+**Chair resolution.** The split is about *implementation*, not the idea. Torvalds objected to nested
+`SubViewport` worlds, Meadows to free-floating parameters — both objections dissolve with one decision:
 
-## Why Godot 4
+> **A fold is not a separate world. It is a region that overrides gravity and time for whatever is inside it.**
 
-Scenes and scripts are plain text, so an agent can read, diff and edit them without a human learning an editor
-first. GDScript is teachable to a nephew. 3D, small scope.
+No `SubViewport`, no `World3D`, no camera surgery, no cross-world collision: a fold is an `Area3D` whose
+gravity override and clock factor apply to bodies inside it, implemented as a single pure function
+`applied_gravity(body, t) -> Vector3` plus a per-scope time factor. That is Ada's scope tree with Torvalds'
+cheapest possible node set, and it keeps the concept already submitted to the hackathon.
 
-## Scope for 10 days (3-minute demo target)
+Meadows' warning still stands as a design rule: fold parameters are **authored, not emergent**. Each room
+states its fold numbers; no phase transitions, no automatic coupling to contents.
 
-Must work:
+## Frozen mechanics (build these)
 
-1. One course of 3–4 rooms, walkable, with a start and an exit.
-2. Fold: pick up, carry, place, break. Consistent state, no soft-locks.
-3. Gravity: inside a fold, down is the fold's down; objects fall accordingly; leaving restores the world.
-4. Magnets: drag a fold at range; two folds repel when like-poled.
-5. One exit reachable **only** by using the law — not by a door left open.
+| # | Mechanic | Implementation sketch |
+| --- | --- | --- |
+| M1 | Walk, look, jump | `CharacterBody3D`, gravity applied manually from `applied_gravity()` |
+| M2 | Fold placed in the world | `Area3D` + visible translucent shell; carries `gravity_dir`, `clock_factor` |
+| M3 | Carry a fold, place it, break it | hold key latches the fold to the player; break removes the Area3D and drops contents |
+| M4 | Fall the fold's way inside | same `applied_gravity()` for player and `RigidBody3D`; no per-body special cases |
+| M5 | Delayed consequence | queue of `(body, impulse)` applied to the parent scope after `clock_factor × delay`; one countdown ring per queued event |
+| M6 | Exit reachable only via a fold | the last room's door opens from an event queued through a fold |
 
-Deliberately absent: story mode, cutscenes, multiple courses, saving, menus beyond a start/restart.
+## Cut list (do not build before Nov 2)
 
-## Open decisions (block roadmap)
+- **Magnets / magnetic direction** (rams: second verb surface; ada: same code path, no depth). Two seats
+  voted to cut; cut.
+- **Polarity society seed** — political framing is a disqualification risk; not pursued.
+- **Mass nesting seed** — needs player mass to couple to physics to feel honest; out of scope.
+- **Gravity-lag seed** — kept only as the Day-2 fallback (see below), not built.
+- **Speedrun timer as score** (kahneman: reframes play as evaluation, hurts onboarding). A **Replay** mode
+  with a timer unlocks *after* the first completion; no ghost, no leaderboard.
+- **Visible gravity echoes / ghost trails** (torvalds: SubViewport + material work, zero gameplay).
+- **Runtime LLM calls in gameplay** — latency kills a puzzle game; Meta models are used at build time plus
+  one optional in-game "fold log" narrator (see below).
 
-| # | Question | Options | Why it matters |
-| --- | --- | --- | --- |
-| D1 | Player controller | first-person walker vs. third-person character | third-person sells the fold-object scale; FP is cheaper to build |
-| D2 | Do folds move with the world? | static once placed vs. carried and thrown | carrying is the signature mechanic, throwing is a stretch goal |
-| D3 | Time-rate difference | real mechanic (child scene runs at ×N) vs. cosmetic | real time-dilation is heavy; a "delayed consequence" queue is cheap and reads the same in a demo |
-| D4 | Number of fold types | one generic fold vs. two (light/heavy, like/unlike pole) | two types double the puzzle vocabulary; one type is safer |
-| D5 | Art route | Muse Image textures vs. untextured primitives + strong lighting | assets eat days; lighting is free |
-| D6 | Meta models in the loop | build-time (text, art) vs. runtime (LLM-driven NPC/mission text) | runtime scores higher on "Use of Meta AI Tooling" but adds latency risk |
+## Where Meta models are load-bearing
 
-## Alternate seeds (kept for reference, council may prefer one)
+| Use | Model | Why it earns its place |
+| --- | --- | --- |
+| Room briefings, hint ladders, journal fragments — generated as JSON at build time, checked into `game/data/` | `muse-spark-1.3` (structured output) | Puzzle hint text is the one writing job a solo dev cannot afford; schema-checked, no runtime cost |
+| 2–3 hero textures / fold shell shader input | `muse-image-1.0` | Keeps the art route cheap; marked in sidecars |
+| Demo narration + captions | `muse-voice-transcribe-1.0` | Voice-over from a phone recording, transcribed and timed |
+| Stretch: in-game "fold log" that narrates the last thing you changed | `muse-spark-1.3` | Demo-visible AI; ships only if the Nov 2 cut line allows |
 
-- **A — Polarity as society.** Everyone and everything has a fixed magnetic charge; charge gates who can
-  approach whom, and dense clusters warp gravity. You are a Null who can cross zones. (Magnetism as politics,
-  not a gadget.)
-- **B — Mass-driven nesting.** Anything above critical density collapses into a bubble universe; popping in
-  adds its mass to you. (Katamari × Gravity Rush.)
-- **C — Gravity lag.** Gravity propagates like light; a falling tower's pull reaches you seconds after you see
-  it. Read the echoes, intercept waves with magnets. (Time-adjacent without a rewind button.)
+Every artefact carries the markers in [`attribution-policy.md`](attribution-policy.md) and a row in
+[`meta-usage-log.md`](meta-usage-log.md).
 
-Mashups are allowed (B's mass + C's lag is a coherent single system). Decide with the council, then freeze.
+## Fallback (decided in advance)
+
+If by **end of Day 2 (Oct 28)** gravity override + delayed consequence are not both demonstrably working,
+freeze the feature set to: **one fold, gravity override only, three rooms, no delay** — and spend the saved
+time on the demo video. If even that fails, switch the law to **gravity lag** (Torvalds/Meadows' pick): one
+history buffer, three rooms, still one law, still ship a demo. Record the swap here before coding it.
+
+## Judging alignment
+
+| Rubric | How this concept answers it |
+| --- | --- |
+| Impact 30% | Weakest axis for any game; counter with a "playable explanation" panel: the fold law taught by play, plus a 90-second "what this models" note (scope-relative time is how nested schedulers actually behave) |
+| Use of Meta AI Tooling 25% | Four genuine uses, one demo-visible (fold log), all attributable |
+| Technical Depth 20% | One pure gravity function, one scope tree, one delay queue; headless tests for the invariants |
+| Demo 25% | Opens on the effect (break a fold → the parent world moves), never on the premise |
+
+## Demo opening (write this before coding the polish)
+
+0:00–0:10 — player drops a crate into a fold; it falls *sideways*; break the fold; the crate lands behind a
+wall in the parent world, and a door that was closed is now open. No narration. Then the title.

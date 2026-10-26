@@ -1,67 +1,83 @@
-# Research brief — paste into Gemini (web or Android, not an agent harness)
+# Gemini prompt — research + roadmap for Gravit
 
-Purpose: turn the seed concept into a roadmap we can implement in 10 days, without spending coding-agent
-quota. Gemini does the reading; this repo keeps the decisions.
+Paste the block below into **Gemini web or the Android app** (not an agent harness: this is the cheap,
+unmetered reading pass). Use **Deep Research** — the report is the point. Bring the output back here; I distil
+it into `ROADMAP.md`, `tickets/`, and the concept freeze.
 
-## Prompt (copy everything in the block)
+## Prompt (copy everything between the lines)
 
 ```text
-I have 10 days to build a small 3D puzzle game in Godot 4 for the Meta Global AI Developer Hackathon.
-Solo developer, first game, first time using Godot. The demo is a 3-minute video and the judging rubric is:
-Impact 30%, Use of Meta AI Tooling 25%, Technical Depth & Execution 20%, Demo 25%.
+You are helping a solo developer ship a small 3D puzzle game in 10 days. Give me a research report with a
+concrete plan, not encouragement.
 
-The one invented law of nature: space can be folded. A "fold" is a pocket universe you can pick up, carry,
-place, or break. Each fold has its own gravity direction/strength, its own magnetic direction, and its own
-clock — time runs faster the deeper the fold. Magnets let you drag a fold from outside and keep two folds
-from colliding. Because a fold runs fast, a fix made inside it lands in the parent world a few seconds later.
-Setting: post-collapse world built on this law; folds are infrastructure (storage, smuggling, shortcuts) and
-hazard (unstable folds swallow city blocks).
+FIXED FACTS — do not renegotiate these
+- Event: Meta Global AI Developer Hackathon, Oct 26 12:00 PM ET kickoff, submission Nov 4 9:00 PM ET.
+- Solo, first game ever, first time using Godot 4 (4.3+). I code with an AI assistant, so scenes/scripts must
+  stay plain text (.tscn/.gd).
+- Judging: Impact 30%, Use of Meta AI Tooling 25%, Technical Depth & Execution 20%, Demo 25%. Rules forbid
+  political or war themes, and the demo may show only what I built during the event.
+- Deliverable: ONE course of 3-4 rooms in 3D, playable, where the exit is reachable only by using the invented
+  law. No story mode, no menus beyond start/restart, no saving. A 3-minute demo video is mandatory.
+- Meta models are available through the Meta Model API (OpenAI-compatible base URL https://api.meta.ai/v1):
+  muse-spark-1.3 (text/image/video/PDF in, 1M context, reasoning_effort), muse-image-1.0, sam-3.1,
+  muse-voice-transcribe-1.0, muse-wonder-1.0. Build-time use is fine; runtime use is optional.
 
-The deliverable: one course of 3-4 rooms, walkable, where you must fold and break to reach an exit that is
-otherwise unreachable. Nothing else. No story mode, no menus beyond start/restart.
+THE FROZEN CONCEPT
+Law: gravity and time are properties of the scope you are in. Space can be folded: a fold is a bounded region
+you can carry, place and break. Inside a fold you fall toward the fold's own down, and your clock runs at the
+fold's rate. Anything set going inside a fold arrives in the parent world late — the deeper the fold, the later.
+A fold is NOT a separate world/scene — it is a region that overrides gravity and a time factor for whatever is
+inside it (no nested viewports). Two parameters per fold: gravity direction, clock factor.
+Mechanics to build: walk/ look/ jump; place a fold; carry it; break it; fall the fold's way inside; one delayed
+consequence applied to the parent world; a final door that opens only from an event queued through a fold.
+Deliberately cut: magnets, polarity, mass-nesting, visible gravity echoes, speedrun score (a Replay timer unlocks
+after first completion), runtime LLM calls in gameplay.
 
-Please research and report, with sources:
+QUESTIONS I NEED ANSWERED
+1. GODOT 4.3 IMPLEMENTATION, with exact node types and minimal code shapes:
+   a) One pure function applied_gravity(body, t) shared by the player (CharacterBody3D, manual gravity) and
+      RigidBody3D objects. How do I make an Area3D region override gravity for both without fighting Godot's
+      built-in gravity, and what are the known pitfalls (Area3D priority, gravity_point, up_direction,
+      move_and_slide, physics interpolation in 4.3)?
+   b) A per-region "clock factor": what is the cheapest honest way to make objects inside a fold move faster
+      without a separate SceneTree or Engine.time_scale (which would speed the whole game)? Compare
+      (i) scaling delta for bodies in the region, (ii) a delayed-consequence queue, (iii) a subviewport.
+      Recommend one for a beginner and say what breaks.
+   c) Carrying and placing a fold that contains physics objects: keep them as children of the fold
+      Area3D/Node3D, or reparent on pickup? Which causes the fewest transform and physics bugs in Godot 4.3?
+   d) A delayed consequence: queue (body, impulse, due_time) and apply it later, with a visible countdown.
+      Show the minimal GDScript and the failure modes (paused physics, freed bodies, double-apply).
+2. HEADLESS TESTS in Godot 4.3 for these invariants: (i) fold scopes form a tree, (ii) gravity inside a fold
+   equals the fold's, (iii) a queued consequence fires exactly once at the expected time, (iv) breaking a fold
+   moves its contents to the parent scope without loss. Give the CLI invocation and a minimal test harness.
+3. PRIOR ART and defensible differentiation: Portal, Manifold Garden, Maquette, Superliminal, Gravity Rush,
+   Outer Wilds, The Sojourn, and indie nested-world games. For each, the core verb. Then the ONE sentence I can
+   say that is both true and distinctive for this concept, plus the two comparisons a judge will make and how I
+   pre-empt them in the demo video.
+4. PSYCHOLOGY OF THE FIRST THREE MINUTES: what concretely makes a puzzle room read as fair, teachable and
+   rewarding (competence, curiosity gap, predictable failure cost, telegraphing, one-idea-per-room), with
+   sources. Then a specific teach-by-doing sequence for rooms 1-3 (what the player sees, does, and learns in each),
+   designed so a first-time player cannot get permanently stuck.
+5. META MODEL API USE THAT JUDGES WOULD SCORE: with the constraint that a puzzle game must not have LLM latency
+   in the loop, which uses are defensible — build-time hint ladders and room briefings as JSON, texture
+   generation, narration/transcription, an in-game "fold log" narrator that summarises the last change, or
+   something better I have not thought of? For each: implementation cost in days, demo visibility, and the
+   failure mode. Recommend two.
+6. 10-DAY PLAN with a hard CUT LINE on Nov 2: day-by-day tasks, an explicit "if this is not working by Oct 28,
+   fall back to X" checkpoint, the three riskiest items with fallbacks, and the last-two-days demo plan (record,
+   edit, submit).
+7. DEMO SCRIPT for exactly 3:00: second-by-second beats, what is on screen, what the voice-over says (max ~45
+   seconds of speech total), and which rubric axis each beat targets.
 
-1. GAME DESIGN. For this exact constraint (3-4 rooms, 10 days, one mechanic family), what makes a puzzle
-   game read as "fun" in a 3-minute demo? Give concrete design rules: teach-by-doing sequencing, one screen
-   one idea, telegraphing, fail states that are cheap to retry, what to cut. Cite puzzle-game design writing
-   and postmortems of small 3D puzzle games.
-2. PRIOR ART. What already exists with folded/nested space, gravity direction changes and magnetic dragging?
-   (Portal, Manifold Garden, Maquette, Superliminal, Gravity Rush, Outer Wilds, The Turing Complete-like
-   nested-world indies...) For each: what is the core verb, and which of our ideas would look derivative?
-   Name the differentiator we can defend in one sentence.
-3. GODOT 4 FEASIBILITY. For a beginner with an AI coding assistant: the cheapest reliable way to implement
-   (a) a first/third-person controller, (b) an "object with its own gravity" in Godot 4 3D (Area3D gravity
-   override vs. custom gravity in the character body vs. a subviewport scene), (c) picking up and placing a
-   container that holds a scene, (d) a magnet drag at range, (e) simple polarity repulsion between two
-   bodies. Give the recommended approach per item, with the Godot 4.x class names and the known pitfalls
-   (e.g. CharacterBody3D up_direction, gravity vector, RigidBody3D custom gravity, Area3D priority).
-4. TIME-DILATION. Compare: real scene time-scale difference (subviewport with Engine.time_scale or a separate
-   SceneTree) vs. a "delayed consequence queue" that fakes it. Which one can a beginner ship in 10 days, and
-   which reads better on video? Recommend one.
-5. AI TOOLING ANGLE. The rubric gives 25% to "use of Meta AI Tooling". What are honest, non-gimmicky ways for
-   a game to use an LLM API (Muse Spark) that judges would score well: build-time content generation, runtime
-   NPC/mission text, generated puzzle hints, voice narration, texture generation, segmentation for art. Which
-   of these are demo-visible in 3 minutes, and which are cheap to implement in Godot 4?
-6. 10-DAY PLAN. A day-by-day plan (Oct 27 - Nov 4) with a hard "cut line": what must work by Nov 2 so the
-   last two days are demo, polish and submission. Flag the three riskiest items and the fallback for each.
-7. DEMO SCRIPT. A 3-minute video script skeleton (0:00-0:20 hook, mechanic reveal, one puzzle solved,
-   AI-tooling proof, what is next). Keep it honest about scope.
-
-Format: sections 1-7, each with a short recommendation first, then evidence and links. Mark anything you
-could not verify. No filler.
+FORMAT: sections 1-7, each starting with a one-paragraph recommendation, then evidence with links. Mark anything
+you could not verify as UNVERIFIED. No filler, no encouragement, no restating my constraints back to me.
 ```
 
 ## What to bring back
 
-Save the full answer as `docs/research/gemini-<date>.md`, then distil it into:
-
-- `ROADMAP.md` — phases, cut line, risks (delete the placeholder table).
-- `docs/game-concept.md` — freeze D1–D6 with one line of reasoning each.
-- `tickets/` — one file per tracer-bullet ticket with blocking edges.
-
-## Second pass (optional, still on Gemini)
-
-Ask a follow-up only for the two decisions that stayed open, e.g. "give me the exact Godot 4 node tree and
-code skeleton for custom gravity inside an Area3D, minimal working example, with the pitfalls". Do not ask it
-to write the whole game — the harness writes the code, Gemini does the reading.
+1. Save the full report as `docs/research/gemini-<date>.md` (verbatim, with links).
+2. I distil it into `ROADMAP.md` (phases + cut line), `tickets/` (tracer bullets with blocking edges), and the
+   frozen mechanics in `docs/game-concept.md`.
+3. Only ask Gemini a follow-up for a decision that is still open — e.g. "show me the minimal working GDScript for
+   `applied_gravity()` with an Area3D region and a CharacterBody3D, with the pitfalls". Never ask it to write the
+   whole game: the harness writes code, Gemini does the reading.
