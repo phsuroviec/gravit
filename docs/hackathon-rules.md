@@ -82,6 +82,20 @@ Three of these are reachable for a game built the way we are building it: **Best
 invented law of physics), **Best Build on Meta Open Weight Models** (if a visible part of the build genuinely runs
 on `muse-spark-open-1026`), and **Best Agentic Use-Case** (only if the build has an agent, not a prompt).
 
+## FAQ corrections (Discord, Kai | CV)
+
+- **Building period starts after the kickoff session** (Oct 26, 12:00 PM ET) — not before. Our repo was created
+  after the kickoff; anything earlier would not count.
+- **Collaborators must be approved participants.** No new approvals (at capacity). Confirms the solo entry.
+- **Prior-codebase projects:** the submitted repo must be a **standalone extract / fresh repo** containing only
+  work done during the event, and the demo's first line must say what was pre-existing vs built this week.
+  Gravit's answer is simple: the repository itself is new, so the opening line is "nothing pre-existing — this
+  repo and everything in it was built during the hackathon".
+- **Most Viral Project:** post the demo on X and submit the post link through the platform; engagement counts
+  through **Nov 8 end of day**. Community voting opens **Nov 9**, one vote per verified account.
+- **Card:** a temporary pre-authorisation charge appears when a payment method is added and clears in a few
+  business days; a "card restricted" error means Meta's payment check failed and a different card is needed.
+
 ## Rubric discrepancy — record both readings
 
 - Guide page (screenshot): Impact 30%, Use of Meta AI Tooling 25%, Technical Depth & Execution 20%, Demo 25%.

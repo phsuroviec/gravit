@@ -76,6 +76,19 @@ logged in `docs/meta-usage.jsonl`, so the split is visible rather than implied.
 - Keep the Spend Limit at $150 until submission; raise only after the demo is recorded.
 - Track spend against `docs/meta-usage-log.md` — one row per job, so cost per artefact is visible.
 
+## 5b. Claiming everything (expiry is unknown, so claim now)
+
+- Apply to **every** partner that is open (Meta $150, Baseten $100 + 2M TPM, Modal $100, Fireworks when
+  announced). Cost of applying is a form; the cost of missing the window is a lost credit line.
+- Credits are **personal use only** and discretionary — approval is not guaranteed.
+- **Expiry is not stated** on the Baseten form, the Modal page, or the event page. Check the expiry in each
+  dashboard after selection and note it in `docs/meta-usage-log.md`. Do not assume they expire after the
+  hackathon, and do not assume they never expire — verify once, write it down.
+- Baseten needs **no sign-up to apply**: selected participants get an e-mail with onboarding instructions for
+  Muse Spark Open.
+- Keep using the Meta credits for judge-visible artefacts (see the verdict table in §4b); partner credits are
+  for bulk drafts.
+
 ## 6. What is still unknown (answer via Discord `#questions` / office hours)
 
 - Whether the $20/month Meta plan covers Model API usage or only the consumer apps (assume **API = credits**).

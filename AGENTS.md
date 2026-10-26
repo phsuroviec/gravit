@@ -48,6 +48,12 @@ Meta models are the ones being showcased, and their output is marked so the dist
 | Art, textures, audio | Meta Image / Muse Voice Transcribe; log each use |
 | Judging-facing text (README, demo script) | Here, reviewed by the human |
 
+## Demo opening line (required by the rules)
+
+The video's first line states what was pre-existing and what was built during the event. For Gravit:
+**"Nothing pre-existing — this repository and everything in it was built during the hackathon."** Say it in the
+first five seconds, on screen and in voice.
+
 ## Definition of done for the hackathon
 
 - `game/` runs from a clean checkout: open in Godot 4, press play, course is playable.
