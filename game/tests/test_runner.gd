@@ -5,6 +5,7 @@ extends SceneTree
 
 const FoldScope = preload("res://scripts/fold_scope.gd")
 const ConsequenceQueue = preload("res://scripts/consequence_queue.gd")
+const ScopeBody = preload("res://scripts/scope_body.gd")
 
 const GRAV := 9.8
 
@@ -16,6 +17,8 @@ func _init() -> void:
 	test_ii_gravity_inside_fold()
 	test_iii_consequence_fires_once_on_time()
 	test_iv_breaking_fold_preserves_contents()
+	test_v_player_follows_scope_gravity()
+	test_vi_rigid_bodies_share_applied_gravity()
 	if _failures == 0:
 		print("=== ALL 4 INVARIANTS PASSED ===")
 		quit(0)
@@ -147,4 +150,50 @@ func test_iv_breaking_fold_preserves_contents() -> void:
 	_assert(leaf.parent_scope == outer, "(iv) child fold reparented to grandparent")
 	_assert(not (inner in scopes), "(iv) broken fold removed from active scopes")
 	_assert(inner.contents.is_empty(), "(iv) broken fold left empty")
+	room.free()
+
+# Invariant (v): the player reads the one applied_gravity, up_direction follows
+# the current scope (sideways on a fold wall), and returns to normal outside.
+# Camera look never rolls.
+func test_v_player_follows_scope_gravity() -> void:
+	var room := _make_room("Room5")
+	var packed := load("res://player.tscn") as PackedScene
+	_assert(packed != null and packed.can_instantiate(), "(v) Player.tscn loads")
+	var player = packed.instantiate()
+	room.add_child(player)
+	var fold = FoldScope.new()
+	fold.name = "WallFold"
+	fold.gravity_dir = Vector3.RIGHT
+	room.add_child(fold)
+	fold.add_body(player)
+	player.active_scopes = [fold]
+	var expected: Vector3 = FoldScope.applied_gravity(player, 0.0, player.active_scopes)
+	_assert(player.scope_gravity().is_equal_approx(expected), "(v) player uses the one applied_gravity")
+	_assert(expected.is_equal_approx(Vector3(GRAV, 0, 0)), "(v) fold gravity is sideways")
+	player.align_to_gravity(player.scope_gravity())
+	_assert(player.up_direction.is_equal_approx(Vector3(-1, 0, 0)), "(v) up_direction follows scope")
+	player.active_scopes = []
+	player.align_to_gravity(player.scope_gravity())
+	_assert(player.up_direction.is_equal_approx(Vector3.UP), "(v) steps out, lands normally")
+	player.apply_look(Vector2(10, 10))
+	var cam := player.get_node("Camera3D") as Camera3D
+	_assert(cam.rotation.z == 0.0, "(v) camera never rolls")
+	_assert(absf(cam.rotation.x) <= 1.41, "(v) pitch clamped")
+	room.free()
+
+# Invariant (vi): rigid bodies read the same applied_gravity as the player
+# (one function, no per-body paths) and defer engine gravity to it.
+func test_vi_rigid_bodies_share_applied_gravity() -> void:
+	var room := _make_room("Room6")
+	var fold = FoldScope.new()
+	fold.name = "Fold"
+	fold.gravity_dir = Vector3.UP
+	room.add_child(fold)
+	var cube = ScopeBody.new()
+	cube.name = "Cube"
+	room.add_child(cube)
+	_assert(cube.gravity_scale == 0.0, "(vi) body defers engine gravity to applied_gravity")
+	fold.add_body(cube)
+	var scopes: Array = [fold]
+	_assert(FoldScope.applied_gravity(cube, 0.0, scopes).is_equal_approx(Vector3(0, GRAV, 0)), "(vi) rigid body reads same fold gravity as player")
 	room.free()
