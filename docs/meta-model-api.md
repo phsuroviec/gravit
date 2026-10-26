@@ -21,6 +21,22 @@ client = OpenAI(base_url="https://api.meta.ai/v1", api_key=os.environ["MODEL_API
 The key never enters this repo. It lives in the host env file (`~/.ccgram/.env` on the reference node) and is
 read through the environment, never hard-coded.
 
+## Rate card we plan against
+
+Read from the pi model catalog (`muse-spark-*` entries) on 2026-10-26. Cross-check the Billing page before trusting
+it; the event guide's own pricing page is client-rendered and I could not read a table from it.
+
+| Model | Input /M | Output /M | Cache read /M |
+| --- | --- | --- | --- |
+| `muse-spark-1.3` (and 1.1 / 1.2) | $1.25 | **$4.25** | $0.15 |
+| `muse-spark-1.3-contributor` | $0.10 | $0.20 | $0.002 |
+| `muse-spark-1.3-contributor-free` | $0 | $0 | $0 |
+
+Consequence for budgeting: **$150 buys roughly 35M output tokens** of `muse-spark-1.3` (or far more with cache
+reads and short prompts). Our build-time generation is a few million tokens at most, so the $150 is not the
+constraint — wall-clock time is. Do not buy a subscription plan to "save credits"; the plan does not spend
+against Model API usage.
+
 ## Models
 
 | Model ID | Input → output | Notes |
