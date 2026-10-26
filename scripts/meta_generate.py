@@ -34,6 +34,26 @@ import urllib.request
 from pathlib import Path
 
 BASE = os.environ.get("META_API_BASE", "https://api.meta.ai/v1")
+ENV_FILE = Path(os.environ.get("CCGRAM_ENV_FILE", "~/.ccgram/.env")).expanduser()
+
+
+def load_key() -> str:
+    """MODEL_API_KEY from the environment, else from the host env file (~/.ccgram/.env).
+
+    The file is the same one the harness reads, so a key pasted there works for this script,
+    for `pi`, and for anything else on the node without exporting it into every process.
+    """
+    key = os.environ.get("MODEL_API_KEY", "").strip()
+    if key:
+        return key
+    try:
+        for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line.startswith("MODEL_API_KEY="):
+                return line.split("=", 1)[1].strip().strip('"').strip("'")
+    except OSError:
+        pass
+    return ""
 ROOT = Path(__file__).resolve().parent.parent
 LEDGER = ROOT / "docs" / "meta-usage.jsonl"
 
@@ -83,7 +103,7 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--json-schema", help="optional JSON schema file for structured output")
     args = ap.parse_args(argv[1:])
 
-    key = os.environ.get("MODEL_API_KEY", "")
+    key = load_key()
     if args.spend:
         # Token totals only: pricing lives in the provider's Billing page, not in this repo.
         rows = [json.loads(l) for l in LEDGER.read_text().splitlines() if l.strip()] if LEDGER.exists() else []

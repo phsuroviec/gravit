@@ -10,7 +10,7 @@ Re-verify model IDs before the demo; they carry version numbers.
 | Base URL | `https://api.meta.ai/v1` |
 | SDK | OpenAI Python SDK (`from openai import OpenAI`) — the official Model API client package is out of date, do not use it |
 | Model | `muse-spark-1.3` (docs' default) |
-| Key env var | `MODEL_API_KEY`, format `LLM\|{numeric_id}\|{secret}` |
+| Key env var | `MODEL_API_KEY` — the value shipped as a single `LLM_...` string (the cookbook's `LLM\|{id}\|{secret}` shape is the older form; both are just an opaque Bearer token) |
 
 ```python
 import os
@@ -70,6 +70,14 @@ Recipes that matter for us: `01_chat_completions`, `03_tool_calling`, `04_struct
 | Cut-out masks for assets | `sam-3.1` | segment art for alpha channel |
 | Long agent sessions (asset pipeline, refactors) | `muse-wonder-1.0` | built for long-horizon runs |
 | Code authoring | Muse Code or this harness | log which model wrote what |
+
+## Verified against the live API (2026-10-26)
+
+- Chat completion on `muse-spark-1.3` → HTTP 200, `chatcmpl-…` id, usage block present.
+- **Tool calling works**: a request declaring one function returned `tool_calls` with arguments, plus reasoning tokens.
+- **Reasoning eats the output budget**: `max_tokens: 8` returned `completion_tokens: 8` of which 6 were reasoning —
+  `content` was empty. Set `max_tokens` ≥ 800 for real generation, or read `reasoning_content` if you only want thinking.
+- Prompt caching is live (`cached_tokens` in `prompt_tokens_details`).
 
 ## Which wallet pays for which call
 
