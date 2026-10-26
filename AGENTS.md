@@ -32,6 +32,13 @@ Any agent (pi, Claude Code, Codex, Muse Code, Gemini, a human) working in this r
 5. **Verify before claiming done**: run the check, state the command and its output.
 6. **Commit** small and often; push to `main` (solo repo). No force-push after submission.
 
+**Solo entry.** One person (Indie Developer track). Do not add co-authors, and do not accept teammate
+help that would need crediting: the submission lists everyone who worked on it.
+
+**Tooling disclosure.** Planning used a multi-persona review (the council skill) and research drafts from
+Gemini; implementation uses a coding agent. That is ordinary tooling, disclosed in `docs/meta-usage-log.md`.
+Meta models are the ones being showcased, and their output is marked so the distinction is verifiable.
+
 ## Division of labour (cost-aware)
 
 | Job | Where |

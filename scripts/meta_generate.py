@@ -1,0 +1,156 @@
+#!/usr/bin/env python3
+"""Generate one Gravit artefact with a Meta model, and record the receipt.
+
+The point is evidence: every asset or text file produced by a Meta model is
+written by this script, which appends a row to docs/meta-usage.jsonl (model,
+purpose, response id, token usage, output hash, git commit). The judge-facing
+summary is produced by scripts/meta-proof.sh.
+
+Key handling: MODEL_API_KEY is read from the environment. Never pass it on the
+command line, never write it into the repo.
+
+Usage
+    scripts/meta_generate.py --model muse-spark-1.3 --purpose "room 2 hints" \
+        --out game/data/hints_room2.json --prompt prompts/hints_room2.txt
+    scripts/meta_generate.py --model muse-image-1.0 --prompt prompts/fold_shell.txt \
+        --out assets/fold_shell.png --purpose "fold shell texture"
+    scripts/meta_generate.py --check          # is a key present? no network call
+
+Without MODEL_API_KEY the script prints what it would send and exits 0
+(dry run), so the pipeline is testable before the credits land.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+BASE = os.environ.get("META_API_BASE", "https://api.meta.ai/v1")
+ROOT = Path(__file__).resolve().parent.parent
+LEDGER = ROOT / "docs" / "meta-usage.jsonl"
+
+TEXT_MODELS = {"muse-spark-1.3", "muse-spark-1.2", "muse-spark-1.1", "muse-wonder-1.0",
+               "muse-spark-1.3-contributor", "muse-spark-open-1026"}
+IMAGE_MODELS = {"muse-image-1.0"}
+
+
+def git_commit() -> str:
+    try:
+        return subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT,
+                              capture_output=True, text=True, timeout=10).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
+def post(path: str, payload: dict, key: str, timeout: int = 120) -> dict:
+    req = urllib.request.Request(
+        f"{BASE.rstrip('/')}/{path.lstrip('/')}",
+        data=json.dumps(payload).encode(),
+        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return json.load(resp)
+    except urllib.error.HTTPError as exc:  # surface the API's own message, not a traceback
+        detail = exc.read()[:400].decode("utf-8", "replace")
+        sys.exit(f"Meta API error {exc.code}: {detail}")
+
+
+def append_ledger(row: dict) -> None:
+    LEDGER.parent.mkdir(parents=True, exist_ok=True)
+    with LEDGER.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(row, sort_keys=True) + "\n")
+
+
+def main(argv: list[str]) -> int:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--check", action="store_true", help="report key presence and exit")
+    ap.add_argument("--model", help="Meta model id, e.g. muse-spark-1.3")
+    ap.add_argument("--purpose", default="", help="one line: what this artefact is for")
+    ap.add_argument("--prompt", help="file with the prompt (kept in prompts/)")
+    ap.add_argument("--out", help="output path (text/JSON for text models, image bytes for image models)")
+    ap.add_argument("--reasoning-effort", default=None, choices=["low", "medium", "high", "max", None])
+    ap.add_argument("--json-schema", help="optional JSON schema file for structured output")
+    args = ap.parse_args(argv[1:])
+
+    key = os.environ.get("MODEL_API_KEY", "")
+    if args.check:
+        print("MODEL_API_KEY present:", bool(key))
+        print("base:", BASE)
+        print("ledger:", LEDGER.relative_to(ROOT), "| rows:", len(LEDGER.read_text().splitlines())
+              if LEDGER.exists() else 0)
+        return 0 if key else 1
+    if not (args.model and args.prompt and args.out):
+        ap.error("--model, --prompt and --out are required (or use --check)")
+
+    prompt = Path(args.prompt).read_text(encoding="utf-8")
+    payload: dict = {"model": args.model, "messages": [{"role": "user", "content": prompt}]}
+    if args.reasoning_effort:
+        payload["reasoning_effort"] = args.reasoning_effort
+    if args.json_schema:
+        payload["response_format"] = {
+            "type": "json_schema",
+            "json_schema": json.loads(Path(args.json_schema).read_text(encoding="utf-8")),
+        }
+    if args.model in IMAGE_MODELS:
+        payload["modalities"] = ["image"]
+
+    if not key:
+        print("DRY RUN (no MODEL_API_KEY). Would POST", f"{BASE}/chat/completions")
+        print(json.dumps({k: v for k, v in payload.items() if k != "messages"}, indent=2))
+        print("prompt bytes:", len(prompt.encode()), "-> out:", args.out)
+        return 0
+
+    started = time.time()
+    resp = post("chat/completions", payload, key)
+    elapsed = round(time.time() - started, 2)
+
+    choice = (resp.get("choices") or [{}])[0]
+    content = ((choice.get("message") or {}).get("content")) or ""
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if args.model in IMAGE_MODELS:
+        # image models return base64 or a URL in the message content blocks
+        import base64
+        blocks = (choice.get("message") or {}).get("images") or []
+        data = ""
+        if blocks and isinstance(blocks[0], dict):
+            data = blocks[0].get("b64_json") or blocks[0].get("data") or ""
+        if not data:
+            sys.exit("image model returned no image block; inspect the response before writing a file")
+        out_path.write_bytes(base64.b64decode(data))
+    else:
+        out_path.write_text(content if isinstance(content, str) else json.dumps(content, indent=2),
+                            encoding="utf-8")
+
+    usage = resp.get("usage") or {}
+    append_ledger({
+        "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "model": args.model,
+        "purpose": args.purpose,
+        "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest()[:16],
+        "response_id": resp.get("id", ""),
+        "usage": {k: usage.get(k) for k in ("prompt_tokens", "completion_tokens", "total_tokens",
+                                            "reasoning_tokens") if usage.get(k) is not None},
+        "out": str(out_path.relative_to(ROOT)),
+        "out_sha256": hashlib.sha256(out_path.read_bytes()).hexdigest()[:16],
+        "seconds": elapsed,
+        "commit": git_commit(),
+    })
+    print(f"wrote {out_path.relative_to(ROOT)} ({out_path.stat().st_size} bytes) in {elapsed}s")
+    print("usage:", usage)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

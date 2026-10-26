@@ -18,6 +18,9 @@ FIXED FACTS — do not renegotiate these
   political or war themes, and the demo may show only what I built during the event.
 - Deliverable: ONE course of 3-4 rooms in 3D, playable, where the exit is reachable only by using the invented
   law. No story mode, no menus beyond start/restart, no saving. A 3-minute demo video is mandatory.
+- No servers, no GPU hosting, no accounts for the player: the game runs from Godot on a laptop, and every Meta
+  call happens at build time except, at most, one optional in-game call. A hosted inference partner (Baseten,
+  free credits, muse-spark-open-1026) may be used only for bulk drafting, never in the shipped build.
 - Meta models are available through the Meta Model API (OpenAI-compatible base URL https://api.meta.ai/v1):
   muse-spark-1.3 (text/image/video/PDF in, 1M context, reasoning_effort), muse-image-1.0, sam-3.1,
   muse-voice-transcribe-1.0, muse-wonder-1.0. Build-time use is fine; runtime use is optional.
@@ -62,7 +65,9 @@ QUESTIONS I NEED ANSWERED
    in the loop, which uses are defensible — build-time hint ladders and room briefings as JSON, texture
    generation, narration/transcription, an in-game "fold log" narrator that summarises the last change, or
    something better I have not thought of? For each: implementation cost in days, demo visibility, and the
-   failure mode. Recommend two.
+   failure mode. Recommend two. Then state the smallest honest set of Meta calls that a judge can actually see
+   in a 3-minute video, and which of those should be generated on free open-weight credits (Baseten) instead of
+   the $150 Meta credits.
 6. 10-DAY PLAN with a hard CUT LINE on Nov 2: day-by-day tasks, an explicit "if this is not working by Oct 28,
    fall back to X" checkpoint, the three riskiest items with fallbacks, and the last-two-days demo plan (record,
    edit, submit).

@@ -1,49 +1,58 @@
 # Gravit
 
-A 3D puzzle game built in **Godot 4** for the **Meta Global AI Developer Hackathon** (Oct 26 – Nov 4, 2026).
-One invented law of nature; everything else follows from it. Space can be **folded**.
+**One law of nature, one small 3D puzzle course.** Gravity and time belong to the space you are standing
+in. Space can be folded: a fold is a bounded region you can carry, place and break — inside it you fall the
+fold's way and your clock runs faster, so what you set going inside arrives in the outside world late.
 
-> Status: pre-production. Kickoff Oct 26 12:00 PM ET; code written during the hackathon window
-> Oct 27 – Nov 4. Nothing here is copied from a pre-existing product.
+Built solo during the **Meta Global AI Developer Hackathon** (Oct 26 – Nov 4, 2026) with **Meta models** for
+the parts a solo developer cannot do alone: room briefings, hint ladders, textures and the demo narration.
 
-## The law
+> Status: **pre-production** — concept frozen, roadmap being filled from the research pass. Game code lands
+> Oct 27 onward. Nothing here predates the hackathon window.
 
-A fold is a pocket of space you can pick up, carry, place, or break. Each fold carries its own gravity,
-its own magnetic direction, and its own clock: **time runs faster the deeper the fold is**. Magnets are how
-you drag a fold from outside and how you keep two folds from colliding. Because a fold runs fast, a fix made
-inside it lands in the parent world a few seconds later — that delay is the puzzle.
+## Meta models, and how it is proven
 
-## Must-haves (hackathon rules)
+| Used for | Model | Where it shows |
+| --- | --- | --- |
+| Room briefings, hint ladders (build-time JSON) | `muse-spark-1.3` | `game/data/*.json` + markers |
+| Fold shell / hero textures | `muse-image-1.0` | `assets/*` + `.meta.md` sidecars |
+| Demo narration + captions | `muse-voice-transcribe-1.0` | `docs/demo/` |
+| Optional in-game "fold log" narrator | `muse-spark-1.3` | only if the Nov 2 cut line allows |
 
-- Public repository (this one), all work built within the hackathon window.
-- Uses Meta models where they earn their place, and says exactly where: see
-  [`docs/attribution-policy.md`](docs/attribution-policy.md).
-- 3-minute demo video of what was actually built.
-- Submission by **Wed Nov 4, 2026, 9:00 PM ET** via the Cerebral Valley platform.
+Every Meta-generated artefact is **written by one script** (`scripts/meta_generate.py`), which appends a
+receipt — model, response id, token usage, output hash, git commit — to `docs/meta-usage.jsonl`, and the file
+itself carries `# --- meta-model: <id> | <date> | <purpose> ---` / `# --- end meta-model ---` markers.
+`sh scripts/meta-proof.sh` renders both into [`docs/meta-proof.md`](docs/meta-proof.md).
 
-## Layout
+## Run it
 
+```bash
+# Godot 4.3+ ; open the game/ folder as a project and press play
+godot --path game
 ```
-game/        Godot project (scenes, scripts, assets)
-docs/        rules, API notes, concept, roadmap, research brief, credit guides
-scripts/     repo tooling (secret scan)
-```
 
-## Read before writing code
+Nothing else is required to play. Generation scripts need `MODEL_API_KEY` in the environment (never in this
+repo); without it they run in dry-run mode and print the request they would send.
 
-| Doc | Why |
+## Repo map
+
+| Path | What |
 | --- | --- |
-| [`AGENTS.md`](AGENTS.md) | Working agreement for any agent in this repo |
-| [`docs/hackathon-rules.md`](docs/hackathon-rules.md) | Deadlines, judging rubric, disqualifiers |
-| [`docs/game-concept.md`](docs/game-concept.md) | Current concept + alternates + open decisions |
-| [`ROADMAP.md`](ROADMAP.md) | Phases to Nov 4; filled in from the research report |
-| [`docs/meta-model-api.md`](docs/meta-model-api.md) | Model IDs, endpoint, key handling |
-| [`docs/attribution-policy.md`](docs/attribution-policy.md) | How Meta-generated code is marked |
+| `game/` | Godot project — scenes, scripts, generated data |
+| `docs/game-concept.md` | the frozen law, mechanics, cut list, fallbacks |
+| `docs/meta-proof.md` | generated evidence: receipts + markers |
+| `docs/attribution-policy.md` | how model-generated code/assets are marked |
+| `docs/meta-usage-log.md` | one row per generation job, plus non-Meta tooling disclosure |
+| `docs/hackathon-rules.md` | internal checklist: deadlines, rubric, DQ traps (not part of the pitch) |
+| `ROADMAP.md` | phases to Nov 4 with the Nov 2 cut line |
+| `docs/research-brief.md` | the research prompt the plan was built from |
+| `scripts/` | Meta generator, proof builder, secret scan, attribution audit |
+| `AGENTS.md` | working agreement for any agent in this repo |
 
 ## Secrets
 
-No keys in this repo, ever. `MODEL_API_KEY` and every other credential live outside the project
-(`~/dev/env`-style files or the host's keychain). `scripts/check-secrets.sh` runs on every commit.
+No credentials in this repo. `MODEL_API_KEY` and friends live in the host environment; a pre-commit hook
+(`scripts/check-secrets.sh`) blocks key-shaped strings and credential files.
 
 ## License
 

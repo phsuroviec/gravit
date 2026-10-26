@@ -54,6 +54,18 @@ curl -s -o /dev/null -w '%{http_code}\n' https://api.meta.ai/v1/models \
 1. Request form on the event page; credits go to shortlisted teams reviewed with Fireworks.
 2. If selected, redemption details arrive by e-mail. Low priority — claim it, do not design around it.
 
+## 4b. What we actually claim, and why
+
+| Partner | Claim it? | Use it for | Why |
+| --- | --- | --- | --- |
+| Meta Model API ($150) | **Yes, first** | `muse-spark-1.3` hint ladders + room briefings, `muse-image-1.0` textures, `muse-voice-transcribe-1.0` narration | Only these count for the "Meta Model API" clause of the rules and the 25% tooling axis |
+| Baseten ($100 + 2M TPM) | **Yes** | bulk text generation on `meta-models/muse-spark-open-1026`: draft hint variants, flavour text, naming, rewrites | Saves the $150 Meta credits for demo-critical calls; also satisfies "run Meta open-weight models" |
+| Modal ($100) | Only if needed | nothing planned | A Godot game needs no GPU hosting or sandboxes; claiming it without using it is noise |
+| Fireworks ($25) | Claim if shortlisted | spare capacity for open-weight experiments | Slow, shortlist-gated, low value for this project |
+
+Rule of thumb: **Meta credits buy the parts judges see; Baseten free credits buy the bulk drafts.** Both are
+logged in `docs/meta-usage.jsonl`, so the split is visible rather than implied.
+
 ## 5. Spend discipline
 
 - Model API credits are **per person**; the $20/month plan question is separate — the hackathon path is

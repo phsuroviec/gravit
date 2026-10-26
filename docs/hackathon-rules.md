@@ -1,7 +1,10 @@
 # Hackathon rules — extracted from the official guide
 
-Source: Cerebral Valley event page screenshots (Oct 26, 2026). Keep this file authoritative for the team;
-re-check against the live page if anything looks stale.
+> **Internal checklist, not part of the pitch.** Kept in-repo so deadlines, the rubric and DQ traps are one
+> grep away while working. The README is the judge-facing surface.
+
+Source: Cerebral Valley event page screenshots (Oct 26, 2026). Re-check against the live page if anything
+looks stale. Track: **Indie Developer** (solo, no team, no startup entity).
 
 ## Dates (all Eastern Time)
 
