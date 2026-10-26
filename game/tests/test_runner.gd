@@ -6,6 +6,7 @@ extends SceneTree
 const FoldScope = preload("res://scripts/fold_scope.gd")
 const ConsequenceQueue = preload("res://scripts/consequence_queue.gd")
 const ScopeBody = preload("res://scripts/scope_body.gd")
+const FoldBox = preload("res://fold_box.tscn")
 
 const GRAV := 9.8
 
@@ -19,6 +20,7 @@ func _init() -> void:
 	test_iv_breaking_fold_preserves_contents()
 	test_v_player_follows_scope_gravity()
 	test_vi_rigid_bodies_share_applied_gravity()
+	test_vii_carry_place_break()
 	if _failures == 0:
 		print("=== ALL 4 INVARIANTS PASSED ===")
 		quit(0)
@@ -196,4 +198,52 @@ func test_vi_rigid_bodies_share_applied_gravity() -> void:
 	fold.add_body(cube)
 	var scopes: Array = [fold]
 	_assert(FoldScope.applied_gravity(cube, 0.0, scopes).is_equal_approx(Vector3(0, GRAV, 0)), "(vi) rigid body reads same fold gravity as player")
+	room.free()
+
+# Invariant (vii): carry a fold with a cube inside, place it, break it.
+# Bodies stay parented to the room root throughout (never under the moving
+# fold): pickup freezes them, place teleports by the fold delta, break returns
+# contents to the parent scope. No desync, no double fire.
+func test_vii_carry_place_break() -> void:
+	var room := _make_room("Room7")
+	var outer = FoldScope.new()
+	outer.name = "Outer"
+	room.add_child(outer)
+	var fold = FoldBox.instantiate()
+	fold.name = "Fold"
+	fold.position = Vector3(1, 0, 0)
+	room.add_child(fold)
+	var scope = fold.get_scope()
+	outer.add_child_scope(scope)
+	var cube = ScopeBody.new()
+	cube.name = "Cube"
+	cube.position = Vector3(1, 2, 0)
+	room.add_child(cube)
+	scope.add_body(cube)
+	var scopes: Array = [outer, scope]
+	var anchor := Node3D.new()
+	anchor.name = "Anchor"
+	room.add_child(anchor)
+	_assert(fold.get_parent() == room and cube.get_parent() == room, "(vii) setup flat under room")
+	fold.pickup(anchor)
+	_assert(cube.freeze == true, "(vii) pickup freezes bodies inside")
+	_assert(fold.is_carried() and fold.get_parent() == room and cube.get_parent() == room, "(vii) fold latched to anchor, everyone stays parented to room")
+	fold.place(room, Vector3(5, 0, 0))
+	_assert(fold.get_parent() == room and fold.position.is_equal_approx(Vector3(5, 0, 0)), "(vii) fold placed at target")
+	_assert(cube.position.is_equal_approx(Vector3(5, 2, 0)), "(vii) body teleported by fold delta, no desync")
+	_assert(cube.freeze == false and scope.has_body(cube), "(vii) place unfreezes, membership kept")
+	scope.remove_body(cube)
+	_assert(not scope.has_body(cube), "(vii) exited body leaves scope")
+	scope.add_body(cube)
+	var cq = ConsequenceQueue.new()
+	cq.name = "Queue"
+	room.add_child(cq)
+	var item = cq.enqueue(cube, Vector3(0, 0, -10), 0.5)
+	fold.break_fold(room, scopes)
+	_assert(outer.has_body(cube), "(vii) break returns contents to parent scope")
+	_assert(not (scope in scopes), "(vii) broken fold leaves active set")
+	_assert(cube.freeze == false, "(vii) break unfreezes")
+	cq.step_clock(1.0)
+	_assert(item.fired == true and cq.pending() == 0, "(vii) queued impulse still fires exactly once")
+	fold.free()
 	room.free()

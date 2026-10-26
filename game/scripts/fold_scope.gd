@@ -52,6 +52,11 @@ func add_body(body: Node3D) -> void:
 	if not contents.has(path):
 		contents.append(path)
 
+func remove_body(body: Node3D) -> void:
+	for path in contents.duplicate():
+		if get_node_or_null(path) == body:
+			contents.erase(path)
+
 func has_body(body: Node3D) -> bool:
 	for path in contents:
 		if get_node_or_null(path) == body:
