@@ -1,0 +1,31 @@
+{
+  "title": "Gravit room layout variant",
+  "type": "object",
+  "required": ["name", "folds", "cube", "pad", "door", "player_spawn", "meta_model"],
+  "properties": {
+    "meta_model": {
+      "type": "string",
+      "description": "Attribution marker string: model id, date, purpose."
+    },
+    "name": {"type": "string"},
+    "folds": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["pos", "gravity_dir", "clock_factor", "holds_cube"],
+        "properties": {
+          "pos": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+          "gravity_dir": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+          "clock_factor": {"type": "number", "exclusiveMinimum": 0},
+          "holds_cube": {"type": "boolean"}
+        }
+      }
+    },
+    "cube": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+    "pad": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+    "door": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+    "player_spawn": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3}
+  }
+}

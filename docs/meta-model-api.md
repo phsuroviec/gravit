@@ -96,6 +96,10 @@ Recipes that matter for us: `01_chat_completions`, `03_tool_calling`, `04_struct
 - **Reasoning eats the output budget**: `max_tokens: 8` returned `completion_tokens: 8` of which 6 were reasoning —
   `content` was empty. Set `max_tokens` ≥ 800 for real generation, or read `reasoning_content` if you only want thinking.
 - Prompt caching is live (`cached_tokens` in `prompt_tokens_details`).
+- Images (2026-10-26): `muse-image-1.0` runs on `POST /images/generations` with
+  `{"model", "prompt"}` and returns `data[0].b64_json` in **WebP** bytes — not via
+  chat `modalities` (rejected: expected `text` or `audio`). `scripts/meta_generate.py
+  --model muse-image-1.0` follows this shape.
 
 ## Which wallet pays for which call
 

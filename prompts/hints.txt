@@ -1,0 +1,30 @@
+You write in-game text for Gravit, a 3D puzzle game with one law: gravity and time are
+properties of the scope you are standing in. A fold is a bounded region with its own gravity
+direction and clock rate. The player carries folds, places them, and breaks them; breaking a
+fold drops its contents where it stands. Consequences queued inside a fold arrive late.
+
+The three rooms:
+- Room 1 "First Fall": a fold with sideways gravity (falls right). A cube inside falls
+  sideways out of the fold, drops onto a floor pad; the pad queues a delayed impulse that
+  blasts the exit door open after a countdown.
+- Room 2 "Carry": a frozen fold holds a cube in mid-air. The player picks the fold up with
+  E, carries it to a floor plate, breaks it with X; the cube drops on the plate and the
+  door opens.
+- Room 3 "Nesting": a fold inside a fold. The inner fold (upward gravity) holds the cube;
+  breaking it returns the cube to the outer fold (leftward gravity), which bends its fall
+  onto the plate and opens the exit.
+
+Voice: terse maintenance-crew signage, second person, no lore dumps. Hints escalate: the
+first nudges, the last nearly says it. Each fold_log is one sentence describing what the
+fold just did, past tense.
+
+Output EXACTLY this JSON and nothing else (no markdown fences, no commentary):
+{
+  "meta_model": "meta-model: muse-spark-1.3 | 2026-10-26 | room briefings and hint ladders",
+  "rooms": [
+    {"id": "room1", "briefing": "...", "hints": ["...", "...", "..."], "fold_log": "..."},
+    {"id": "room2", "briefing": "...", "hints": ["...", "...", "..."], "fold_log": "..."},
+    {"id": "room3", "briefing": "...", "hints": ["...", "...", "..."], "fold_log": "..."}
+  ]
+}
+Rules: briefing >= 20 chars; 3 hints per room, each >= 10 chars; fold_log >= 10 chars.

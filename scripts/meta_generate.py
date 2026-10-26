@@ -37,19 +37,20 @@ BASE = os.environ.get("META_API_BASE", "https://api.meta.ai/v1")
 ENV_FILE = Path(os.environ.get("CCGRAM_ENV_FILE", "~/.ccgram/.env")).expanduser()
 
 
-def load_key() -> str:
-    """MODEL_API_KEY from the environment, else from the host env file (~/.ccgram/.env).
+def load_key(env_name: str = "MODEL_API_KEY") -> str:
+    """API key from the environment, else from the host env file (~/.ccgram/.env).
 
     The file is the same one the harness reads, so a key pasted there works for this script,
     for `pi`, and for anything else on the node without exporting it into every process.
+    env_name selects the wallet: MODEL_API_KEY (Meta) or e.g. BASETEN_API_KEY (open-weight).
     """
-    key = os.environ.get("MODEL_API_KEY", "").strip()
+    key = os.environ.get(env_name, "").strip()
     if key:
         return key
     try:
         for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
             line = line.strip()
-            if line.startswith("MODEL_API_KEY="):
+            if line.startswith(env_name + "="):
                 return line.split("=", 1)[1].strip().strip('"').strip("'")
     except OSError:
         pass
@@ -91,6 +92,12 @@ def append_ledger(row: dict) -> None:
         fh.write(json.dumps(row, sort_keys=True) + "\n")
 
 
+def resolve_repo_path(raw: str) -> Path:
+    """CLI paths resolve against the repo root, so the script is cwd-independent."""
+    p = Path(raw)
+    return p if p.is_absolute() else ROOT / p
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true", help="report key presence and exit")
@@ -100,10 +107,14 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--prompt", help="file with the prompt (kept in prompts/)")
     ap.add_argument("--out", help="output path (text/JSON for text models, image bytes for image models)")
     ap.add_argument("--reasoning-effort", default=None, choices=["low", "medium", "high", "max", None])
+    ap.add_argument("--max-tokens", type=int, default=4000,
+                    help="output budget; reasoning tokens eat it first, so keep >= 800")
+    ap.add_argument("--key-env", default="MODEL_API_KEY",
+                    help="env var holding the key (MODEL_API_KEY, BASETEN_API_KEY, ...)")
     ap.add_argument("--json-schema", help="optional JSON schema file for structured output")
     args = ap.parse_args(argv[1:])
 
-    key = load_key()
+    key = load_key(args.key_env)
     if args.spend:
         # Token totals only: pricing lives in the provider's Billing page, not in this repo.
         rows = [json.loads(l) for l in LEDGER.read_text().splitlines() if l.strip()] if LEDGER.exists() else []
@@ -123,7 +134,7 @@ def main(argv: list[str]) -> int:
         print("\nCost = these tokens x the price shown in the provider's Billing page.")
         return 0
     if args.check:
-        print("MODEL_API_KEY present:", bool(key))
+        print(f"{args.key_env} present:", bool(key))
         print("base:", BASE)
         print("ledger:", LEDGER.relative_to(ROOT), "| rows:", len(LEDGER.read_text().splitlines())
               if LEDGER.exists() else 0)
@@ -131,23 +142,51 @@ def main(argv: list[str]) -> int:
     if not (args.model and args.prompt and args.out):
         ap.error("--model, --prompt and --out are required (or use --check)")
 
-    prompt = Path(args.prompt).read_text(encoding="utf-8")
-    payload: dict = {"model": args.model, "messages": [{"role": "user", "content": prompt}]}
+    prompt_path = resolve_repo_path(args.prompt)
+    prompt = prompt_path.read_text(encoding="utf-8")
+    out_path = resolve_repo_path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if not key:
+        endpoint = "images/generations" if args.model in IMAGE_MODELS else "chat/completions"
+        print(f"DRY RUN (no {args.key_env}). Would POST", f"{BASE}/{endpoint}")
+        print("prompt bytes:", len(prompt.encode()), "-> out:", args.out)
+        return 0
+
+    started = time.time()
+
+    if args.model in IMAGE_MODELS:
+        resp = post("images/generations", {"model": args.model, "prompt": prompt}, key)
+        elapsed = round(time.time() - started, 2)
+        import base64
+        blocks = resp.get("data") or []
+        data = blocks[0].get("b64_json", "") if blocks and isinstance(blocks[0], dict) else ""
+        if not data:
+            sys.exit("image model returned no b64_json block; inspect the response before writing a file")
+        out_path.write_bytes(base64.b64decode(data))
+        usage = resp.get("usage") or {}
+        append_ledger({
+            "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "model": args.model,
+            "purpose": args.purpose,
+            "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest()[:16],
+            "out": str(out_path.relative_to(ROOT)),
+            "out_sha256": hashlib.sha256(out_path.read_bytes()).hexdigest()[:16],
+            "seconds": elapsed,
+            "commit": git_commit(),
+        })
+        print(f"wrote {out_path.relative_to(ROOT)} ({out_path.stat().st_size} bytes) in {elapsed}s")
+        return 0
+
+    payload: dict = {"model": args.model, "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": args.max_tokens}
     if args.reasoning_effort:
         payload["reasoning_effort"] = args.reasoning_effort
     if args.json_schema:
         payload["response_format"] = {
             "type": "json_schema",
-            "json_schema": json.loads(Path(args.json_schema).read_text(encoding="utf-8")),
+            "json_schema": json.loads(resolve_repo_path(args.json_schema).read_text(encoding="utf-8")),
         }
-    if args.model in IMAGE_MODELS:
-        payload["modalities"] = ["image"]
-
-    if not key:
-        print("DRY RUN (no MODEL_API_KEY). Would POST", f"{BASE}/chat/completions")
-        print(json.dumps({k: v for k, v in payload.items() if k != "messages"}, indent=2))
-        print("prompt bytes:", len(prompt.encode()), "-> out:", args.out)
-        return 0
 
     started = time.time()
     resp = post("chat/completions", payload, key)
@@ -155,22 +194,8 @@ def main(argv: list[str]) -> int:
 
     choice = (resp.get("choices") or [{}])[0]
     content = ((choice.get("message") or {}).get("content")) or ""
-    out_path = Path(args.out)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-
-    if args.model in IMAGE_MODELS:
-        # image models return base64 or a URL in the message content blocks
-        import base64
-        blocks = (choice.get("message") or {}).get("images") or []
-        data = ""
-        if blocks and isinstance(blocks[0], dict):
-            data = blocks[0].get("b64_json") or blocks[0].get("data") or ""
-        if not data:
-            sys.exit("image model returned no image block; inspect the response before writing a file")
-        out_path.write_bytes(base64.b64decode(data))
-    else:
-        out_path.write_text(content if isinstance(content, str) else json.dumps(content, indent=2),
-                            encoding="utf-8")
+    out_path.write_text(content if isinstance(content, str) else json.dumps(content, indent=2),
+                        encoding="utf-8")
 
     usage = resp.get("usage") or {}
     append_ledger({

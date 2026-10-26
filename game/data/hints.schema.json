@@ -1,0 +1,26 @@
+{
+  "title": "Gravit room hints",
+  "type": "object",
+  "required": ["rooms", "meta_model"],
+  "properties": {
+    "meta_model": {
+      "type": "string",
+      "description": "Attribution marker string: model id, date, purpose."
+    },
+    "rooms": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["id", "briefing", "hints", "fold_log"],
+        "properties": {
+          "id": {"type": "string"},
+          "briefing": {"type": "string", "minLength": 20},
+          "hints": {"type": "array", "minItems": 3, "maxItems": 5, "items": {"type": "string", "minLength": 10}},
+          "fold_log": {"type": "string", "minLength": 10}
+        }
+      }
+    }
+  }
+}

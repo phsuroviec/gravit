@@ -33,14 +33,17 @@ calls=$(git log --oneline 2>/dev/null | wc -l | tr -d ' ')
   if [ "$rows" -gt 0 ]; then
     echo "| when | model | purpose | output | tokens |"
     echo "| --- | --- | --- | --- | --- |"
-    grep . "$LEDGER" | python3 -c '
+    python3 - "$LEDGER" <<'PYEOF'
 import json,sys
-for line in sys.stdin:
-    r=json.loads(line)
-    u=r.get("usage") or {}
-    toks=u.get("total_tokens") or "-"
-    print(f"| {r[\"ts\"]} | {r[\"model\"]} | {r.get(\"purpose\",\"\")} | `{r[\"out\"]}` | {toks} |")
-'
+for line in open(sys.argv[1]):
+    line = line.strip()
+    if not line:
+        continue
+    r = json.loads(line)
+    u = r.get("usage") or {}
+    toks = u.get("total_tokens") or "-"
+    print("| " + r["ts"] + " | " + r["model"] + " | " + r.get("purpose", "") + " | `" + r["out"] + "` | " + str(toks) + " |")
+PYEOF
   fi
   echo
   echo "## Markers in source"

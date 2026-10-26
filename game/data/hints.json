@@ -1,0 +1,8 @@
+{
+  "meta_model": "meta-model: muse-spark-1.3 | 2026-10-26 | room briefings and hint ladders",
+  "rooms": [
+    {"id": "room1", "briefing": "YOU ARE ON FALL WATCH. FOLD PULLS RIGHT. KEEP CLEAR OF PAD AND EXIT DOOR.", "hints": ["Watch the cube fall right inside the fold.", "Let it exit the fold and track it down to the floor pad.", "Stand back while it hits the pad and waits out the countdown to blast the door."], "fold_log": "The fold threw its cube right out and queued the door blast late."},
+    {"id": "room2", "briefing": "FOLD FROZEN MID-AIR WITH CARGO. YOU LIFT IT. YOU MOVE IT. YOU BREAK IT.", "hints": ["Press E at the frozen fold to lift it with its cube.", "Carry it to the floor plate and center it over the mark.", "Press X over the plate to break the fold and drop the cube straight down."], "fold_log": "The fold broke where you stood and dropped its cube on the plate."},
+    {"id": "room3", "briefing": "YOU SEE TWO FOLDS DEEP. INNER PULLS UP. OUTER PULLS LEFT. BREAK IN ORDER.", "hints": ["Notice the inner fold holds the cube up inside the outer fold.", "Break the inner fold first and let the outer fold catch the cube.", "Stand clear while the outer fold pulls it left onto the plate to open the exit."], "fold_log": "The inner fold broke and handed its cube back to the outer fold."}
+  ]
+}

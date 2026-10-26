@@ -1,0 +1,24 @@
+You design ONE variant room layout for Gravit, a 3D puzzle game where a fold of space
+carries its own gravity direction and clock rate. The room is a 12m x 10m floor, origin at
+its center, +X right, +Y up, +Z toward the viewer. The loop: a cube starts held inside a
+fold; the player carries the fold and breaks it over a floor pad; the pad queues a delayed
+impulse that blasts the exit door open.
+
+Constraints: 1-3 folds; each fold is a 2m cube shell; fold pos within x -4..4, y 1..2,
+z -3..3; gravity_dir any nonzero axis direction (e.g. [0,-1,0], [1,0,0]); clock_factor
+0.5..2.0; exactly one fold holds the cube at start; pad on the floor (y 0.3); door on the
++x wall (x 5..6, y 1.05); player spawn on the floor away from the pad. Make the layout
+solvable: the held cube must be carryable to the pad. Vary it from the shipped rooms:
+try an upward-gravity fold, or two folds where breaking one drops the cube into the other.
+
+Output EXACTLY this JSON and nothing else (no markdown fences, no commentary):
+{
+  "meta_model": "meta-model: muse-spark-open-1026 | 2026-10-26 | open-weight room variant",
+  "name": "...",
+  "folds": [{"pos": [x,y,z], "gravity_dir": [x,y,z], "clock_factor": 1.0, "holds_cube": true}],
+  "cube": [x,y,z],
+  "pad": [x,y,z],
+  "door": [x,y,z],
+  "player_spawn": [x,y,z]
+}
+Rules: 1-3 folds; clock_factor > 0; all positions vec3 numbers.
