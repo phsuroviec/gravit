@@ -7,6 +7,7 @@ extends Area3D
 
 const FoldScope = preload("res://scripts/fold_scope.gd")
 const ConsequenceQueue = preload("res://scripts/consequence_queue.gd")
+const Sfx = preload("res://scripts/sfx.gd")
 
 @export var door_path: NodePath
 @export var queue_path: NodePath
@@ -20,10 +21,12 @@ var last_countdown := ""
 # Fold clock sampled while the fold is alive: the pad must keep working after
 # its fold is picked up, carried off and broken (that is the whole game).
 var last_clock := 1.0
+var _last_tick_sec := -1
 
 func _ready() -> void:
 	monitoring = true
 	body_entered.connect(_on_body_entered)
+	($TickPlayer as AudioStreamPlayer).stream = Sfx.tick()
 
 func _on_body_entered(body: Node3D) -> void:
 	if pending_item == null and body is PhysicsBody3D:
@@ -35,6 +38,7 @@ func trigger(_body: Node3D) -> void:
 	if queue == null or door == null:
 		return
 	pending_item = queue.enqueue(door, impulse, delay_base * last_clock)
+	_last_tick_sec = -1
 
 func _process(_delta: float) -> void:
 	var label := $Countdown as Label3D
@@ -46,5 +50,9 @@ func _process(_delta: float) -> void:
 		var remaining: float = pending_item.due_time - queue.sim_time
 		last_countdown = "%.1f" % maxf(0.0, remaining)
 		label.text = last_countdown
+		var sec := int(ceil(remaining))
+		if sec != _last_tick_sec and sec > 0:
+			_last_tick_sec = sec
+			($TickPlayer as AudioStreamPlayer).play()
 	elif label != null:
 		label.text = ""

@@ -7,6 +7,7 @@ const FoldScope = preload("res://scripts/fold_scope.gd")
 const ConsequenceQueue = preload("res://scripts/consequence_queue.gd")
 const ScopeBody = preload("res://scripts/scope_body.gd")
 const FoldBox = preload("res://fold_box.tscn")
+const Sfx = preload("res://scripts/sfx.gd")
 
 const GRAV := 9.8
 
@@ -21,6 +22,7 @@ func _init() -> void:
 	test_v_player_follows_scope_gravity()
 	test_vi_rigid_bodies_share_applied_gravity()
 	test_vii_carry_place_break()
+	test_viii_telegraphing()
 	if _failures == 0:
 		print("=== ALL 4 INVARIANTS PASSED ===")
 		quit(0)
@@ -250,3 +252,13 @@ func test_vii_carry_place_break() -> void:
 	_assert(item.fired == true and cq.pending() == 0, "(vii) queued impulse still fires exactly once")
 	fold.free()
 	room.free()
+
+# Invariant (viii): telegraphing rides along — warm light + particle stream on
+# every fold, synthesized countdown tick. Presence + validity, no frames needed.
+func test_viii_telegraphing() -> void:
+	var fold = FoldBox.instantiate()
+	_assert(fold.get_node_or_null("WarmLight") is SpotLight3D, "(viii) fold carries warm spotlight")
+	_assert(fold.get_node_or_null("Stream") is GPUParticles3D, "(viii) fold carries particle stream")
+	var tick = Sfx.tick()
+	_assert(tick is AudioStreamWAV and tick.data.size() > 1000, "(viii) countdown tick synthesizes")
+	fold.free()

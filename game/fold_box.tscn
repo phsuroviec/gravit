@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/fold_box.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/fold_scope.gd" id="2"]
@@ -14,6 +14,23 @@ size = Vector3(2, 2, 2)
 [sub_resource type="BoxShape3D" id="shell_shape"]
 size = Vector3(2, 2, 2)
 
+[sub_resource type="ParticleProcessMaterial" id="stream_pm"]
+direction = Vector3(0, -1, 0)
+spread = 12.0
+initial_velocity_min = 2.0
+initial_velocity_max = 3.0
+gravity = Vector3(0, -3, 0)
+
+[sub_resource type="StandardMaterial3D" id="stream_mat"]
+albedo_color = Color(1, 0.8, 0.5, 1)
+emission_enabled = true
+emission = Color(1, 0.6, 0.25, 1)
+
+[sub_resource type="SphereMesh" id="stream_mesh"]
+material = SubResource("stream_mat")
+radius = 0.03
+height = 0.06
+
 [node name="FoldBox" type="Area3D" groups=["fold_boxes"]]
 script = ExtResource("1")
 
@@ -25,3 +42,15 @@ mesh = SubResource("shell_mesh")
 
 [node name="Shape" type="CollisionShape3D" parent="."]
 shape = SubResource("shell_shape")
+
+[node name="WarmLight" type="SpotLight3D" parent="."]
+light_color = Color(1, 0.72, 0.42, 1)
+light_energy = 1.6
+spot_range = 7.0
+spot_angle = 55.0
+
+[node name="Stream" type="GPUParticles3D" parent="."]
+amount = 48
+lifetime = 1.6
+process_material = SubResource("stream_pm")
+draw_pass_1 = SubResource("stream_mesh")

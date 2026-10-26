@@ -24,10 +24,20 @@ func _ready() -> void:
 	monitoring = true
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+	_align_stream()
 
 func _physics_process(_delta: float) -> void:
 	if is_carried():
 		global_position = carry_anchor.global_position
+
+# Particle stream falls the fold's way. The process material is duplicated
+# per fold: instances share the scene's sub-resource, and scopes differ.
+func _align_stream() -> void:
+	var down := get_scope().gravity_dir.normalized()
+	var pm := ($Stream.process_material as ParticleProcessMaterial).duplicate() as ParticleProcessMaterial
+	pm.direction = down
+	pm.gravity = down * 3.0
+	($Stream as GPUParticles3D).process_material = pm
 
 func _on_body_entered(body: Node3D) -> void:
 	if is_carried():
