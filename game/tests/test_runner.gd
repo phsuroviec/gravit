@@ -262,6 +262,10 @@ func test_viii_telegraphing() -> void:
 	_assert(fold.get_node_or_null("Stream") is GPUParticles3D, "(viii) fold carries particle stream")
 	var tick = Sfx.tick()
 	_assert(tick is AudioStreamWAV and tick.data.size() > 1000, "(viii) countdown tick synthesizes")
+	var thud = Sfx.thud()
+	_assert(thud is AudioStreamWAV and thud.data.size() > 1000, "(viii) door thud synthesizes")
+	var chime = Sfx.chime()
+	_assert(chime is AudioStreamWAV and chime.data.size() > 1000, "(viii) completion chime synthesizes")
 	fold.free()
 
 # Invariant (ix): generated content is wired in — briefing plates mounted and

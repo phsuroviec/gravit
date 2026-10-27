@@ -5,6 +5,7 @@
 extends CanvasLayer
 
 const GameText = preload("res://scripts/game_text.gd")
+const Sfx = preload("res://scripts/sfx.gd")
 
 var _hint_index := {}
 var _last_room := ""
@@ -13,6 +14,7 @@ var _brief_until_ms := 0
 func _ready() -> void:
 	GameState.run_start_ms = Time.get_ticks_msec()
 	($Timer as Label).visible = GameState.completions > 0
+	($Chime as AudioStreamPlayer).stream = Sfx.chime()
 
 func _player():
 	var players := get_tree().get_nodes_in_group("player")
@@ -44,6 +46,7 @@ func show_completion() -> void:
 	($Complete as Label).text = "COURSE COMPLETE in " + _fmt(ms) + " (" + best + ")\n" + GameText.fold_log("room3") + "\n[R] run it again"
 	($Complete as Label).visible = true
 	($Timer as Label).visible = true
+	($Chime as AudioStreamPlayer).play()
 
 func timer_unlocked() -> bool:
 	return ($Timer as Label).visible

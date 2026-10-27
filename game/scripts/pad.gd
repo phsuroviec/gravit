@@ -22,11 +22,13 @@ var last_countdown := ""
 # its fold is picked up, carried off and broken (that is the whole game).
 var last_clock := 1.0
 var _last_tick_sec := -1
+var _thudded := false
 
 func _ready() -> void:
 	monitoring = true
 	body_entered.connect(_on_body_entered)
 	($TickPlayer as AudioStreamPlayer).stream = Sfx.tick()
+	($ThudPlayer as AudioStreamPlayer).stream = Sfx.thud()
 
 func _on_body_entered(body: Node3D) -> void:
 	if pending_item == null and body is PhysicsBody3D:
@@ -39,6 +41,7 @@ func trigger(_body: Node3D) -> void:
 		return
 	pending_item = queue.enqueue(door, impulse, delay_base * last_clock)
 	_last_tick_sec = -1
+	_thudded = false
 
 func _process(_delta: float) -> void:
 	var label := $Countdown as Label3D
@@ -54,5 +57,8 @@ func _process(_delta: float) -> void:
 		if sec != _last_tick_sec and sec > 0:
 			_last_tick_sec = sec
 			($TickPlayer as AudioStreamPlayer).play()
+	elif pending_item != null and pending_item.fired and not _thudded:
+		_thudded = true
+		($ThudPlayer as AudioStreamPlayer).play()
 	elif label != null:
 		label.text = ""

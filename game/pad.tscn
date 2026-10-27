@@ -24,8 +24,10 @@ mesh = SubResource("mesh")
 
 [node name="Countdown" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
-
-[node name="TickPlayer" type="AudioStreamPlayer" parent="."]
 billboard = 1
 font_size = 64
 modulate = Color(1, 0.6, 0.2, 1)
+
+[node name="TickPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="ThudPlayer" type="AudioStreamPlayer" parent="."]
