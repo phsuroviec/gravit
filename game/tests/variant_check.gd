@@ -15,9 +15,18 @@ var fold0 = null
 var door = null
 var pad = null
 
+var fold0_pos := Vector3.ZERO
+var pad_pos := Vector3.ZERO
+
 func _ready() -> void:
-	var text := FileAccess.get_file_as_string("res://data/variant_open.json")
+	var file := OS.get_environment("VARIANT_FILE").strip_edges()
+	if file == "":
+		file = "res://data/variant_open.json"
+	var text := FileAccess.get_file_as_string(file)
 	var parsed: Variant = JSON.parse_string(text)
+	var data := parsed as Dictionary
+	fold0_pos = Vector3(float(data["folds"][0]["pos"][0]), float(data["folds"][0]["pos"][1]), float(data["folds"][0]["pos"][2]))
+	pad_pos = Vector3(float(data["pad"][0]), float(data["pad"][1]), float(data["pad"][2]))
 	room = VariantRoom.build(parsed as Dictionary)
 	room.name = "Variant"
 	add_child(room)
@@ -27,7 +36,8 @@ func _ready() -> void:
 	door = room.get_node("Door")
 	pad = room.get_node("Pad")
 	var spawn: Array = (parsed as Dictionary)["player_spawn"]
-	player.global_position = Vector3(float(spawn[0]), float(spawn[1]), float(spawn[2]))
+	var spawn_pos: Vector3 = VariantRoom._snap("spawn", Vector3(float(spawn[0]), float(spawn[1]), float(spawn[2])), 0.9)
+	player.global_position = spawn_pos
 
 func _press(keycode: int) -> void:
 	var ev := InputEventKey.new()
@@ -47,6 +57,28 @@ func _hold(on: bool) -> void:
 		Input.action_press("ui_right")
 	else:
 		Input.action_release("ui_right")
+		Input.action_release("ui_up")
+		Input.action_release("ui_down")
+
+# Steer toward a target on the floor plane; arrival cannot be missed because
+# each axis stops only inside its own deadband.
+func _seek(target: Vector3, arrive: float) -> bool:
+	var p: Vector3 = player.global_position
+	if p.x < target.x - 0.3:
+		Input.action_press("ui_right")
+	else:
+		Input.action_release("ui_right")
+	if p.z < target.z - 0.3:
+		Input.action_press("ui_down")
+	elif p.z > target.z + 0.3:
+		Input.action_press("ui_up")
+	else:
+		Input.action_release("ui_up")
+		Input.action_release("ui_down")
+	if p.distance_to(Vector3(target.x, p.y, target.z)) < arrive:
+		_hold(false)
+		return true
+	return false
 
 func _physics_process(_delta: float) -> void:
 	frames += 1
@@ -56,10 +88,8 @@ func _physics_process(_delta: float) -> void:
 		get_tree().quit(failures)
 		return
 	match phase:
-		0:  # walk to the holding fold
-			_hold(true)
-			if player.global_position.distance_to((fold0 as Node3D).global_position) < 2.5:
-				_hold(false)
+		0:  # walk/strafe to the holding fold
+			if _seek(fold0_pos, 2.0):
 				_press(KEY_E)
 				wait_until = frames + 12
 				phase = 1
@@ -67,17 +97,13 @@ func _physics_process(_delta: float) -> void:
 			if frames >= wait_until:
 				if player.carried_fold == fold0:
 					_check(true, "(v6) E picks up the generated fold")
-					_hold(true)
-					Input.action_press("ui_up")
 					phase = 2
 				else:
 					failures += 1
 					printerr("FAIL: (v6) E missed the generated fold")
 					get_tree().quit(failures)
-		2:  # carry to the pad (diagonal: pad sits south of the walk line)
-			if player.global_position.distance_to((pad as Node3D).global_position) < 1.5:
-				_hold(false)
-				Input.action_release("ui_up")
+		2:  # carry to the pad
+			if _seek(pad_pos, 1.2):
 				_press(KEY_X)
 				wait_until = frames + 12
 				phase = 3

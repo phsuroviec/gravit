@@ -20,7 +20,7 @@ func _init() -> void:
 		else:
 			print("PASS: loads ", path, " (", parsed["rooms"].size(), " rooms)")
 	for extra in DirAccess.get_files_at("res://data"):
-		if extra.begins_with("variant_") and extra.ends_with(".json"):
+		if (extra.begins_with("variant_") or extra == "room_variant_baseten.json") and extra.ends_with(".json"):
 			var text := FileAccess.get_file_as_string("res://data/" + extra)
 			if JSON.parse_string(text) == null:
 				printerr("FAIL: unparsable res://data/", extra)

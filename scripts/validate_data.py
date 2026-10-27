@@ -99,7 +99,7 @@ def main() -> int:
         check_hints(hints)
     else:
         fail("hints.json: missing (run the generation pass)")
-    for path in sorted(DATA.glob("variant_*.json")):
+    for path in sorted(DATA.glob("variant_*.json")) + ([DATA / "room_variant_baseten.json"] if (DATA / "room_variant_baseten.json").exists() else []):
         check_layout(path)
     if ERRORS:
         print(f"{len(ERRORS)} data error(s):")

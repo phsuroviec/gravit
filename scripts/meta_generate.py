@@ -114,8 +114,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--prompt", help="file with the prompt (kept in prompts/)")
     ap.add_argument("--out", help="output path (text/JSON for text models, image bytes for image models)")
     ap.add_argument("--reasoning-effort", default=None, choices=["low", "medium", "high", "max", None])
-    ap.add_argument("--max-tokens", type=int, default=4000,
-                    help="output budget; reasoning tokens eat it first, so keep >= 800")
+    ap.add_argument("--max-tokens", type=int, default=None,
+                    help="output budget (default: 4000 meta, 16000 baseten — open reasoning eats it first)")
     ap.add_argument("--key-env", default="MODEL_API_KEY",
                     help="env var holding the key (MODEL_API_KEY, BASETEN_API_KEY, ...)")
     ap.add_argument("--json-schema", help="optional JSON schema file for structured output")
@@ -123,6 +123,8 @@ def main(argv: list[str]) -> int:
 
     key_env = "BASETEN_API_KEY" if args.provider == "baseten" else args.key_env
     key = load_key(key_env)
+    if args.max_tokens is None:
+        args.max_tokens = 16000 if args.provider == "baseten" else 4000
     if args.spend:
         # Token totals only: pricing lives in the provider's Billing page, not in this repo.
         rows = [json.loads(l) for l in LEDGER.read_text().splitlines() if l.strip()] if LEDGER.exists() else []

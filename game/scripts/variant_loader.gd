@@ -15,6 +15,15 @@ const RoomScript = preload("res://scripts/room.gd")
 static func _v3(a: Array) -> Vector3:
 	return Vector3(float(a[0]), float(a[1]), float(a[2]))
 
+# Construction preconditions, applied loudly: generated numbers sometimes
+# intersect the floor (a spawn inside it wedges the capsule). Files stay
+# pristine (receipt hashes intact); the loader snaps to the grid instead.
+static func _snap(label: String, p: Vector3, min_y: float) -> Vector3:
+	if p.y < min_y - 0.001:
+		print("VariantRoom: clamped ", label, " y ", p.y, " -> ", min_y)
+		p.y = min_y
+	return p
+
 static func build(data: Dictionary) -> Node3D:
 	var room := Node3D.new()
 	room.name = "Variant"
@@ -37,7 +46,7 @@ static func build(data: Dictionary) -> Node3D:
 		room.add_child(fold)
 	var cube = ScopeBody.new()
 	cube.name = "Cube"
-	cube.position = _v3(data["cube"] as Array)
+	cube.position = _snap("cube", _v3(data["cube"] as Array), 0.5)
 	cube.freeze = true
 	cube.can_sleep = false
 	var shape := CollisionShape3D.new()
@@ -57,14 +66,14 @@ static func build(data: Dictionary) -> Node3D:
 	room.add_child(cube)
 	var pad = Pad.instantiate()
 	pad.name = "Pad"
-	pad.position = _v3(data["pad"] as Array)
+	pad.position = _snap("pad", _v3(data["pad"] as Array), 0.3)
 	pad.door_path = NodePath("../Door")
 	pad.queue_path = NodePath("../Queue")
 	pad.fold_path = NodePath("../Fold0/FoldScope")
 	room.add_child(pad)
 	var door = Door.instantiate()
 	door.name = "Door"
-	door.position = _v3(data["door"] as Array)
+	door.position = _snap("door", _v3(data["door"] as Array), 1.05)
 	room.add_child(door)
 	var queue := Node3D.new()
 	queue.name = "Queue"

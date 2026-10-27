@@ -10,6 +10,7 @@ assets. Update it in the same commit as the artefact.
 | 2026-10-26 | muse-image-1.0 | 6 signage decals (T6) | `game/assets/decals/*.webp` + sidecars | human wrote prompts, picked opaque-plate style, eyeballed output |
 | 2026-10-26 | muse-image-1.0 | fold shell membrane texture (T13) | `game/assets/decals/shell_membrane.webp` + sidecar | human wrote prompt, eyeballed output, wired as emission map |
 | 2026-10-26 | muse-image-1.0 | release cover art | `game/assets/decals/cover_art.webp` + sidecar | human wrote prompt, eyeballed output |
+| 2026-10-27 | meta-models/muse-spark-open-1026 (Baseten) | open-weight room variant (T6) | `game/data/variant_open.json` | human wrote prompt + schema + validator; model proposed the layout; bot plays it in `game/tests/variant_check.tscn` |
 
 ## Conventions
 
