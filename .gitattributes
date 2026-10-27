@@ -1,0 +1,13 @@
+# Normalize line endings: Godot text files are always LF, on every OS.
+# Kills the LF/CRLF warning and whole-file diffs from autocrlf checkouts.
+* text=auto
+*.gd text eol=lf
+*.tscn text eol=lf
+*.godot text eol=lf
+*.cfg text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.txt text eol=lf
+*.srt text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
