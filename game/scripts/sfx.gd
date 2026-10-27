@@ -29,5 +29,29 @@ static func tick() -> AudioStreamWAV:
 static func thud() -> AudioStreamWAV:
 	return _tone(90.0, 0.25, 1.0)
 
+static func jump() -> AudioStreamWAV:
+	return _sweep(300.0, 620.0, 0.12)
+
+static func land() -> AudioStreamWAV:
+	return _tone(140.0, 0.12, 0.9)
+
+# Rising sweep for jumps: pitch climbs with the takeoff.
+static func _sweep(freq_from: float, freq_to: float, seconds: float) -> AudioStreamWAV:
+	var frames := int(MIX * seconds)
+	var data := PackedByteArray()
+	data.resize(frames)
+	var phase := 0.0
+	for i in frames:
+		var t := float(i) / frames
+		var freq := lerpf(freq_from, freq_to, t)
+		phase += TAU * freq / MIX
+		var env := 1.0 - t
+		data[i] = int(127.0 + 100.0 * sin(phase) * env)
+	var stream := AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_8_BITS
+	stream.mix_rate = MIX
+	stream.data = data
+	return stream
+
 static func chime() -> AudioStreamWAV:
 	return _tone(523.25, 0.4, 0.6, 784.0, 0.4)

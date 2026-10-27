@@ -6,6 +6,7 @@ class_name Player
 extends CharacterBody3D
 
 const FoldScope = preload("res://scripts/fold_scope.gd")
+const Sfx = preload("res://scripts/sfx.gd")
 
 @export var walk_speed := 4.0
 @export var jump_speed := 4.5
@@ -14,11 +15,14 @@ const FoldScope = preload("res://scripts/fold_scope.gd")
 
 var active_scopes: Array = []
 var carried_fold = null
+var _was_airborne := false
 
 func _ready() -> void:
 	# Rooms wire their own children in their _ready, which runs before this
 	# player node even enters the tree — so the player collects its own set.
 	active_scopes = get_tree().get_nodes_in_group("fold_scopes")
+	($JumpPlayer as AudioStreamPlayer).stream = Sfx.jump()
+	($LandPlayer as AudioStreamPlayer).stream = Sfx.land()
 
 func scope_gravity() -> Vector3:
 	return FoldScope.applied_gravity(self, Time.get_ticks_msec() * 0.001, active_scopes)
@@ -147,8 +151,13 @@ func _physics_process(delta: float) -> void:
 		planar += wish.normalized() * walk_speed
 	velocity = planar
 	if is_on_floor():
+		if _was_airborne:
+			_was_airborne = false
+			($LandPlayer as AudioStreamPlayer).play()
 		if Input.is_action_just_pressed("ui_accept"):
 			velocity += up_direction * jump_speed
+			($JumpPlayer as AudioStreamPlayer).play()
 	else:
+		_was_airborne = true
 		velocity += g * delta * cf
 	move_and_slide()

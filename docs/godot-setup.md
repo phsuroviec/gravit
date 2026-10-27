@@ -5,10 +5,10 @@ You need: a computer, patience for one download, and this repo.
 ## 1. Install Godot 4.7.2
 
 - Go to **godotengine.org → Download**, take the **4.7.2 standard** build for
-  your OS (macOS Apple-Silicon/Intel, Windows, Linux — any works).
-- macOS: unzip, drag Godot to Applications. First launch may be blocked by
-  Gatekeeper — right-click the app → **Open** once to approve it.
-- No account, no setup wizard, no import of anything else.
+  **Windows** (the `.zip`, 64-bit). Extract it anywhere and run `Godot.exe`.
+  No installer, no account, no setup wizard.
+- (macOS/Linux builds exist too and work the same; macOS only: right-click →
+  Open once to clear Gatekeeper.)
 
 ## 2. Open the project
 
@@ -19,7 +19,7 @@ You need: a computer, patience for one download, and this repo.
 
 ## 3. Play
 
-Press **Play** (▶ top-right, or Cmd/Ctrl+B). You spawn in Room 1.
+Press **Play** (▶ top-right, or F5). You spawn in Room 1.
 
 | Keyboard + mouse | Controller (e.g. 8BitDo Ultimate 2) | Action |
 | --- | --- | --- |

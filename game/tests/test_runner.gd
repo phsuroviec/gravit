@@ -266,6 +266,10 @@ func test_viii_telegraphing() -> void:
 	_assert(thud is AudioStreamWAV and thud.data.size() > 1000, "(viii) door thud synthesizes")
 	var chime = Sfx.chime()
 	_assert(chime is AudioStreamWAV and chime.data.size() > 1000, "(viii) completion chime synthesizes")
+	var jump = Sfx.jump()
+	_assert(jump is AudioStreamWAV and jump.data.size() > 500, "(viii) jump sweep synthesizes")
+	var land = Sfx.land()
+	_assert(land is AudioStreamWAV and land.data.size() > 500, "(viii) land thump synthesizes")
 	fold.free()
 
 # Invariant (ix): generated content is wired in — briefing plates mounted and

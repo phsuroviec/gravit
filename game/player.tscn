@@ -18,3 +18,7 @@ current = true
 
 [node name="CarryAnchor" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -1.5)
+
+[node name="JumpPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="LandPlayer" type="AudioStreamPlayer" parent="."]
