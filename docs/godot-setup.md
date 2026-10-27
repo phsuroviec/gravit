@@ -19,6 +19,11 @@ You need: a computer, patience for one download, and this repo.
 
 ## 3. Play
 
+> The editor viewport shows all four rooms laid out flat in one long strip —
+> that is the whole course, not a jumble. There are no walls between rooms yet
+> (greybox phase); Room 1 is at the left, the updraft gate at the far right.
+> Press Play and walk right: that strip becomes the game.
+
 Press **Play** (▶ top-right, or F5). You spawn in Room 1.
 
 | Keyboard + mouse | Controller (e.g. 8BitDo Ultimate 2) | Action |

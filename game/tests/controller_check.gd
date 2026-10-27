@@ -36,6 +36,8 @@ func _physics_process(_delta: float) -> void:
 		Input.parse_input_event(ev)
 	if frames == 35:
 		_check(absf(player.rotation.y - yaw0) > 0.05, "(c) right stick looks")
+		_check($HUD.get_node("Objective").text != "", "(c) objective shows")
+		_check($HUD.get_node("Prompt").visible, "(c) grab prompt shows near fold")
 		var off := InputEventJoypadMotion.new()
 		off.device = 0
 		off.axis = JOY_AXIS_RIGHT_X

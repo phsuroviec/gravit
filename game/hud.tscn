@@ -37,6 +37,23 @@ autowrap_mode = 2
 
 [node name="Chime" type="AudioStreamPlayer" parent="."]
 
+[node name="Prompt" type="Label" parent="."]
+visible = false
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -140.0
+offset_bottom = -108.0
+horizontal_alignment = 1
+
+[node name="Objective" type="Label" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 84.0
+offset_bottom = 116.0
+horizontal_alignment = 1
+
 [node name="Complete" type="Label" parent="."]
 visible = false
 anchors_preset = 8

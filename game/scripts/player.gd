@@ -38,6 +38,9 @@ func apply_look(rel: Vector2) -> void:
 	cam.rotation.x = clampf(cam.rotation.x - rel.y * mouse_sens, -pitch_limit, pitch_limit)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		return
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		apply_look((event as InputEventMouseMotion).relative)
 	elif event is InputEventMouseButton and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
@@ -141,8 +144,13 @@ func _physics_process(delta: float) -> void:
 	var g := scope_gravity()
 	var cf := FoldScope.applied_clock_factor(self, active_scopes)
 	align_to_gravity(g)
-	# Arrows / left stick: Up is forward.
+	# Arrows / left stick: Up is forward. WASD rides along, same vector.
 	var iv := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	iv += Vector2(
+		float(Input.is_physical_key_pressed(KEY_D)) - float(Input.is_physical_key_pressed(KEY_A)),
+		float(Input.is_physical_key_pressed(KEY_S)) - float(Input.is_physical_key_pressed(KEY_W)))
+	if iv.length() > 1.0:
+		iv = iv.normalized()
 	_stick_look(delta)
 	var wish := global_transform.basis * Vector3(iv.x, 0.0, iv.y)
 	wish -= up_direction * wish.dot(up_direction)

@@ -11,6 +11,13 @@ var _hint_index := {}
 var _last_room := ""
 var _brief_until_ms := 0
 
+const OBJECTIVES := {
+	"room1": "Room 1: watch the fold work — then walk through its door",
+	"room2": "Room 2: carry the frozen fold to the plate  [E grab · X break]",
+	"room3": "Room 3: break the inner fold where the outer throws west",
+	"room4": "Room 4: ride the updraft through the gate",
+}
+
 func _ready() -> void:
 	GameState.run_start_ms = Time.get_ticks_msec()
 	($Timer as Label).visible = GameState.completions > 0
@@ -59,6 +66,23 @@ func _process(_delta: float) -> void:
 	if timer_unlocked():
 		($Timer as Label).text = _fmt(Time.get_ticks_msec() - GameState.run_start_ms)
 	_track_room()
+	_prompt()
+
+# Context verb hint: what E/X would do right now, if anything.
+func _prompt() -> void:
+	var label := $Prompt as Label
+	var p = _player()
+	if p == null or not (p as Node).has_method("nearest_fold"):
+		label.visible = false
+		return
+	if (p as Node).get("carried_fold") != null:
+		label.text = "E: set down   X: break"
+		label.visible = true
+	elif p.call("nearest_fold") != null:
+		label.text = "E: grab fold"
+		label.visible = true
+	else:
+		label.visible = false
 
 # Briefing card on room entry: generated text, shown 6 s, never blocks play.
 func _track_room() -> void:
@@ -71,6 +95,7 @@ func _track_room() -> void:
 	_last_room = id
 	($Brief as Label).text = GameText.briefing(id)
 	($Brief as Label).visible = true
+	($Objective as Label).text = str(OBJECTIVES.get(id, ""))
 	_brief_until_ms = Time.get_ticks_msec() + 6000
 
 func _unhandled_input(event: InputEvent) -> void:
