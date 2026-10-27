@@ -1,0 +1,19 @@
+1
+00:00:00,500 --> 00:00:05,000
+Nothing pre-existing — this repository and everything in it was built during the hackathon.
+
+2
+00:00:20,000 --> 00:00:26,000
+Gravity here isn't global. Every fold of space has its own down, and its own clock.
+
+3
+00:01:20,000 --> 00:01:25,000
+Break a fold and its contents drop into your world — late, and somewhere else.
+
+4
+00:02:15,000 --> 00:02:24,000
+The words, hints and signs were generated with Meta models at build time; the receipts are in the repo.
+
+5
+00:02:50,000 --> 00:02:54,000
+Three rooms, one law. Gravit.
