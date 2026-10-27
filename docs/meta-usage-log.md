@@ -18,6 +18,12 @@ assets. Update it in the same commit as the artefact.
 
 ## Ruled out (deliberate, not forgotten)
 
+- **Open-weight variant: DEFERRED 2026-10-26.** No Baseten/Modal key is coming
+  unless the owner says so, and no open-weight inference exists on this node.
+  Schema (`game/data/room_layout.schema.json`) + prompt (`prompts/variant.txt`) +
+  `--key-env` stay ready; one call finishes it if a key lands. The $10k bonus claim
+  is not made. Bulk text stays on the Meta Model API per §4c.
+
 - **sam-3.1 masks (T6):** signage ships as opaque rectangular plates, which need no alpha
   cutouts — a segmentation pass would add cost and pipeline for zero visible difference.
   Revisit only if a future asset needs an irregular silhouette.

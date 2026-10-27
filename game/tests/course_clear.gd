@@ -10,6 +10,8 @@ var wait_until := 0
 var last_x := -4.0
 var stall := 0
 var jump_cool := 0
+var sidestep_dir := 1.0
+var sidestep_until := 0
 
 var player = null
 var fold2 = null
@@ -47,17 +49,28 @@ func _check(cond: bool, msg: String) -> void:
 		failures += 1
 		printerr("FAIL: ", msg)
 
-func _unstick() -> void:
-	# Called while walking: hop when x stops progressing (cube in the way).
-	if frames - stall > 30:
+func _unstick(walking: bool) -> void:
+	# Called every frame: hop/strafe only while walking (strafe phases drive
+	# z directly and must not fight the stall detector).
+	if walking and frames - stall > 30:
 		stall = frames
 		if player.global_position.x - last_x < 0.3:
 			Input.action_press("ui_accept")
 			jump_cool = frames + 5
+			sidestep_dir = -sidestep_dir
+			sidestep_until = frames + 25
 		last_x = player.global_position.x
 	if jump_cool > 0 and frames > jump_cool:
 		Input.action_release("ui_accept")
 		jump_cool = 0
+	if frames < sidestep_until:
+		if sidestep_dir > 0.0:
+			Input.action_press("ui_up")
+		else:
+			Input.action_press("ui_down")
+	else:
+		Input.action_release("ui_up")
+		Input.action_release("ui_down")
 
 func _die(msg: String) -> void:
 	failures += 1
@@ -73,7 +86,7 @@ func _physics_process(_delta: float) -> void:
 	match phase:
 		0:  # walk to Room 2 fold
 			_hold(true)
-			_unstick()
+			_unstick(true)
 			if player.global_position.x > 7.0:
 				_hold(false)
 				_press(KEY_E)
@@ -88,7 +101,7 @@ func _physics_process(_delta: float) -> void:
 				else:
 					_die("(bot) E missed room2 fold")
 		2:  # carry to plate
-			_unstick()
+			_unstick(true)
 			if player.global_position.x > 13.0:
 				_hold(false)
 				_press(KEY_X)
@@ -108,10 +121,17 @@ func _physics_process(_delta: float) -> void:
 				phase = 5
 			elif frames > 1400:
 				_die("(bot) room2 door never opened")
-		5:  # walk to Room 3 folds
-			_unstick()
-			if player.global_position.x > 22.0:
+		5:  # walk east, then strafe south of the outer shell (its LEFT
+			# gravity kills x-movement inside — the path stays trap-free)
+			_unstick(true)
+			if player.global_position.x > 22.2:
 				_hold(false)
+				phase = 50
+		50:  # strafe to z > 3.4, clear of both shells
+			_unstick(false)
+			Input.action_press("ui_down")
+			if player.global_position.z > 3.4:
+				Input.action_release("ui_down")
 				_press(KEY_E)
 				wait_until = frames + 12
 				phase = 6
@@ -119,33 +139,42 @@ func _physics_process(_delta: float) -> void:
 			if frames >= wait_until:
 				if player.carried_fold == inner3:
 					_check(true, "(bot) room3 inner fold picked up")
-					_press(KEY_X)
-					wait_until = frames + 12
-					phase = 7
+					_hold(true)
+					phase = 60
 				else:
 					_die("(bot) E missed room3 inner fold")
+		60:  # carry back over the outer shell, break: outer throws west
+			_unstick(true)
+			if player.global_position.x > 23.8:
+				_hold(false)
+				_press(KEY_X)
+				wait_until = frames + 12
+				phase = 7
 		7:
 			if frames >= wait_until:
-				if door3.opened_distance() > 0.0 or not is_instance_valid(inner3):
-					phase = 8
+				if not is_instance_valid(inner3):
+					_check(true, "(bot) room3 inner fold broken")
+					phase = 70
 				else:
 					_die("(bot) X missed room3 break")
-		8:  # wait for exit door, then walk out
+		70:  # strafe back north before the long walk east
+			_unstick(false)
+			Input.action_press("ui_up")
+			if player.global_position.z < 0.5:
+				Input.action_release("ui_up")
+				phase = 8
+		8:  # wait for exit door, then ride the updraft home
 			if door3.opened_distance() > 0.5:
 				_check(true, "(bot) room3 exit opened")
 				_hold(true)
 				phase = 9
 			elif frames > 2200:
 				_die("(bot) room3 exit never opened")
-		9:
-			_unstick()
-			if player.global_position.x > 29.4:
+		9:  # walk into the fold, rise through the gate
+			_unstick(true)
+			if GameState.completions >= 1:
 				_hold(false)
-				wait_until = frames + 30
-				phase = 10
-		10:
-			if frames >= wait_until:
-				_check(GameState.completions >= 1, "(bot) course complete registers")
+				_check(true, "(bot) updraft gate completes the course")
 				_check(hud.timer_unlocked(), "(bot) replay timer unlocked")
 				if failures == 0:
 					print("=== COURSE CLEAR PASSED ===")

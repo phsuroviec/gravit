@@ -1,6 +1,6 @@
-# res://tests/room3_check.gd — T5 live exit test, Room 3 (nested folds).
-# E must grab the INNER fold (deepest wins ties), X breaks it over the plate:
-# contents transfer to the outer scope live, cube drops on the pad, exit opens.
+# res://tests/room3_check.gd — T12 live exit test, Room 3 (nested folds).
+# E grabs the inner fold, bot carries it south of the outer shell and breaks:
+# the cube appears inside the outer scope, gets thrown west onto the pad.
 extends Node3D
 
 var frames := 0
@@ -40,11 +40,11 @@ func _physics_process(_delta: float) -> void:
 	if frames == 10:
 		_check(player.carried_fold == inner, "(r3) E grabs the deepest fold")
 		_check(inner.get_scope().parent_scope == outer_scope, "(r3) inner nests under outer")
-	if frames == 12:
+		player.global_position = Vector3(24, 1, 4)
+	if frames == 15:
 		_press(KEY_X)
-	if frames == 60:
-		_check(cube.global_position.x < 23.5, "(r3) outer scope bends the fall")
 	if frames == 80:
+		_check(cube.global_position.x < 22.5, "(r3) outer scope throws the cube west")
 		_check(pad.last_countdown != "", "(r3) countdown shown while queued")
 	if frames == 220:
 		_check(door.opened_distance() > 0.5, "(r3) nested break opens the exit")

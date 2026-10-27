@@ -15,6 +15,11 @@ const FoldScope = preload("res://scripts/fold_scope.gd")
 var active_scopes: Array = []
 var carried_fold = null
 
+func _ready() -> void:
+	# Rooms wire their own children in their _ready, which runs before this
+	# player node even enters the tree — so the player collects its own set.
+	active_scopes = get_tree().get_nodes_in_group("fold_scopes")
+
 func scope_gravity() -> Vector3:
 	return FoldScope.applied_gravity(self, Time.get_ticks_msec() * 0.001, active_scopes)
 
@@ -57,7 +62,7 @@ func nearest_fold(max_dist := 3.5):
 		var scope = node.get_node_or_null("FoldScope")
 		if scope != null and scope.has_method("get_depth"):
 			depth = scope.get_depth()
-		if d < best_d - 0.05 or (depth > best_depth and d <= best_d + 0.05):
+		if d < best_d - 0.5 or (depth > best_depth and d <= best_d + 0.5):
 			best = f
 			best_d = d
 			best_depth = depth

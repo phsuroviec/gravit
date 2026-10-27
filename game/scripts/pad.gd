@@ -12,7 +12,7 @@ const Sfx = preload("res://scripts/sfx.gd")
 @export var door_path: NodePath
 @export var queue_path: NodePath
 @export var fold_path: NodePath
-@export var impulse := Vector3(-6, 0, 0)
+@export var impulse := Vector3(6, 0, 0)
 @export var delay_base := 1.0
 
 var active_scopes: Array = []

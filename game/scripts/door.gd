@@ -17,7 +17,7 @@ func opened_distance() -> float:
 # Once knocked clear of the frame, retract through the floor so the doorway
 # stays passable (a resting slab would re-block the path it just opened).
 func _physics_process(_delta: float) -> void:
-	if not _sinking and opened_distance() > 0.8:
+	if not _sinking and opened_distance() > 0.4:
 		_sinking = true
 		freeze = true
 		collision_layer = 0

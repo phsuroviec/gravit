@@ -75,7 +75,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.3, 0)
 door_path = NodePath("../Door")
 queue_path = NodePath("../Queue")
 fold_path = NodePath("../Fold/FoldScope")
-impulse = Vector3(-6, 0, 0)
+impulse = Vector3(6, 0, 0)
 
 [node name="Door" parent="." instance=ExtResource("4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 1.05, 0)

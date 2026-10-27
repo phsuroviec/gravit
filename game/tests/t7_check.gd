@@ -46,8 +46,8 @@ func _physics_process(_delta: float) -> void:
 		_press(KEY_T)
 	if frames == 30:
 		_check(airlock.screen_text() == _expected_fold_log(), "(t7) offline narration falls back to local")
-		player.global_position = Vector3(29.7, 1.25, 0)
-	if frames == 40:
+		player.global_position = Vector3(33, 1, 0)
+	if frames == 130:
 		_check(GameState.completions >= 1, "(t7) room 3 completion registers")
 		_check(hud.get_node("Complete").visible, "(t7) completion shown with fold log")
 		_check(hud.timer_unlocked(), "(t7) replay timer unlocked")

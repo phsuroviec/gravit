@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1"]
 [ext_resource type="PackedScene" path="res://fold_box.tscn" id="2"]
@@ -9,7 +9,6 @@
 [ext_resource type="Texture2D" path="res://assets/decals/decal_clock_delay.webp" id="9"]
 [ext_resource type="Texture2D" path="res://assets/decals/decal_exit.webp" id="10"]
 [ext_resource type="PackedScene" path="res://airlock.tscn" id="7"]
-[ext_resource type="PackedScene" path="res://exit.tscn" id="8"]
 
 [sub_resource type="SphereShape3D" id="cube_shape"]
 radius = 0.3
@@ -54,21 +53,21 @@ size = Vector3(0.4, 2.5, 0.4)
 use_collision = true
 
 [node name="Fold" parent="." instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 1.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 1.5, 2.5)
 
 [node name="FoldScope" parent="Fold" groups=["fold_scopes"]]
 gravity_dir = Vector3(-1, 0, 0)
 clock_factor = 1.0
 
 [node name="Inner" parent="Fold" instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
 [node name="FoldScope" parent="Fold/Inner" groups=["fold_scopes"]]
 gravity_dir = Vector3(0, 1, 0)
 clock_factor = 1.0
 
 [node name="Cube" type="RigidBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 1.0, 0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 1.0, 2.5)
 freeze = true
 can_sleep = false
 script = ExtResource("5")
@@ -80,11 +79,11 @@ shape = SubResource("cube_shape")
 mesh = SubResource("cube_mesh")
 
 [node name="Pad" parent="." instance=ExtResource("3")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.5, 0.3, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.5, 0.3, 2.5)
 door_path = NodePath("../Door")
 queue_path = NodePath("../Queue")
 fold_path = NodePath("../Fold/FoldScope")
-impulse = Vector3(-6, 0, 0)
+impulse = Vector3(6, 0, 0)
 
 [node name="Door" parent="." instance=ExtResource("4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29, 1.05, 0)
@@ -104,6 +103,3 @@ material_override = SubResource("plate_mat_b")
 
 [node name="Airlock" parent="." instance=ExtResource("7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.5, 1, 2.5)
-
-[node name="Exit" parent="." instance=ExtResource("8")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29.7, 1.25, 0)
