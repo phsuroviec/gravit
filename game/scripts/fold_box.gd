@@ -13,6 +13,8 @@ const FoldScope = preload("res://scripts/fold_scope.gd")
 # Room-local offsets of contained bodies from the fold origin, taken at pickup.
 var carry_offsets: Dictionary = {}
 var carry_anchor: Node3D = null
+# The body carrying this fold (arm's length = outside it): never a member.
+var carrier: Node3D = null
 
 func get_scope() -> FoldScope:
 	return $FoldScope as FoldScope
@@ -42,18 +44,21 @@ func _align_stream() -> void:
 func _on_body_entered(body: Node3D) -> void:
 	if is_carried():
 		return
-	if body is PhysicsBody3D:
+	if body is PhysicsBody3D and body != carrier:
 		get_scope().add_body(body)
 
 func _on_body_exited(body: Node3D) -> void:
 	if is_carried():
 		return
-	if body is PhysicsBody3D:
+	if body is PhysicsBody3D and body != carrier:
 		get_scope().remove_body(body)
 
 # Latch to the carrier. Bodies freeze where they are (room space).
 func pickup(anchor: Node3D) -> void:
+	carrier = anchor.get_parent() as Node3D
 	var scope := get_scope()
+	if carrier != null:
+		scope.remove_body(carrier)
 	carry_offsets.clear()
 	for path in scope.contents:
 		var node := scope.get_node_or_null(path)
@@ -68,6 +73,7 @@ func pickup(anchor: Node3D) -> void:
 # always siblings under room_root (the T3 invariant).
 func place(room_root: Node3D, target: Vector3) -> void:
 	carry_anchor = null
+	carrier = null
 	if get_parent() != room_root:
 		reparent(room_root, false)
 	position = target
@@ -92,6 +98,7 @@ func place(room_root: Node3D, target: Vector3) -> void:
 # cannot free itself from inside its own method. Call outside physics callbacks.
 func break_fold(room_root: Node3D, all_scopes: Array) -> void:
 	carry_anchor = null
+	carrier = null
 	get_scope().break_fold(room_root, all_scopes)
 	var parent := get_parent()
 	if parent != null:

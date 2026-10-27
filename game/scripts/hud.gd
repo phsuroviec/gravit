@@ -12,7 +12,7 @@ var _last_room := ""
 var _brief_until_ms := 0
 
 const OBJECTIVES := {
-	"room1": "Room 1: watch the fold work — then walk through its door",
+	"room1": "Room 1: walk into the side fold, hold W to swim up, drift east",
 	"room2": "Room 2: carry the frozen fold to the plate  [E grab · X break]",
 	"room3": "Room 3: break the inner fold where the outer throws west",
 	"room4": "Room 4: ride the updraft through the gate",

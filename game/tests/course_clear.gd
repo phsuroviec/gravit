@@ -84,14 +84,36 @@ func _physics_process(_delta: float) -> void:
 		_die("(bot) global timeout — course not cleared")
 		return
 	match phase:
-		0:  # walk to Room 2 fold
-			_hold(true)
+		0:  # Room 1: strafe south on open floor, then momentum across
+			# the fold into the wall face (x-push dies inside: no unstick,
+			# its sidestep would break the deterministic corridor)
+			_unstick(false)
+			if player.global_position.z < 3.0:
+				_hold(false)
+				Input.action_press("ui_down")
+			else:
+				Input.action_release("ui_down")
+				_hold(true)
+				if player.up_direction.x < -0.5 and player.global_position.x > -0.8:
+					phase = 90
+		90:  # ladder: W climbs the face, drifts south inside the wide fold
+			_unstick(false)
+			_hold(false)
+			Input.action_press("ui_up")
+			if player.global_position.y > 3.4:
+				Input.action_release("ui_up")
+				_hold(true)
+				phase = 92
+				wait_until = frames + 400
+		92:  # fall onto the roof, walk through the high door
 			_unstick(true)
 			if player.global_position.x > 7.0:
 				_hold(false)
 				_press(KEY_E)
 				wait_until = frames + 12
 				phase = 1
+			elif frames > wait_until:
+				_die("(bot) room1 ledge walk failed")
 		1:
 			if frames >= wait_until:
 				if fold2.is_carried():
@@ -121,20 +143,19 @@ func _physics_process(_delta: float) -> void:
 				phase = 5
 			elif frames > 1400:
 				_die("(bot) room2 door never opened")
-		5:  # walk east, then strafe south of the outer shell (its LEFT
-			# gravity kills x-movement inside — the path stays trap-free)
-			_unstick(true)
-			if player.global_position.x > 22.2:
-				_hold(false)
-				phase = 50
-		50:  # strafe to z > 3.4, clear of both shells
+		5:  # strafe south to the pad lane, then east; tiebreak picks inner
 			_unstick(false)
-			Input.action_press("ui_down")
-			if player.global_position.z > 3.4:
+			if player.global_position.z < 3.0:
+				_hold(false)
+				Input.action_press("ui_down")
+			else:
 				Input.action_release("ui_down")
-				_press(KEY_E)
-				wait_until = frames + 12
-				phase = 6
+				_hold(true)
+				if player.global_position.x > 21.5:
+					_hold(false)
+					_press(KEY_E)
+					wait_until = frames + 12
+					phase = 6
 		6:
 			if frames >= wait_until:
 				if player.carried_fold == inner3:
@@ -143,9 +164,9 @@ func _physics_process(_delta: float) -> void:
 					phase = 60
 				else:
 					_die("(bot) E missed room3 inner fold")
-		60:  # carry back over the outer shell, break: outer throws west
+		60:  # one more step east, break over the pad (direct fall, no throw)
 			_unstick(true)
-			if player.global_position.x > 23.8:
+			if player.global_position.x > 22.2:
 				_hold(false)
 				_press(KEY_X)
 				wait_until = frames + 12
@@ -154,24 +175,38 @@ func _physics_process(_delta: float) -> void:
 			if frames >= wait_until:
 				if not is_instance_valid(inner3):
 					_check(true, "(bot) room3 inner fold broken")
-					phase = 70
+					phase = 8
 				else:
 					_die("(bot) X missed room3 break")
-		70:  # strafe back north before the long walk east
+		8:  # wait for exit door, then route around the outer shell corner
+			if door3.opened_distance() > 0.5:
+				_check(true, "(bot) room3 exit opened")
+				phase = 85
+			elif frames > 2200:
+				_die("(bot) room3 exit never opened")
+		85:  # strafe south past the shell corner (graze joins = pinned)
+			_unstick(false)
+			if player.global_position.z < 4.2 - 0.0:
+				_hold(false)
+				Input.action_press("ui_down")
+			else:
+				Input.action_release("ui_down")
+				phase = 86
+		86:  # walk east past the shell, then back north into the fold lane
+			_unstick(false)
+			_hold(true)
+			if player.global_position.x > 26.0:
+				_hold(false)
+				phase = 87
+		87:
 			_unstick(false)
 			Input.action_press("ui_up")
 			if player.global_position.z < 0.5:
 				Input.action_release("ui_up")
-				phase = 8
-		8:  # wait for exit door, then ride the updraft home
-			if door3.opened_distance() > 0.5:
-				_check(true, "(bot) room3 exit opened")
-				_hold(true)
-				phase = 9
-			elif frames > 2200:
-				_die("(bot) room3 exit never opened")
-		9:  # walk into the fold, rise through the gate
+				phase = 88
+		88:  # walk into the fold, rise through the gate
 			_unstick(true)
+			_hold(true)
 			if GameState.completions >= 1:
 				_hold(false)
 				_check(true, "(bot) updraft gate completes the course")

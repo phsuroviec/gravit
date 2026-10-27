@@ -9,7 +9,7 @@ const FoldScope = preload("res://scripts/fold_scope.gd")
 const Sfx = preload("res://scripts/sfx.gd")
 
 @export var walk_speed := 4.0
-@export var jump_speed := 4.5
+@export var jump_speed := 4.0
 @export var mouse_sens := 0.0025
 @export var pitch_limit := 1.4
 
@@ -152,12 +152,23 @@ func _physics_process(delta: float) -> void:
 	if iv.length() > 1.0:
 		iv = iv.normalized()
 	_stick_look(delta)
-	var wish := global_transform.basis * Vector3(iv.x, 0.0, iv.y)
+	# Camera-relative: looking steers on flat ground. (Body-relative wish
+	# could never produce +Y once up flips sideways; walls need the ladder.)
+	var cam_basis := ($Camera3D as Camera3D).global_transform.basis
+	var wish := cam_basis * Vector3(iv.x, 0.0, iv.y)
 	wish -= up_direction * wish.dot(up_direction)
 	var planar := up_direction * velocity.dot(up_direction)
 	if wish.length() > 0.01:
 		planar += wish.normalized() * walk_speed
 	velocity = planar
+	# Ladder: inside a sideways-gravity fold while touching something, W/S
+	# climb/slide along world Y. (Wall faces report as floor when up flips,
+	# so gate on the up vector, not on is_on_wall.) Nothing else in the
+	# moveset can gain altitude sideways.
+	var in_fold := FoldScope.deepest_scope_for_body(self, active_scopes) != null
+	var sideways := up_direction.dot(Vector3.UP) < 0.9
+	if in_fold and sideways and absf(iv.y) > 0.01:
+		velocity = Vector3(0.0, -iv.y * walk_speed, 0.0)
 	if is_on_floor():
 		if _was_airborne:
 			_was_airborne = false

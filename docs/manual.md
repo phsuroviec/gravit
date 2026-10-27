@@ -28,9 +28,10 @@ The only fail state is *stuck* (cube somewhere useless) — press **R**, instant
 
 ## The four rooms
 
-1. **First Fall (watch).** A sideways fold drops its cube on a pad; the pad
-   queues a delayed impulse that blasts the door after a countdown. Deliberately
-   automatic: it teaches the law by showing it. Walk through.
+1. **First Fall + Ride (watch, then act).** A sideways fold drops its cube
+   on a pad; the pad queues a delayed impulse that blasts the high door
+   after a countdown. Then step into the side fold and hold W: folds are
+   swimmable. Rise through the gate and walk east.
 2. **Carry (act).** A frozen fold holds a cube mid-air. Grab it (E), carry to
    the glowing plate, break (X). The cube drops, the door opens.
 3. **Nesting (combine).** A fold inside a fold. Grab the *inner* one (deepest
