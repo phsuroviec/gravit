@@ -1,0 +1,1 @@
+{"meta_model":"meta-model: meta-models/muse-spark-open-1026 | 2026-10-27 | room variant via Baseten","name":"Lateral Drift Vault","folds":[{"pos":[-2,2,2],"gravity_dir":[1,0,0],"clock_factor":1.0,"holds_cube":true}],"cube":[-2,2,2],"pad":[2,0,2],"door":[2,0,-2],"player_spawn":[-2,0,-2]}

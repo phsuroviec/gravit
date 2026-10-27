@@ -34,6 +34,8 @@ import urllib.request
 from pathlib import Path
 
 BASE = os.environ.get("META_API_BASE", "https://api.meta.ai/v1")
+BASETEN_BASE = os.environ.get("BASETEN_API_BASE", "https://inference.baseten.co/v1")
+BASETEN_KEY_ENV = "BASETEN_API_KEY"
 ENV_FILE = Path(os.environ.get("CCGRAM_ENV_FILE", "~/.ccgram/.env")).expanduser()
 
 
@@ -71,11 +73,14 @@ def git_commit() -> str:
         return ""
 
 
-def post(path: str, payload: dict, key: str, timeout: int = 120) -> dict:
+def post(path: str, payload: dict, key: str, timeout: int = 120, *, provider: str = "meta") -> dict:
+    base = BASETEN_BASE if provider == "baseten" else BASE
+    auth = f"Api-Key {key}" if provider == "baseten" else f"Bearer {key}"
     req = urllib.request.Request(
-        f"{BASE.rstrip('/')}/{path.lstrip('/')}",
+        f"{base.rstrip('/')}/{path.lstrip('/')}",
         data=json.dumps(payload).encode(),
-        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        headers={"Authorization": auth, "Content-Type": "application/json",
+                 "User-Agent": "gravit-meta-generate/1.0"},
         method="POST",
     )
     try:
@@ -102,7 +107,9 @@ def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true", help="report key presence and exit")
     ap.add_argument("--spend", action="store_true", help="token totals from the ledger, per model")
-    ap.add_argument("--model", help="Meta model id, e.g. muse-spark-1.3")
+    ap.add_argument("--provider", default="meta", choices=["meta", "baseten"],
+                    help="meta = Meta Model API; baseten = open-weight Muse Spark Open (free credits)")
+    ap.add_argument("--model", help="model id, e.g. muse-spark-1.3 or meta-models/muse-spark-open-1026")
     ap.add_argument("--purpose", default="", help="one line: what this artefact is for")
     ap.add_argument("--prompt", help="file with the prompt (kept in prompts/)")
     ap.add_argument("--out", help="output path (text/JSON for text models, image bytes for image models)")
@@ -114,7 +121,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--json-schema", help="optional JSON schema file for structured output")
     args = ap.parse_args(argv[1:])
 
-    key = load_key(args.key_env)
+    key_env = "BASETEN_API_KEY" if args.provider == "baseten" else args.key_env
+    key = load_key(key_env)
     if args.spend:
         # Token totals only: pricing lives in the provider's Billing page, not in this repo.
         rows = [json.loads(l) for l in LEDGER.read_text().splitlines() if l.strip()] if LEDGER.exists() else []
@@ -168,6 +176,7 @@ def main(argv: list[str]) -> int:
         append_ledger({
             "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "model": args.model,
+        "provider": args.provider,
             "purpose": args.purpose,
             "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest()[:16],
             "out": str(out_path.relative_to(ROOT)),
@@ -189,7 +198,7 @@ def main(argv: list[str]) -> int:
         }
 
     started = time.time()
-    resp = post("chat/completions", payload, key)
+    resp = post("chat/completions", payload, key, provider=args.provider)
     elapsed = round(time.time() - started, 2)
 
     choice = (resp.get("choices") or [{}])[0]
@@ -201,6 +210,7 @@ def main(argv: list[str]) -> int:
     append_ledger({
         "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "model": args.model,
+        "provider": args.provider,
         "purpose": args.purpose,
         "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest()[:16],
         "response_id": resp.get("id", ""),
