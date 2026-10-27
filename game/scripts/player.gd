@@ -46,6 +46,36 @@ func _unhandled_input(event: InputEvent) -> void:
 				_break_carried()
 			KEY_R:
 				get_tree().reload_current_scene()
+	elif event is InputEventJoypadButton and event.pressed:
+		# Pad mirrors keys (both stay live: seamless handoff, no menus).
+		match event.button_index:
+			JOY_BUTTON_X:
+				_interact()
+			JOY_BUTTON_B:
+				_break_carried()
+			JOY_BUTTON_Y:
+				_hud_action("show_next_hint")
+			JOY_BUTTON_BACK:
+				_airlock_action()
+			JOY_BUTTON_START:
+				get_tree().reload_current_scene()
+
+func _hud_action(method: String) -> void:
+	var hud = get_tree().get_first_node_in_group("hud")
+	if hud != null and hud.has_method(method):
+		hud.call(method)
+
+func _airlock_action() -> void:
+	for term in get_tree().get_nodes_in_group("airlocks"):
+		if term.has_method("try_narrate"):
+			term.call("try_narrate")
+
+# Right stick look, deadzoned, read straight off device 0: no InputMap
+# config to author, drift, or desync. Full tilt ~= mouse sweep.
+func _stick_look(delta: float) -> void:
+	var s := Vector2(Input.get_joy_axis(0, JOY_AXIS_RIGHT_X), Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y))
+	if s.length() > 0.2:
+		apply_look(s.normalized() * minf(s.length(), 1.0) * 220.0 * delta)
 
 # E latches the nearest fold (deepest wins near-ties: nested inner first),
 # E again sets it down, X breaks the carried one over a plate, R restarts.
@@ -109,6 +139,7 @@ func _physics_process(delta: float) -> void:
 	align_to_gravity(g)
 	# Arrows / left stick: Up is forward.
 	var iv := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	_stick_look(delta)
 	var wish := global_transform.basis * Vector3(iv.x, 0.0, iv.y)
 	wish -= up_direction * wish.dot(up_direction)
 	var planar := up_direction * velocity.dot(up_direction)

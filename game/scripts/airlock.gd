@@ -34,6 +34,11 @@ func _on_body_exited(body: Node3D) -> void:
 func _show_local() -> void:
 	($Screen as Label3D).text = GameText.fold_log(room_id)
 
+# Pad-Back entry point: narrate only when the player is actually here.
+func try_narrate() -> void:
+	if _player_inside:
+		narrate()
+
 func narrate() -> void:
 	var key := OS.get_environment("MODEL_API_KEY").strip_edges()
 	if force_local or key == "":
