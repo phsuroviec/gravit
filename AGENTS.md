@@ -49,6 +49,9 @@ names the next ticket and the level it needs.
    Every non-trivial mechanic leaves one runnable check that fails when the mechanic breaks.
 5. **Verify before claiming done**: run the check, state the command and its output.
 6. **Commit** small and often; push to `main` (solo repo). No force-push after submission.
+   Never finish work with uncommitted or unpushed changes: end every task by running
+   `git status --short` (must be blank or intentionally ignored) and confirming
+   `main` matches `origin/main`, so the next machine pulls everything.
 
 **Solo entry.** One person (Indie Developer track). Do not add co-authors, and do not accept teammate
 help that would need crediting: the submission lists everyone who worked on it.
