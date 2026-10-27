@@ -8,6 +8,7 @@ const ConsequenceQueue = preload("res://scripts/consequence_queue.gd")
 const ScopeBody = preload("res://scripts/scope_body.gd")
 const FoldBox = preload("res://fold_box.tscn")
 const Sfx = preload("res://scripts/sfx.gd")
+const Player = preload("res://scripts/player.gd")
 
 const GRAV := 9.8
 
@@ -24,6 +25,7 @@ func _init() -> void:
 	test_vii_carry_place_break()
 	test_viii_telegraphing()
 	test_ix_content_wired()
+	test_x_fall_respawn()
 	if _failures == 0:
 		print("=== ALL 4 INVARIANTS PASSED ===")
 		quit(0)
@@ -293,3 +295,17 @@ func test_ix_content_wired() -> void:
 				ok = false
 		_assert(ok, "(ix) plates textured in " + path.get_file())
 		room.free()
+
+# Invariant (x): falling below the world returns to last safe ground.
+func test_x_fall_respawn() -> void:
+	var player = Player.new()
+	player.position = Vector3(0, -20, 0)
+	_assert(player.needs_respawn() == true, "(x) deep fall needs respawn")
+	player.position = Vector3(0, 1, 0)
+	_assert(player.needs_respawn() == false, "(x) normal play needs nothing")
+	player.last_safe_pos = Vector3(9, 1, 0)
+	player.position = Vector3(9, -20, 0)
+	player.respawn()
+	_assert(player.position.is_equal_approx(Vector3(9, 1, 0)), "(x) respawn returns to safe ground")
+	_assert(player.velocity.is_zero_approx(), "(x) respawn zeroes velocity")
+	player.free()

@@ -16,6 +16,9 @@ const Sfx = preload("res://scripts/sfx.gd")
 var active_scopes: Array = []
 var carried_fold = null
 var _was_airborne := false
+const KILL_Y := -12.0
+var last_safe_pos := Vector3(-4, 1, 0)
+var _safe_cool := 0
 
 func _ready() -> void:
 	# Rooms wire their own children in their _ready, which runs before this
@@ -139,8 +142,30 @@ func _break_carried() -> void:
 	f.break_fold(room, active_scopes)
 	f.free()
 
+# Fall recovery: last stable ground wins, whole-run restart not required.
+func _track_ground() -> void:
+	if is_on_floor():
+		_safe_cool += 1
+		if _safe_cool >= 60:
+			_safe_cool = 0
+			last_safe_pos = position
+	else:
+		_safe_cool = 0
+
+func needs_respawn() -> bool:
+	return position.y < KILL_Y
+
+func respawn() -> void:
+	position = last_safe_pos
+	velocity = Vector3.ZERO
+	_was_airborne = false
+
 func _physics_process(delta: float) -> void:
 	_discard_dead_fold()
+	_track_ground()
+	if needs_respawn():
+		respawn()
+		return
 	var g := scope_gravity()
 	var cf := FoldScope.applied_clock_factor(self, active_scopes)
 	align_to_gravity(g)
