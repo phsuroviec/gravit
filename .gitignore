@@ -33,3 +33,4 @@ desktop.ini
 .idea/
 .vscode/
 __pycache__/
+*.uid
