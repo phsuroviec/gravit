@@ -9,6 +9,7 @@ assets. Update it in the same commit as the artefact.
 | 2026-10-26 | muse-spark-1.3 | room briefings + hint ladders (T6) | `game/data/hints.json` | human wrote prompt + schema + validator; model wrote the text |
 | 2026-10-26 | muse-image-1.0 | 6 signage decals (T6) | `game/assets/decals/*.webp` + sidecars | human wrote prompts, picked opaque-plate style, eyeballed output |
 | 2026-10-26 | muse-image-1.0 | fold shell membrane texture (T13) | `game/assets/decals/shell_membrane.webp` + sidecar | human wrote prompt, eyeballed output, wired as emission map |
+| 2026-10-26 | muse-image-1.0 | release cover art | `game/assets/decals/cover_art.webp` + sidecar | human wrote prompt, eyeballed output |
 
 ## Conventions
 

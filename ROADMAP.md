@@ -22,7 +22,7 @@ Two hard gates:
 | Oct 31 (Sat) | Airlock terminal (runtime call, 2.5 s local fallback), `[R]` restart, `[H]` hint, post-completion Replay Timer | Room 3 completion shows the fold log with no frame hitch |
 | Nov 1 (Sun) | Telegraphing pass: warm spotlights, particle streams inside folds, countdown SFX, felt-speed audit | Fresh playtest clears rooms 1–3 in under 3 minutes, unassisted |
 | Nov 2 (Mon) | Bug bash, clean-boot check | **Cut line**: `v1.0-freeze` |
-| Nov 3 (Tue) | Record 60 FPS lossless clips, 43 s voice-over, `muse-voice-transcribe-1.0` captions, edit | Video assembled, under 3:00 |
+| Nov 3 (Tue) | Record 60 FPS lossless clips, 43 s voice-over, `muse-voice-transcribe-1.0` captions, edit | Video assembled, under 3:00. Pipeline ready: `scripts/transcribe.py` (endpoint partially mapped, confirm on first real audio), timed captions in `docs/demo/captions.srt`, cover art in `game/assets/decals/cover_art.webp` |
 | Nov 4 (Wed) | README/judging text, `scripts/meta-proof.sh`, submission | Submitted before **9:00 PM ET** |
 
 ## Fallbacks (trigger, do not debate)
