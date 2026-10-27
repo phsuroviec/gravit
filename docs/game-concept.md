@@ -5,7 +5,7 @@
 ## The law
 
 > Gravity and time are properties of the **scope you are standing in**, not of the world.
-> Space can be folded: a fold is a bounded scope you can carry, place and break. Inside a fold you fall
+> Space can be folded: a fold is a bounded scope you can carry and place. Carried it is inert; placed it is live. Inside a fold you fall
 > toward the fold's own down, and your clock runs at the fold's rate. Anything you set going inside a fold
 > arrives in the parent world late — the deeper the fold, the later.
 
@@ -17,7 +17,7 @@ from those two numbers.
 | Seat | Candidate it picked | Decisive argument |
 | --- | --- | --- |
 | Design craft (rams) | Fold law | Only concept where an LLM is load-bearing, not decorative; unique in one sentence |
-| Player psychology (kahneman) | Fold law | "Break it → the world outside changes" is self-explaining in 30 s, no narration |
+| Player psychology (kahneman) | Fold law | "Set it down → the world outside changes" is self-explaining in 30 s, no narration |
 | Systems (meadows) | Gravity lag | Fold's three free parameters are hand-waved; lag has exactly one caveat |
 | Mechanism (ada) | Fold law | Scope tree + affine clock = 6 invariants, testable headlessly, no viewport |
 | Feasibility (torvalds) | Gravity lag | Nested sub-worlds (SubViewport/World3D) are a 5-day transform-bug sink for a beginner |
@@ -41,7 +41,7 @@ states its fold numbers; no phase transitions, no automatic coupling to contents
 | --- | --- | --- |
 | M1 | Walk, look, jump | `CharacterBody3D`, gravity applied manually from `applied_gravity()` |
 | M2 | Fold placed in the world | `Area3D` + visible translucent shell; carries `gravity_dir`, `clock_factor` |
-| M3 | Carry a fold, place it, break it | hold key latches the fold to the player; break removes the Area3D and drops contents |
+| M3 | Carry a fold (inert), place it (live) | E latches the fold to the player and switches its scope off; E again sets it down and switches it on. Nothing is ever destroyed |
 | M4 | Fall the fold's way inside | same `applied_gravity()` for player and `RigidBody3D`; no per-body special cases |
 | M5 | Delayed consequence | queue of `(body, impulse)` applied to the parent scope after `clock_factor × delay`; one countdown ring per queued event |
 | M6 | Exit reachable only via a fold | the last room's door opens from an event queued through a fold |
@@ -100,9 +100,9 @@ history buffer, three rooms, still one law, still ship a demo. Record the swap h
 | Impact 30% | Weakest axis for any game; counter with a "playable explanation" panel: the fold law taught by play, plus a 90-second "what this models" note (scope-relative time is how nested schedulers actually behave) |
 | Use of Meta AI Tooling 25% | Four genuine uses, one demo-visible (fold log), all attributable |
 | Technical Depth 20% | One pure gravity function, one scope tree, one delay queue; headless tests for the invariants |
-| Demo 25% | Opens on the effect (break a fold → the parent world moves), never on the premise |
+| Demo 25% | Opens on the effect (set a fold down → the parent world moves), never on the premise |
 
 ## Demo opening (write this before coding the polish)
 
-0:00–0:10 — player drops a crate into a fold; it falls *sideways*; break the fold; the crate lands behind a
+0:00–0:10 — player sets a fold over a crate; it falls *sideways*; the crate lands behind a
 wall in the parent world, and a door that was closed is now open. No narration. Then the title.

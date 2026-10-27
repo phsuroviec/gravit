@@ -1,7 +1,7 @@
-# res://tests/t7_check.gd — T7 live exit test. HUD hints, airlock fallback
-# narration, Room 3 completion + replay-timer unlock. The AI path is forced
-# local (deterministic); transport is engine-standard HTTPRequest, verified
-# once by hand against the live API.
+# res://tests/t7_check.gd — T7 live exit test, one room. HUD hints, airlock
+# fallback narration, exit completion + replay-timer unlock. The AI path is
+# forced local (deterministic); transport is engine-standard HTTPRequest,
+# verified once by hand against the live API.
 extends Node3D
 
 var frames := 0
@@ -13,7 +13,7 @@ var airlock = null
 func _ready() -> void:
 	player = $Player
 	hud = $HUD
-	airlock = $Room3/Airlock
+	airlock = $Room1/Airlock
 
 func _press(keycode: int) -> void:
 	var ev := InputEventKey.new()
@@ -24,7 +24,7 @@ func _press(keycode: int) -> void:
 func _expected_fold_log() -> String:
 	var text := FileAccess.get_file_as_string("res://data/hints.json")
 	var parsed: Variant = JSON.parse_string(text)
-	return parsed["rooms"][2]["fold_log"]
+	return parsed["rooms"][0]["fold_log"]
 
 func _check(cond: bool, msg: String) -> void:
 	if cond:
@@ -39,16 +39,16 @@ func _physics_process(_delta: float) -> void:
 		_press(KEY_H)
 	if frames == 10:
 		_check(hud.get_node("Hint").text != "", "(t7) H shows a hint")
-		player.global_position = Vector3(27.5, 1, 2.5)
+		player.global_position = Vector3(0.4, 0.9, 2.6)
 	if frames == 20:
 		_check(airlock.screen_text() != "", "(t7) terminal shows local fold log")
 		airlock.force_local = true
 		_press(KEY_T)
 	if frames == 30:
 		_check(airlock.screen_text() == _expected_fold_log(), "(t7) offline narration falls back to local")
-		player.global_position = Vector3(33, 1, 0)
+		player.global_position = Vector3(9.2, 2.6, 0)
 	if frames == 130:
-		_check(GameState.completions >= 1, "(t7) room 3 completion registers")
+		_check(GameState.completions >= 1, "(t7) completion registers")
 		_check(hud.get_node("Complete").visible, "(t7) completion shown with fold log")
 		_check(hud.timer_unlocked(), "(t7) replay timer unlocked")
 		if failures == 0:

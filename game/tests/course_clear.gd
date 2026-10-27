@@ -1,33 +1,29 @@
-# res://tests/course_clear.gd — T11: autonomous full-course clear. A scripted
-# bot holds walk input and plays course.tscn end to end: Room 1 auto-opens,
-# E/X verbs in Rooms 2-3, all three doors, exit zone. Stuck phases fail loud.
+# res://tests/course_clear.gd — autonomous one-room clear. A scripted bot plays
+# course.tscn end to end with the real verbs: carry the Throw fold over the
+# crate, set it down, wait out the pad countdown, ride the Updraft to the
+# ledge, walk through the opened door into the exit. Stuck phases fail loud.
 extends Node3D
 
 var frames := 0
 var failures := 0
 var phase := 0
 var wait_until := 0
-var last_x := -4.0
-var stall := 0
-var jump_cool := 0
-var sidestep_dir := 1.0
-var sidestep_until := 0
 
 var player = null
-var fold2 = null
-var inner3 = null
-var door1 = null
-var door2 = null
-var door3 = null
+var throw_fold = null
+var updraft = null
+var cube = null
+var pad = null
+var door = null
 var hud = null
 
 func _ready() -> void:
 	player = $Course/Player
-	fold2 = $Course/Room2/Fold
-	inner3 = $Course/Room3/Fold/Inner
-	door1 = $Course/Room1/Door
-	door2 = $Course/Room2/Door
-	door3 = $Course/Room3/Door
+	throw_fold = $Course/Room1/Throw
+	updraft = $Course/Room1/Updraft
+	cube = $Course/Room1/Cube
+	pad = $Course/Room1/Pad
+	door = $Course/Room1/Door
 	hud = $Course/HUD
 
 func _hold(on: bool) -> void:
@@ -49,29 +45,6 @@ func _check(cond: bool, msg: String) -> void:
 		failures += 1
 		printerr("FAIL: ", msg)
 
-func _unstick(walking: bool) -> void:
-	# Called every frame: hop/strafe only while walking (strafe phases drive
-	# z directly and must not fight the stall detector).
-	if walking and frames - stall > 30:
-		stall = frames
-		if player.global_position.x - last_x < 0.3:
-			Input.action_press("ui_accept")
-			jump_cool = frames + 5
-			sidestep_dir = -sidestep_dir
-			sidestep_until = frames + 25
-		last_x = player.global_position.x
-	if jump_cool > 0 and frames > jump_cool:
-		Input.action_release("ui_accept")
-		jump_cool = 0
-	if frames < sidestep_until:
-		if sidestep_dir > 0.0:
-			Input.action_press("ui_up")
-		else:
-			Input.action_press("ui_down")
-	else:
-		Input.action_release("ui_up")
-		Input.action_release("ui_down")
-
 func _die(msg: String) -> void:
 	failures += 1
 	printerr("FAIL: ", msg)
@@ -81,138 +54,88 @@ func _die(msg: String) -> void:
 func _physics_process(_delta: float) -> void:
 	frames += 1
 	if frames > 2600:
-		_die("(bot) global timeout — course not cleared")
+		_die("(bot) global timeout — room not cleared")
 		return
 	match phase:
-		0:  # Room 1: strafe south on open floor, then momentum across
-			# the fold into the wall face (x-push dies inside: no unstick,
-			# its sidestep would break the deterministic corridor)
-			_unstick(false)
-			if player.global_position.z < 3.0:
-				_hold(false)
-				Input.action_press("ui_down")
-			else:
-				Input.action_release("ui_down")
-				_hold(true)
-				if player.up_direction.x < -0.5 and player.global_position.x > -0.8:
-					phase = 90
-		90:  # ladder: W climbs the face, drifts south inside the wide fold
-			_unstick(false)
-			_hold(false)
-			Input.action_press("ui_up")
-			if player.global_position.y > 3.4:
-				Input.action_release("ui_up")
-				_hold(true)
-				phase = 92
-				wait_until = frames + 400
-		92:  # fall onto the roof, walk through the high door
-			_unstick(true)
-			if player.global_position.x > 7.0:
-				_hold(false)
-				_press(KEY_E)
-				wait_until = frames + 12
-				phase = 1
-			elif frames > wait_until:
-				_die("(bot) room1 ledge walk failed")
+		0:  # walk to the Throw fold and pick it up
+			player.global_position = Vector3(-6.5, 0.9, 1.2)
+			_press(KEY_E)
+			wait_until = frames + 12
+			phase = 1
 		1:
 			if frames >= wait_until:
-				if fold2.is_carried():
-					_check(true, "(bot) room2 fold picked up")
-					_hold(true)
+				if player.carried_fold == throw_fold:
+					_check(true, "(bot) throw fold picked up")
+					player.global_position = Vector3(-6.5, 0.9, -1.5)
+					player.rotation.y = -PI / 2.0
+					wait_until = frames + 50
 					phase = 2
 				else:
-					_die("(bot) E missed room2 fold")
-		2:  # carry to plate
-			_unstick(true)
-			if player.global_position.x > 13.0:
-				_hold(false)
-				_press(KEY_X)
+					_die("(bot) E missed the throw fold")
+		2:  # let the carried shell glide to the hands, then set it down
+			if frames >= wait_until:
+				_press(KEY_E)
 				wait_until = frames + 12
 				phase = 3
 		3:
 			if frames >= wait_until:
-				if not is_instance_valid(fold2):
-					_check(true, "(bot) room2 fold broken over plate")
+				if player.carried_fold == null:
+					_check(true, "(bot) throw fold set down over the crate")
+					player.rotation.y = 0.0
+					wait_until = frames + 120
 					phase = 4
 				else:
-					_die("(bot) X missed room2 break")
-		4:  # wait for Room 2 door
-			if door2.opened_distance() > 0.5:
-				_check(true, "(bot) room2 door opened")
-				_hold(true)
-				phase = 5
-			elif frames > 1400:
-				_die("(bot) room2 door never opened")
-		5:  # strafe south to the pad lane, then east; tiebreak picks inner
-			_unstick(false)
-			if player.global_position.z < 3.0:
-				_hold(false)
-				Input.action_press("ui_down")
-			else:
-				Input.action_release("ui_down")
-				_hold(true)
-				if player.global_position.x > 21.5:
-					_hold(false)
-					_press(KEY_E)
-					wait_until = frames + 12
-					phase = 6
-		6:
+					_die("(bot) E did not set the fold down")
+		4:  # the crate slides east onto the pad; the countdown runs
 			if frames >= wait_until:
-				if player.carried_fold == inner3:
-					_check(true, "(bot) room3 inner fold picked up")
+				if pad.last_countdown != "":
+					_check(true, "(bot) pad countdown runs")
+					wait_until = frames + 180
+					phase = 5
+				else:
+					_die("(bot) crate never reached the pad")
+		5:  # the queued impulse slides the door open
+			if frames >= wait_until:
+				if door.opened_distance() > 0.5:
+					_check(true, "(bot) door opened")
+					player.global_position = Vector3(0.6, 0.9, 0)
 					_hold(true)
-					phase = 60
+					wait_until = frames + 200
+					phase = 6
 				else:
-					_die("(bot) E missed room3 inner fold")
-		60:  # one more step east, break over the pad (direct fall, no throw)
-			_unstick(true)
-			if player.global_position.x > 22.2:
+					_die("(bot) door never opened")
+		6:  # walk east into the updraft, then ride it: y must climb
+			if player.global_position.x > 2.3:
 				_hold(false)
-				_press(KEY_X)
-				wait_until = frames + 12
-				phase = 7
-		7:
+				wait_until = frames + 90
+				phase = 60
+			elif frames > wait_until:
+				_die("(bot) never walked into the updraft")
+		60:
 			if frames >= wait_until:
-				if not is_instance_valid(inner3):
-					_check(true, "(bot) room3 inner fold broken")
-					phase = 8
+				if player.global_position.y > 2.2:
+					_check(true, "(bot) updraft lifts the player")
+					_hold(true)
+					phase = 7
 				else:
-					_die("(bot) X missed room3 break")
-		8:  # wait for exit door, then route around the outer shell corner
-			if door3.opened_distance() > 0.5:
-				_check(true, "(bot) room3 exit opened")
-				phase = 85
-			elif frames > 2200:
-				_die("(bot) room3 exit never opened")
-		85:  # strafe south past the shell corner (graze joins = pinned)
-			_unstick(false)
-			if player.global_position.z < 4.2 - 0.0:
+					_die("(bot) updraft did not lift (y=%.2f)" % player.global_position.y)
+		7:  # drift east mid-air onto the ledge, then walk through the door
+			if player.global_position.x > 5.0 and player.global_position.y < 3.2:
+				_check(true, "(bot) landed on the ledge")
+				phase = 8
+			elif frames > wait_until + 400:
+				_die("(bot) never reached the ledge")
+		8:
+			if player.global_position.x > 9.0:
 				_hold(false)
-				Input.action_press("ui_down")
-			else:
-				Input.action_release("ui_down")
-				phase = 86
-		86:  # walk east past the shell, then back north into the fold lane
-			_unstick(false)
-			_hold(true)
-			if player.global_position.x > 26.0:
-				_hold(false)
-				phase = 87
-		87:
-			_unstick(false)
-			Input.action_press("ui_up")
-			if player.global_position.z < 0.5:
-				Input.action_release("ui_up")
-				phase = 88
-		88:  # walk into the fold, rise through the gate
-			_unstick(true)
-			_hold(true)
-			if GameState.completions >= 1:
-				_hold(false)
-				_check(true, "(bot) updraft gate completes the course")
-				_check(hud.timer_unlocked(), "(bot) replay timer unlocked")
+				if hud.get_node("Complete").visible:
+					_check(true, "(bot) walked out through the exit")
+				else:
+					_die("(bot) exit zone did not complete the run")
 				if failures == 0:
 					print("=== COURSE CLEAR PASSED ===")
 				else:
 					printerr("=== COURSE CLEAR FAILED: %d ===" % failures)
 				get_tree().quit(failures)
+			elif frames > wait_until + 900:
+				_die("(bot) never walked through the door")

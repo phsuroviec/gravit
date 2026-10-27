@@ -1,6 +1,7 @@
 # res://tests/variant_check.gd — T6 bonus exit test: the open-weight layout
-# plays. Bot walks to the holding fold, carries to the pad, breaks; the
-# queued impulse opens the generated door. Same verbs, generated numbers.
+# plays. Bot walks to the holding fold, carries it to the pad, sets it down;
+# the crate drops onto the pad and the queued impulse opens the generated
+# door. Same verbs, generated numbers.
 extends Node3D
 
 const VariantRoom = preload("res://scripts/variant_loader.gd")
@@ -104,17 +105,17 @@ func _physics_process(_delta: float) -> void:
 					get_tree().quit(failures)
 		2:  # carry to the pad
 			if _seek(pad_pos, 1.2):
-				_press(KEY_X)
+				_press(KEY_E)
 				wait_until = frames + 12
 				phase = 3
 		3:
 			if frames >= wait_until:
-				if not is_instance_valid(fold0):
-					_check(true, "(v6) break over the generated pad")
+				if player.carried_fold == null:
+					_check(true, "(v6) set down over the generated pad")
 					phase = 4
 				else:
 					failures += 1
-					printerr("FAIL: (v6) X missed the generated break")
+					printerr("FAIL: (v6) E did not set the fold down")
 					get_tree().quit(failures)
 		4:
 			if pad.last_countdown != "":

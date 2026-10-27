@@ -1,71 +1,68 @@
-# Gravit manual — laws, goal, mechanics, rooms
+# Gravit manual — law, goal, verbs, the one room
 
 ## The law (the entire game in two sentences)
 
 Gravity and time belong to the **scope you stand in**, not the world. A fold is
-a bounded region with its own gravity direction and clock rate: inside it you
-fall the fold's way, and anything you set going inside arrives outside late.
+a bounded region with its own gravity direction: inside it you fall the fold's
+way. **Carried, a fold is inert. Set down, it is live.** You can never be
+inside the gravity you are holding.
 
 ## Goal
 
-Four rooms in one run, west to east. Open each room's exit door, walk through,
-ride the updraft gate at the end. The win screen shows your time and best.
+One room. Get the crate onto the teal pad — the door opens after a countdown —
+then ride the updraft to the ledge and walk out through the door. The win
+screen shows your time and best.
 
 ## Verbs (all you can do, all you ever need)
 
 | Input | Effect |
 | --- | --- |
 | Walk (arrows / WASD / left stick), mouse / right stick look, Space jump | ordinary movement; jump always fires away from your *current* down |
-| **E** (pad X) near a fold | pick it up: it glides to your hands, contents freeze in place. A glowing ring on the ground marks the fold E will take |
-| **E** again | set it down where it floats in front of you; contents move with it |
-| **X** (pad B) while carrying | **break** it: contents drop where it stands, back in parent gravity |
-| H (pad Y) | next hint for your room |
+| **E** (pad X) near a fold | pick it up: it goes inert, glides to your hands, contents freeze in place. A glowing ring on the ground marks the fold E will take |
+| **E** again | set it down where it floats in front of you: it goes live, contents wake inside it |
+| H (pad Y) | next hint |
 | T (pad Back) | airlock narration (AI when online, local fold log otherwise) |
 | R (pad Start), Esc | restart run / free the mouse cursor |
 
-Nothing else exists: no inventory, no keys, no currency, no enemies, no death.
-The only fail state is *stuck* (cube somewhere useless) — press **R**, instant.
+Nothing else exists: no inventory, no keys, no currency, no enemies, no death,
+and nothing can be destroyed — so there is no way to get stuck that R cannot
+answer instantly.
 
 Designer view of the same mechanics: [`folds-explained.md`](folds-explained.md).
 
 ## What you are looking at
 
-- **Pale blue cube with a warm light and an orange particle stream** — a fold. The stream falls the
-  fold's way: that is its gravity, readable before you step in.
-- **Ring on the ground under a fold** — that is the one E will pick up. No ring, no pickup.
-- **Hands on either side of the cube** — you are carrying it.
-- **Green/teal tile on the floor** — a pad. Standing on it (or dropping something on it) shoves the
-  room's door open *after the countdown floating above it*. It is not a fold and cannot be carried.
-- **Paper-white billboard plates** — signage only, warnings and arrows.
+- **Coloured translucent cube with a warm light and a particle stream** — a
+  fold. Colour is gravity (cyan pulls east, green pulls up); the stream falls
+  the fold's way. Read it before you step in.
+- **Ring on the ground under a fold** — that is the one E will pick up. No
+  ring, no pickup.
+- **Hands at the bottom of the screen** — you are carrying a fold. It is
+  switched off until you set it down.
+- **Green/teal strip on the floor** — a pad. Only the *crate* sets it off, not
+  you. It shoves the room's door open *after the countdown floating above it*.
+  It is not a fold and cannot be carried.
+- **White billboard plates** — signage only.
+- **Amber strip on the ledge edge, green glow in the doorway** — where to
+  land, where to leave.
 
-## The four rooms
+## The room, beat by beat
 
-1. **First Fall + Ride (watch, then act).** A sideways fold drops its cube
-   on a pad; the pad queues a delayed impulse that blasts the high door
-   after a countdown. Then step into the side fold and hold W: folds are
-   swimmable. Rise through the gate and walk east.
-2. **Carry (act).** A frozen fold holds a cube mid-air. Grab it (E), carry to
-   the glowing plate, break (X). The cube drops, the door opens.
-3. **Nesting (combine).** A fold inside a fold. Grab the *inner* one (deepest
-   wins ties), carry it back over the outer shell, break: the cube transfers to
-   the outer scope, its leftward gravity throws the cube west onto the plate.
-4. **Updraft (ride).** Walk off the edge into the pit and the UP fold catches
-   you. Rise through the exit gate hovering in the draft. Falling back in just
-   lifts you again — the pit cannot trap you.
+1. **Throw.** Pick up the cyan fold, carry it to the shelf so it covers the
+   crate, set it down. The crate slides east off the shelf and drops onto the
+   teal strip. Countdown, door opens.
+2. **Ride.** Walk into the green fold. It lifts you; drift east at the top
+   onto the ledge and walk through the open door.
 
 ## Properties worth knowing
 
 - Folds never move physics bodies: carried bodies stay parented to the room,
-  frozen. Breaking preserves everything (contents + child folds transfer up).
+  frozen. Setting down wakes them where the fold lands.
+- You cannot carry a fold and stand inside it at the same time. Every
+  obstacle is: put the patch of down where you need it, use it, leave it to
+  move it further.
 - Queued consequences fire exactly once, late by design (delay × clock).
   A freed target is dropped and counted, never an error.
 - Your up flips with gravity; the camera never rolls. Walking out of a fold
   returns you to normal mid-air and you land safely.
-- Pads queue one impulse per entry; doors blast forward and retract.
 - Timer hides until your first completion, then times every replay; best kept.
-
-## If something feels wrong
-
-- Mouse trapped: **Esc**. Fell somewhere odd: **R**. Cube lost: **R**.
-- Report: where you stood, what you tried, what you expected. That sentence is
-  a complete bug report for this game.

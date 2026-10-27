@@ -8,7 +8,7 @@ version in [`manual.md`](manual.md).
 
 Gravity and time are not properties of the world. They are properties of **the scope you are
 standing in**. The world's scope has gravity down and clock 1. A **fold** is a small box-shaped
-scope you can see, touch, carry, place and break. Inside it, a different gravity and a different
+scope you can see, touch, carry and place. Inside it, a different gravity and a different
 clock rate apply. Nothing else changes: no portals, no second world, no separate physics.
 
 ## What a fold physically is
@@ -30,13 +30,14 @@ clock rate apply. Nothing else changes: no portals, no second world, no separate
 | --- | --- | --- |
 | 1 | **Redirects fall** | Anything inside falls the fold's way, at up to 9.8 m/s². A fold pointed east throws a cube east. |
 | 2 | **Runs its own clock** | Consequences started inside it land later in the world outside, scaled by `clock_factor`. A pad inside a 2× fold fires its door twice as late. |
-| 3 | **Can be carried and placed** | Press **E** to lift it; its contents freeze in place and ride along. Press **E** again to set it down where it floats in front of you. |
-| 4 | **Can be broken** | Press **X** while carrying it to destroy the shell. Its contents and any nested folds are handed back to the surrounding scope — they then fall the *outer* way. |
+| 3 | **Can be carried — inert** | Press **E** to lift it. Its scope switches off: it lends no gravity to anything, including you. Its contents freeze in place and ride along. Nothing is destroyed, so nothing can be lost. |
+| 4 | **Goes live when placed** | Press **E** again to set it down where it floats in front of you. Its scope switches on; contents wake inside it and fall the fold's way. |
 
 That is all. No combat, no keys, no inventory, no third ability hiding in a menu. Every puzzle in
 the game is a combination of those four: change which way a thing falls, change when a thing
-arrives, move the region so a thing falls somewhere new, or remove the region so a thing falls the
-old way again.
+arrives, move the region so a thing falls somewhere new, or lift the region so a thing falls the
+old way again. And the constraint that makes it a game: **you cannot carry a fold and stand
+inside it at the same time.** Every obstacle is put it down, use it, leave it to move it further.
 
 ## The rules that make it feel fair (boundaries)
 
@@ -53,15 +54,13 @@ old way again.
 - **Setting down** (E) drops it exactly where it was floating — including the wall-squeezed
   position. You never place it inside yourself or inside geometry.
 - **The drop point stays inside the scope you are standing in.** The hold distance is under a fold's
-  own width on purpose: if you break a fold while standing in an outer fold, its contents land
-  inside that outer fold and inherit *its* gravity. Break it from outside and they land in the
-  world. That choice is the room-3 puzzle, so the numbers are tuned, not arbitrary.
+  own width on purpose: set a fold down while standing in an outer fold and its contents land
+  inside that outer fold and inherit *its* gravity. Set it down from outside and they land in the
+  world. The numbers are tuned, not arbitrary.
 - **Contents are frozen while carried.** Cubes inside it stop moving and keep their offset, so a
-  carried fold is a box of held cargo. Breaking it releases the cargo where it stands.
-- **Breaking preserves everything.** Contents and child folds transfer to the parent scope. Nothing
-  is ever destroyed by the fold being removed; it just changes which way it falls.
-- **Nesting is legal.** A fold inside a fold: the deepest one wins for anything inside it. Breaking
-  the inner one hands its contents to the outer one — which is how room 3 throws a cube west.
+  carried fold is a box of held cargo. Setting it down wakes the cargo where it lands.
+- **Nothing is ever destroyed.** There is no break verb, so a required fold can never be lost and
+  the run can never soft-lock. R restarts, but it is a choice, never a rescue.
 - **Pads and doors are not folds.** They are ordinary world objects; folds only change how things
   fall near them and how late their consequences arrive.
 
@@ -91,30 +90,24 @@ decals, not objects.
 - **No fail state except stuck** (a cube in a useless place, or you fell). **R** restarts the run
   instantly, so experimentation is free — this is a puzzle game about trying things.
 
-## The four rooms, and which ability each one teaches
+## The one room, and which ability each beat teaches
 
-1. **First Fall + Ride** — watch ability 1 and 2 happen without you; then use the fold as a
-   swimmable column (hold W) to climb out. Teaching: *a fold changes fall, and you are subject to it
-   too.*
-2. **Carry** — a fold holds a cube in mid-air with its gravity pointing down, so the cube floats
-   inside it. Pick the fold up (E), walk it over the plate, break it (X). Teaching: *carrying a
-   scope moves the scope, not the thing.*
-3. **Nesting** — a fold inside a fold. Break the inner one and the cube is handed to the outer one,
-   whose leftward gravity throws the cube west onto the plate. Teaching: *scopes nest, and breaking
-   one hands content outward.*
-4. **Updraft** — an UP fold in a pit. Walk off the edge, get caught, rise. Teaching: *a fold can be
-   a lift you do not have to hold.* Plus the exit gate is reachable only while inside it.
+1. **Throw** — the cyan fold starts on the floor doing nothing. Pick it up (E), carry it to the
+   shelf so it covers the crate, set it down (E). The crate slides east off the shelf and drops
+   onto the teal strip; the countdown runs; the door opens. Teaching: *carrying a scope moves the
+   scope, not the thing — and setting it down is what turns it on.*
+2. **Ride** — the green fold stands east of the shelf, always live. Walk in and it lifts you; drift
+   east at the top onto the ledge and walk through the open door. Teaching: *a fold changes fall,
+   and you are subject to it too.*
 
 ## How to use a fold, in the order you will actually do it
 
 1. Find the ring: that is the fold E will take.
-2. Read its particle stream: that arrow is "down" inside it.
+2. Read its colour and particle stream: that is "down" inside it.
 3. Decide where that down should point when you are done. Placing a fold where something can fall
    is the whole move.
-4. E to lift, walk, E to set down (cargo positions warp with it — that is a legitimate way to move a
-   cube through a gap it could not roll through).
-5. X to break when you want the contents handed back to normal gravity at that spot.
-6. If the result is wrong, R. Nothing is consumed, nothing is permanent.
+4. E to lift (it switches off), walk, E to set down (it switches on; cargo wakes where it lands).
+5. If the result is wrong, R. Nothing is consumed, nothing is permanent, nothing can be lost.
 
 ## Design guardrails (do not drift)
 

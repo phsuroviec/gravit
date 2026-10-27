@@ -235,9 +235,12 @@ func test_vii_carry_place_break() -> void:
 	room.add_child(anchor)
 	_assert(fold.get_parent() == room and cube.get_parent() == room, "(vii) setup flat under room")
 	fold.pickup(anchor)
+	_assert(scope.enabled == false, "(vii) carried fold goes inert")
+	_assert(FoldScope.applied_gravity(cube, 0.0, scopes).is_equal_approx(FoldScope.WORLD_GRAVITY), "(vii) inert fold lends no gravity")
 	_assert(cube.freeze == true, "(vii) pickup freezes bodies inside")
 	_assert(fold.is_carried() and fold.get_parent() == room and cube.get_parent() == room, "(vii) fold latched to anchor, everyone stays parented to room")
 	fold.place(room, Vector3(5, 0, 0))
+	_assert(scope.enabled == true, "(vii) placed fold goes live again")
 	_assert(fold.get_parent() == room and fold.position.is_equal_approx(Vector3(5, 0, 0)), "(vii) fold placed at target")
 	_assert(cube.position.is_equal_approx(Vector3(5, 2, 0)), "(vii) body teleported by fold delta, no desync")
 	_assert(cube.freeze == false and scope.has_body(cube), "(vii) place unfreezes, membership kept")
@@ -324,9 +327,7 @@ func test_viii_telegraphing() -> void:
 # textured in every room (billboarded, opaque).
 func test_ix_content_wired() -> void:
 	var specs := {
-		"res://room1.tscn": ["PlateWarn", "PlateArrow"],
-		"res://room2.tscn": ["PlateCarry", "PlateBreak"],
-		"res://room3.tscn": ["PlateClock", "PlateExit"],
+		"res://room1.tscn": ["PlateThrow", "PlateUp"],
 	}
 	for path in specs:
 		var packed := load(path) as PackedScene

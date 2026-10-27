@@ -1,9 +1,8 @@
 # Gravit
 
-**One law of nature, one small 3D puzzle course.** Gravity and time belong to the scope you are
-standing in. Space can be folded: a fold is a bounded region you can carry, place and break —
-inside it you fall the fold's way and your clock runs at the fold's rate, so what you set going
-inside arrives in the outside world late.
+**One law of nature, one room.** Gravity belongs to the scope you are
+standing in. Space can be folded: a fold is a bounded region you can carry
+(inert) and place (live) — inside it you fall the fold’s way.
 
 Built solo during the **Meta Global AI Developer Hackathon** (Oct 26 – Nov 4, 2026). Nothing in
 this repository predates the window: the first commit is Oct 26, and `git log` backs it.
@@ -11,15 +10,15 @@ this repository predates the window: the first commit is Oct 26, and `git log` b
 ## Play it
 
 Godot 4.7 — open the `game/` folder as a project and press play (or `godot --path game`).
-Three rooms in one run: walk, pick up folds, break them over the plates, reach the exit.
+One room, two beats: carry the east fold over the crate and set it down, then ride the updraft
+to the door and walk out.
 
 | Input | Action |
 | --- | --- |
 | Mouse / arrows | look / walk (Up is forward) |
 | Space | jump (away from your current down) |
-| E | pick up the nearest fold / set it down (deepest wins ties) |
-| X | break the carried fold where you stand |
-| H | next hint for the room you are in |
+| E | pick up the nearest fold (goes inert) / set it down (goes live) |
+| H | next hint |
 | T | airlock narration (AI when online, local fold log otherwise) |
 | R | restart |
 
@@ -47,11 +46,11 @@ file itself carries a `meta-model:` marker. `sh scripts/meta-proof.sh` renders b
 ## Verify it
 
 ```bash
-godot --headless --path game -s res://tests/test_runner.gd   # invariants, 47 PASS
-godot --headless --path game res://tests/door_check.tscn      # room 1 end to end
-godot --headless --path game res://tests/room2_check.tscn     # carry / break
-godot --headless --path game res://tests/room3_check.tscn     # nested folds
+godot --headless --path game -s res://tests/test_runner.gd   # invariants
+godot --headless --path game res://tests/door_check.tscn      # crate to pad to door
+godot --headless --path game res://tests/course_clear.tscn    # bot clears the room
 godot --headless --path game res://tests/t7_check.tscn        # hints / terminal / timer
+godot --headless --path game res://tests/variant_check.tscn   # open-weight layout plays
 python3 scripts/validate_data.py                               # generated JSON schemas
 sh scripts/meta-proof.sh && sh scripts/check-attribution.sh   # evidence + markers
 ```
@@ -61,7 +60,7 @@ sh scripts/meta-proof.sh && sh scripts/check-attribution.sh   # evidence + marke
 | Path | What |
 | --- | --- |
 | `game/` | Godot project — scenes, scripts, generated data |
-| `game/course.tscn` | the playable course (rooms 1–3 + player + HUD) |
+| `game/course.tscn` | the playable room (room 1 + player + HUD) |
 | `docs/game-concept.md` | the frozen law, mechanics, cut list, fallbacks |
 | `docs/demo-script.md` | the 3-minute video plan (shots, voice-over, capture specs) |
 | `docs/meta-proof.md` | generated evidence: receipts + markers |

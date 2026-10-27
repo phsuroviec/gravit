@@ -51,7 +51,7 @@ def check_hints(path: Path) -> None:
         return
     check_marker(doc, path)
     rooms = doc.get("rooms")
-    check(isinstance(rooms, list) and len(rooms) == 3, f"{path.name}: rooms must list exactly 3 rooms")
+    check(isinstance(rooms, list) and len(rooms) == 1, f"{path.name}: rooms must list exactly 1 room")
     for i, r in enumerate(rooms or []):
         tag = f"{path.name}: rooms[{i}]"
         check(isinstance(r, dict), f"{tag}: must be an object")

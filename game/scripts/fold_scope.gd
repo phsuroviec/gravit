@@ -9,6 +9,9 @@ const WORLD_GRAVITY := Vector3(0, -GRAV_MAG, 0)
 
 @export var gravity_dir: Vector3 = Vector3.DOWN
 @export var clock_factor: float = 1.0
+# A fold is live only while it lies in the world. Carried folds are inert, so
+# you can never be inside the gravity you are holding (T21).
+@export var enabled: bool = true
 
 var parent_scope: FoldScope = null
 var child_scopes: Array[FoldScope] = []
@@ -70,7 +73,7 @@ static func deepest_scope_for_body(body: Node3D, scopes: Array) -> FoldScope:
 		if not is_instance_valid(candidate):
 			continue
 		var scope := candidate as FoldScope
-		if scope == null:
+		if scope == null or not scope.enabled:
 			continue
 		if scope.has_body(body):
 			var depth := scope.get_depth()

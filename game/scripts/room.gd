@@ -8,20 +8,12 @@ func _ready() -> void:
 	var scopes: Array = get_tree().get_nodes_in_group("fold_scopes")
 	_assign_scopes(self, scopes)
 	_link_nested(scopes)
-	_cool_walls()
 
 func _assign_scopes(node: Node, scopes: Array) -> void:
 	if "active_scopes" in node:
 		node.set("active_scopes", scopes)
 	for child in node.get_children():
 		_assign_scopes(child, scopes)
-
-func _cool_walls() -> void:
-	# Contrast pass: cool grey-blue architecture against the folds' warm light.
-	var cool := StandardMaterial3D.new()
-	cool.albedo_color = Color(0.42, 0.48, 0.58)
-	for csg in find_children("*", "CSGBox3D", true, false):
-		(csg as CSGBox3D).material = cool
 
 func _link_nested(scopes: Array) -> void:
 	for scope in scopes:

@@ -1,6 +1,7 @@
 # res://tests/controller_check.gd — T15 live exit test. Pad buttons drive the
-# same verbs as keys (X=E, B=break, Y=hint); injected right-stick motion turns
-# the camera. Real device absent — parsed joy events feed the same pipeline.
+# same verbs as keys (X=interact, Y=hint; B is inert); injected right-stick
+# motion turns the camera. Real device absent — parsed joy events feed the
+# same pipeline.
 extends Node3D
 
 var frames := 0
@@ -48,9 +49,13 @@ func _physics_process(_delta: float) -> void:
 	if frames == 55:
 		_check(player.carried_fold != null, "(c) pad X picks up")
 	if frames == 60:
-		_joy_button(JOY_BUTTON_B)
+		_joy_button(JOY_BUTTON_X)
 	if frames == 75:
-		_check(player.carried_fold == null, "(c) pad B breaks")
+		_check(player.carried_fold == null, "(c) pad X sets down")
+	if frames == 78:
+		_joy_button(JOY_BUTTON_B)
+	if frames == 85:
+		_check(player.carried_fold == null, "(c) pad B stays inert")
 		_joy_button(JOY_BUTTON_Y)
 	if frames == 95:
 		_check($HUD.get_node("Hint").text != "", "(c) pad Y shows hint")

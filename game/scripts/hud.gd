@@ -12,10 +12,7 @@ var _last_room := ""
 var _brief_until_ms := 0
 
 const OBJECTIVES := {
-	"room1": "Room 1: teal pad shoves the door open after a countdown — then swim up the side fold (hold W)",
-	"room2": "Room 2: carry the frozen fold over the plate, then break it  [E grab · X break]",
-	"room3": "Room 3: break the inner fold where the outer throws west",
-	"room4": "Room 4: ride the updraft through the gate",
+	"room1": "Carry the east fold over the crate, set it down, then ride the updraft to the door",
 }
 
 func _ready() -> void:
@@ -31,12 +28,7 @@ func current_room_id() -> String:
 	var p = _player()
 	if p == null:
 		return "room1"
-	var x: float = (p as Node3D).global_position.x
-	if x < 6.0:
-		return "room1"
-	if x < 18.0:
-		return "room2"
-	return "room3"
+	return "room1"
 
 func show_next_hint() -> void:
 	var id := current_room_id()
@@ -77,7 +69,7 @@ func _prompt() -> void:
 		label.visible = false
 		return
 	if (p as Node).get("carried_fold") != null:
-		label.text = "E: set down   X: break"
+		label.text = "E: set down"
 		label.visible = true
 	elif (p as Node).get("target_fold") != null:
 		label.text = "E: grab fold"

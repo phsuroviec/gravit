@@ -31,6 +31,10 @@ func _ready() -> void:
 	($ThudPlayer as AudioStreamPlayer).stream = Sfx.thud()
 
 func _on_body_entered(body: Node3D) -> void:
+	# The pad answers to cargo, not to you: walking over it yourself does
+	# nothing, so the puzzle can never be bypassed on foot.
+	if body.is_in_group("player"):
+		return
 	if pending_item == null and body is PhysicsBody3D:
 		trigger(body)
 

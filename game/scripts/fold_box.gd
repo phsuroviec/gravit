@@ -121,10 +121,12 @@ func _on_body_exited(body: Node3D) -> void:
 	if body is PhysicsBody3D and body != carrier:
 		get_scope().remove_body(body)
 
-# Latch to the carrier. Bodies freeze where they are (room space).
+# Latch to the carrier. The fold goes inert (you cannot be inside the gravity
+# you are holding) and bodies inside freeze where they are, in room space.
 func pickup(anchor: Node3D) -> void:
 	carrier = anchor.get_parent() as Node3D
 	var scope := get_scope()
+	scope.enabled = false
 	if carrier != null:
 		scope.remove_body(carrier)
 	carry_offsets.clear()
@@ -156,6 +158,7 @@ func place(room_root: Node3D, target: Vector3) -> void:
 		reparent(room_root, false)
 	position = target
 	var scope := get_scope()
+	scope.enabled = true
 	for path in scope.contents.duplicate():
 		var node := scope.get_node_or_null(path)
 		if node == null:
@@ -170,6 +173,19 @@ func place(room_root: Node3D, target: Vector3) -> void:
 				(node as RigidBody3D).reset_physics_interpolation()
 	if is_inside_tree():
 		reset_physics_interpolation()
+	_resync_membership()
+
+# Membership truth comes from the physics server, not the signal history:
+# while the fold glides (carried), entered/exited events are suppressed, so
+# the one event for a body it settles onto would otherwise be eaten. The
+# placed position is already physics-simulated (the glide), so the overlap
+# set is current the moment we land. Add-only: real exits still arrive via
+# body_exited, and cargo teleports with the fold by construction.
+func _resync_membership() -> void:
+	var scope := get_scope()
+	for body in get_overlapping_bodies():
+		if body is PhysicsBody3D and body != carrier:
+			scope.add_body(body)
 
 # Break: contents and child scopes return to the parent scope (invariant iv),
 # then the shell detaches. The caller frees the shell afterwards — an object

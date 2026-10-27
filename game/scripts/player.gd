@@ -78,8 +78,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		match event.keycode:
 			KEY_E:
 				_interact()
-			KEY_X:
-				_break_carried()
 			KEY_R:
 				get_tree().reload_current_scene()
 	elif event is InputEventJoypadButton and event.pressed:
@@ -87,8 +85,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		match event.button_index:
 			JOY_BUTTON_X:
 				_interact()
-			JOY_BUTTON_B:
-				_break_carried()
 			JOY_BUTTON_Y:
 				_hud_action("show_next_hint")
 			JOY_BUTTON_BACK:
@@ -178,21 +174,6 @@ func _interact() -> void:
 			if Input.get_connected_joypads().size() > 0:
 				Input.start_joy_vibration(0, 0.45, 0.65, 0.12)
 
-func _break_carried() -> void:
-	_discard_dead_fold()
-	if carried_fold == null:
-		return
-	var f = carried_fold
-	carried_fold = null
-	var room := f.get_parent() as Node3D
-	if room == null:
-		return
-	# Set down where it floats so contents teleport to the break point, then break.
-	_set_hands(false)
-	f.drop(room)
-	f.break_fold(room, active_scopes)
-	f.free()
-
 # Fall recovery: last stable ground wins, whole-run restart not required.
 func _track_ground() -> void:
 	if is_on_floor():
@@ -229,8 +210,8 @@ func _physics_process(delta: float) -> void:
 	if iv.length() > 1.0:
 		iv = iv.normalized()
 	_stick_look(delta)
-	# Camera-relative: looking steers on flat ground. (Body-relative wish
-	# could never produce +Y once up flips sideways; walls need the ladder.)
+	# Camera-relative: looking steers, and once up flips the same code walks
+	# you along the wall face — look up the wall and press forward.
 	var cam_basis := ($Camera3D as Camera3D).global_transform.basis
 	var wish := cam_basis * Vector3(iv.x, 0.0, iv.y)
 	wish -= up_direction * wish.dot(up_direction)
@@ -238,14 +219,6 @@ func _physics_process(delta: float) -> void:
 	if wish.length() > 0.01:
 		planar += wish.normalized() * walk_speed
 	velocity = planar
-	# Ladder: inside a sideways-gravity fold while touching something, W/S
-	# climb/slide along world Y. (Wall faces report as floor when up flips,
-	# so gate on the up vector, not on is_on_wall.) Nothing else in the
-	# moveset can gain altitude sideways.
-	var in_fold := FoldScope.deepest_scope_for_body(self, active_scopes) != null
-	var sideways := up_direction.dot(Vector3.UP) < 0.9
-	if in_fold and sideways and absf(iv.y) > 0.01:
-		velocity = Vector3(0.0, -iv.y * walk_speed, 0.0)
 	if is_on_floor():
 		if _was_airborne:
 			_was_airborne = false
