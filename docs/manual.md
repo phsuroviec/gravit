@@ -16,8 +16,8 @@ ride the updraft gate at the end. The win screen shows your time and best.
 | Input | Effect |
 | --- | --- |
 | Walk (arrows / WASD / left stick), mouse / right stick look, Space jump | ordinary movement; jump always fires away from your *current* down |
-| **E** (pad X) near a fold | pick it up: shell latches to you, contents freeze in place |
-| **E** again | set it down where you stand; contents teleport by the move |
+| **E** (pad X) near a fold | pick it up: it glides to your hands, contents freeze in place. A glowing ring on the ground marks the fold E will take |
+| **E** again | set it down where it floats in front of you; contents move with it |
 | **X** (pad B) while carrying | **break** it: contents drop where it stands, back in parent gravity |
 | H (pad Y) | next hint for your room |
 | T (pad Back) | airlock narration (AI when online, local fold log otherwise) |
@@ -25,6 +25,18 @@ ride the updraft gate at the end. The win screen shows your time and best.
 
 Nothing else exists: no inventory, no keys, no currency, no enemies, no death.
 The only fail state is *stuck* (cube somewhere useless) — press **R**, instant.
+
+Designer view of the same mechanics: [`folds-explained.md`](folds-explained.md).
+
+## What you are looking at
+
+- **Pale blue cube with a warm light and an orange particle stream** — a fold. The stream falls the
+  fold's way: that is its gravity, readable before you step in.
+- **Ring on the ground under a fold** — that is the one E will pick up. No ring, no pickup.
+- **Hands on either side of the cube** — you are carrying it.
+- **Green/teal tile on the floor** — a pad. Standing on it (or dropping something on it) shoves the
+  room's door open *after the countdown floating above it*. It is not a fold and cannot be carried.
+- **Paper-white billboard plates** — signage only, warnings and arrows.
 
 ## The four rooms
 

@@ -9,15 +9,39 @@ class_name FoldBox
 extends Area3D
 
 const FoldScope = preload("res://scripts/fold_scope.gd")
+# The carried shell glides to the hold point instead of teleporting: an instant
+# 2 m jump through the camera is what made pickup disorienting.
+const FOLLOW_RATE := 12.0
+const CARRIED_ALPHA := 0.10
+# Shell half-extent: grab reach and the hold clamp both measure off the surface.
+const SHELL_HALF := 1.0
+# One colour per gravity direction: two folds can sit side by side, and without
+# a tint their shells read as one object.
+const TINT_RIGHT := Color(0.35, 0.9, 1.0)
+const TINT_LEFT := Color(1.0, 0.55, 0.9)
+const TINT_UP := Color(0.55, 1.0, 0.62)
+const TINT_DOWN := Color(0.55, 0.68, 1.0)
+const TINT_PLAIN := Color(0.7, 0.95, 1.0)
 
 # Room-local offsets of contained bodies from the fold origin, taken at pickup.
 var carry_offsets: Dictionary = {}
 var carry_anchor: Node3D = null
 # The body carrying this fold (arm's length = outside it): never a member.
 var carrier: Node3D = null
+var _shell_mat: StandardMaterial3D = null
 
 func get_scope() -> FoldScope:
 	return $FoldScope as FoldScope
+
+# Pure: which way a fold falls decides its colour, so the shell alone tells you
+# two neighbouring folds are not the same fold.
+static func tint_for(dir: Vector3) -> Color:
+	var d := dir.normalized()
+	if absf(d.x) > 0.9:
+		return TINT_RIGHT if d.x > 0.0 else TINT_LEFT
+	if absf(d.y) > 0.9:
+		return TINT_UP if d.y > 0.0 else TINT_DOWN
+	return TINT_PLAIN
 
 func is_carried() -> bool:
 	return carry_anchor != null and is_instance_valid(carry_anchor)
@@ -26,11 +50,55 @@ func _ready() -> void:
 	monitoring = true
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+	_ensure_shell_mat()
 	_align_stream()
 
-func _physics_process(_delta: float) -> void:
+# Per-instance material: dimming a carried shell must not dim every fold.
+# Lazy so the look can be set before the fold enters the tree.
+func _ensure_shell_mat() -> StandardMaterial3D:
+	if is_instance_valid(_shell_mat):
+		return _shell_mat
+	var shell := $Shell as MeshInstance3D
+	_shell_mat = shell.material_override as StandardMaterial3D
+	if _shell_mat == null:
+		_shell_mat = (shell.mesh as BoxMesh).material.duplicate() as StandardMaterial3D
+		shell.material_override = _shell_mat
+	var tint := tint_for(get_scope().gravity_dir)
+	_shell_mat.albedo_color = Color(tint.r, tint.g, tint.b, 0.22)
+	_shell_mat.emission = tint
+	var drop := (($Stream as GPUParticles3D).draw_pass_1 as SphereMesh).material.duplicate() as StandardMaterial3D
+	drop.albedo_color = tint
+	drop.emission = tint
+	($Stream as GPUParticles3D).material_override = drop
+	return _shell_mat
+
+func _physics_process(delta: float) -> void:
 	if is_carried():
-		global_position = carry_anchor.global_position
+		global_position = global_position.lerp(hold_target(), minf(1.0, FOLLOW_RATE * delta))
+		$Ring.visible = false
+
+# Where the shell should float while carried: the carrier decides (the player
+# hands back an eye-level point clamped by walls), a plain anchor just holds it.
+func hold_target() -> Vector3:
+	if is_instance_valid(carrier) and carrier.has_method("hand_point"):
+		return carrier.call("hand_point") as Vector3
+	if is_instance_valid(carry_anchor):
+		return carry_anchor.global_position
+	return global_position
+
+# One fold at a time reads as "this is the one E takes": a ground ring plus a
+# brighter membrane, cleared the moment the target changes.
+func set_targeted(on: bool) -> void:
+	$Ring.visible = on and not is_carried()
+	_ensure_shell_mat().emission_energy_multiplier = 1.6 if on else 0.7
+
+func _set_carried_look(on: bool) -> void:
+	$Ring.visible = false
+	var mat := _ensure_shell_mat()
+	mat.albedo_color.a = CARRIED_ALPHA if on else 0.22
+	# The hex membrane is an emission texture: killing emission is what stops a
+	# carried shell from washing out the whole view.
+	mat.emission_energy_multiplier = 0.3 if on else 0.7
 
 # Particle stream falls the fold's way. The process material is duplicated
 # per fold: instances share the scene's sub-resource, and scopes differ.
@@ -67,13 +135,23 @@ func pickup(anchor: Node3D) -> void:
 		if node is RigidBody3D:
 			(node as RigidBody3D).freeze = true
 	carry_anchor = anchor
+	_set_carried_look(true)
 
 # Set the shell down: bodies teleport by the fold delta, then unfreeze.
 # All positions are room-local — valid because bodies and a placed fold are
 # always siblings under room_root (the T3 invariant).
+# Set down where the shell currently floats: respects the hold point and the
+# wall clamp, so the drop lands in front of you, never inside you.
+func drop(room_root: Node3D) -> void:
+	if is_inside_tree():
+		place(room_root, room_root.to_local(global_position))
+	else:
+		place(room_root, position)
+
 func place(room_root: Node3D, target: Vector3) -> void:
 	carry_anchor = null
 	carrier = null
+	_set_carried_look(false)
 	if get_parent() != room_root:
 		reparent(room_root, false)
 	position = target
@@ -99,6 +177,7 @@ func place(room_root: Node3D, target: Vector3) -> void:
 func break_fold(room_root: Node3D, all_scopes: Array) -> void:
 	carry_anchor = null
 	carrier = null
+	_set_carried_look(false)
 	get_scope().break_fold(room_root, all_scopes)
 	var parent := get_parent()
 	if parent != null:

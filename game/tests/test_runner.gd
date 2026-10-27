@@ -26,6 +26,7 @@ func _init() -> void:
 	test_viii_telegraphing()
 	test_ix_content_wired()
 	test_x_fall_respawn()
+	test_xi_held_fold_feel()
 	if _failures == 0:
 		print("=== ALL 4 INVARIANTS PASSED ===")
 		quit(0)
@@ -258,6 +259,51 @@ func test_vii_carry_place_break() -> void:
 
 # Invariant (viii): telegraphing rides along — warm light + particle stream on
 # every fold, synthesized countdown tick. Presence + validity, no frames needed.
+# Stub carrier: any node that can answer "where should the fold float?"
+class StubCarrier extends Node3D:
+	var point := Vector3.ZERO
+	func hand_point() -> Vector3:
+		return point
+
+# Invariant (xi): the held shell keeps its distance and reads as held. Pickup
+# no longer teleports it into the camera: it glides to a point the carrier
+# clamps outside the shell, the membrane dims, two hands appear, and the ring
+# marking the E target belongs to exactly one fold.
+func test_xi_held_fold_feel() -> void:
+	var room := _make_room("Room11")
+	var fold = FoldBox.instantiate()
+	fold.name = "Fold"
+	fold.position = Vector3(0, 1, 0)
+	room.add_child(fold)
+	var carrier := StubCarrier.new()
+	carrier.name = "Carrier"
+	room.add_child(carrier)
+	var anchor := Node3D.new()
+	anchor.name = "Anchor"
+	carrier.add_child(anchor)
+	var player_scene: Node = load("res://player.tscn").instantiate()
+	var hands := player_scene.get_node_or_null("Camera3D/CarryHands") as Node3D
+	_assert(hands != null and hands.visible == false, "(xi) hands exist, hidden until carried")
+	player_scene.free()
+	fold.set_targeted(true)
+	_assert(fold.get_node("Ring").visible == true, "(xi) E target marked with a ring")
+	fold.set_targeted(false)
+	_assert(fold.get_node("Ring").visible == false, "(xi) ring clears when the target changes")
+	carrier.point = Vector3(0, 1.35, -2.3)
+	fold.pickup(anchor)
+	_assert(fold.hold_target().is_equal_approx(carrier.point), "(xi) hold point is the carrier's clamped point")
+	_assert(fold.position.is_equal_approx(Vector3(0, 1, 0)), "(xi) pickup does not teleport the shell")
+	var shell_mat := (fold.get_node("Shell") as MeshInstance3D).material_override as StandardMaterial3D
+	_assert(shell_mat != null and shell_mat.albedo_color.a < 0.15, "(xi) carried shell dims out of the view")
+	_assert(fold.get_node("Ring").visible == false, "(xi) no target ring on a carried fold")
+	_assert(fold.tint_for(Vector3.RIGHT) != fold.tint_for(Vector3.UP), "(xi) fall direction tints the shell")
+	_assert(fold.tint_for(Vector3(9, 0, 0)) == fold.tint_for(Vector3.RIGHT), "(xi) tint reads direction, not magnitude")
+	fold.position = carrier.point
+	fold.drop(room)
+	_assert(fold.position.is_equal_approx(carrier.point), "(xi) drop lands where it floated")
+	fold.free()
+	room.free()
+
 func test_viii_telegraphing() -> void:
 	var fold = FoldBox.instantiate()
 	_assert(fold.get_node_or_null("WarmLight") is SpotLight3D, "(viii) fold carries warm spotlight")

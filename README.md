@@ -26,6 +26,9 @@ Three rooms in one run: walk, pick up folds, break them over the plates, reach t
 The whole game is one gravity function (`FoldScope.applied_gravity`) shared by the player and
 every rigid body, one scope tree, one delay queue — all covered by headless tests, see below.
 
+What a fold is, what it can do, and how each room teaches it: [`docs/folds-explained.md`](docs/folds-explained.md).
+Player-side laws and controls: [`docs/manual.md`](docs/manual.md).
+
 ## Meta models, and how it is proven
 
 | Used for | Model | Where it shows |

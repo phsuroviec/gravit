@@ -1,10 +1,25 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1"]
 
 [sub_resource type="CapsuleShape3D" id="cap"]
 radius = 0.4
 height = 1.7
+
+[sub_resource type="StandardMaterial3D" id="hand_mat"]
+shading_mode = 0
+albedo_color = Color(0.98, 0.78, 0.62, 1)
+emission_enabled = true
+emission = Color(0.35, 0.24, 0.17, 1)
+no_depth_test = true
+
+[sub_resource type="BoxMesh" id="forearm_mesh"]
+material = SubResource("hand_mat")
+size = Vector3(0.15, 0.15, 0.95)
+
+[sub_resource type="BoxMesh" id="palm_mesh"]
+material = SubResource("hand_mat")
+size = Vector3(0.3, 0.22, 0.34)
 
 [node name="Player" type="CharacterBody3D" groups=["player"]]
 script = ExtResource("1")
@@ -16,9 +31,30 @@ shape = SubResource("cap")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 current = true
 
+[node name="CarryHands" type="Node3D" parent="Camera3D"]
+visible = false
+
+[node name="ArmL" type="MeshInstance3D" parent="Camera3D/CarryHands"]
+transform = Transform3D(1, 0, 0, 0, 0.9511, -0.309, 0, 0.309, 0.9511, -0.78, -0.42, -1.35)
+mesh = SubResource("forearm_mesh")
+
+[node name="ArmR" type="MeshInstance3D" parent="Camera3D/CarryHands"]
+transform = Transform3D(1, 0, 0, 0, 0.9511, -0.309, 0, 0.309, 0.9511, 0.78, -0.42, -1.35)
+mesh = SubResource("forearm_mesh")
+
+[node name="PalmL" type="MeshInstance3D" parent="Camera3D/CarryHands"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.72, -0.16, -1.8)
+mesh = SubResource("palm_mesh")
+
+[node name="PalmR" type="MeshInstance3D" parent="Camera3D/CarryHands"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.72, -0.16, -1.8)
+mesh = SubResource("palm_mesh")
+
 [node name="CarryAnchor" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, -3)
 
 [node name="JumpPlayer" type="AudioStreamPlayer" parent="."]
 
 [node name="LandPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="GrabPlayer" type="AudioStreamPlayer" parent="."]

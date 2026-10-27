@@ -12,8 +12,8 @@ var _last_room := ""
 var _brief_until_ms := 0
 
 const OBJECTIVES := {
-	"room1": "Room 1: walk into the side fold, hold W to swim up, drift east",
-	"room2": "Room 2: carry the frozen fold to the plate  [E grab · X break]",
+	"room1": "Room 1: teal pad shoves the door open after a countdown — then swim up the side fold (hold W)",
+	"room2": "Room 2: carry the frozen fold over the plate, then break it  [E grab · X break]",
 	"room3": "Room 3: break the inner fold where the outer throws west",
 	"room4": "Room 4: ride the updraft through the gate",
 }
@@ -68,17 +68,18 @@ func _process(_delta: float) -> void:
 	_track_room()
 	_prompt()
 
-# Context verb hint: what E/X would do right now, if anything.
+# Context verb hint: what E/X would do right now, if anything. Reads the
+# player's own target fold, so the ring marker and this line never disagree.
 func _prompt() -> void:
 	var label := $Prompt as Label
 	var p = _player()
-	if p == null or not (p as Node).has_method("nearest_fold"):
+	if p == null:
 		label.visible = false
 		return
 	if (p as Node).get("carried_fold") != null:
 		label.text = "E: set down   X: break"
 		label.visible = true
-	elif p.call("nearest_fold") != null:
+	elif (p as Node).get("target_fold") != null:
 		label.text = "E: grab fold"
 		label.visible = true
 	else:

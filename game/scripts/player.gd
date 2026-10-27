@@ -12,9 +12,20 @@ const Sfx = preload("res://scripts/sfx.gd")
 @export var jump_speed := 4.0
 @export var mouse_sens := 0.0025
 @export var pitch_limit := 1.4
+# Held fold geometry: shell half-extent 1 m, so the float point needs clearance
+# or the box swallows the camera.
+@export var hold_distance := 2.0
+@export var hold_min := 1.5
+# Carried off to the right and below the eyeline: the held shell must not sit
+# exactly where you are looking.
+const HOLD_RIGHT := 0.4
+const HOLD_DOWN := 0.6
+const HOLD_MARGIN := 1.05
 
 var active_scopes: Array = []
 var carried_fold = null
+# The fold E would take right now; the ring marker and the HUD read this one.
+var target_fold = null
 var _was_airborne := false
 const KILL_Y := -12.0
 var last_safe_pos := Vector3(-4, 1, 0)
@@ -26,6 +37,21 @@ func _ready() -> void:
 	active_scopes = get_tree().get_nodes_in_group("fold_scopes")
 	($JumpPlayer as AudioStreamPlayer).stream = Sfx.jump()
 	($LandPlayer as AudioStreamPlayer).stream = Sfx.land()
+	($GrabPlayer as AudioStreamPlayer).stream = Sfx.grab()
+
+# Eye-level point ahead of the player where a carried fold floats, pulled in by
+# a ray so a fold held near a wall stops at the wall instead of sinking into it.
+func hand_point() -> Vector3:
+	var basis := global_transform.basis
+	var origin := global_position + Vector3.UP * 1.35 + basis.x * HOLD_RIGHT - basis.y * HOLD_DOWN
+	var fwd := -basis.z
+	var reach := hold_distance
+	var q := PhysicsRayQueryParameters3D.create(origin, origin + fwd * (hold_distance + HOLD_MARGIN))
+	q.exclude = [get_rid()]
+	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	if not hit.is_empty():
+		reach = maxf(hold_min, origin.distance_to(hit.position as Vector3) - HOLD_MARGIN)
+	return origin + fwd * reach
 
 func scope_gravity() -> Vector3:
 	return FoldScope.applied_gravity(self, Time.get_ticks_msec() * 0.001, active_scopes)
@@ -87,30 +113,50 @@ func _stick_look(delta: float) -> void:
 	if s.length() > 0.2:
 		apply_look(s.normalized() * minf(s.length(), 1.0) * 220.0 * delta)
 
-# E latches the nearest fold (deepest wins near-ties: nested inner first),
-# E again sets it down, X breaks the carried one over a plate, R restarts.
-func nearest_fold(max_dist := 3.5):
+# E latches the nearest fold, E again sets it down, X breaks the carried one
+# over a plate, R restarts. Reach is measured to the shell's surface (a fold is
+# 2 m wide), and ties prefer the deeper, nested fold.
+func nearest_fold(reach := 3.0):
 	var best = null
-	var best_d := max_dist
-	var best_depth := -1
+	var best_score := INF
 	for f in get_tree().get_nodes_in_group("fold_boxes"):
-		var node := f as Node3D
-		if node == null:
+		if not is_instance_valid(f) or (f as FoldBox).is_carried():
 			continue
-		var d := global_position.distance_to(node.global_position)
+		var d: float = global_position.distance_to((f as Node3D).global_position) - FoldBox.SHELL_HALF
+		if d > reach:
+			continue
 		var depth := 0
-		var scope = node.get_node_or_null("FoldScope")
+		var scope = f.get_node_or_null("FoldScope")
 		if scope != null and scope.has_method("get_depth"):
 			depth = scope.get_depth()
-		if d < best_d - 0.5 or (depth > best_depth and d <= best_d + 0.5):
+		var score := d - depth * 0.6
+		if score < best_score:
+			best_score = score
 			best = f
-			best_d = d
-			best_depth = depth
 	return best
 
 func _discard_dead_fold() -> void:
 	if carried_fold != null and not is_instance_valid(carried_fold):
 		carried_fold = null
+	if target_fold != null and not is_instance_valid(target_fold):
+		target_fold = null
+
+func _update_target() -> void:
+	var t = null if carried_fold != null else nearest_fold()
+	if t == target_fold:
+		return
+	if is_instance_valid(target_fold):
+		target_fold.set_targeted(false)
+	if t != null:
+		t.set_targeted(true)
+	target_fold = t
+
+# Viewmodel hands: the one cue that says "you are carrying something" even when
+# the dimmed shell is between you and the far wall.
+func _set_hands(on: bool) -> void:
+	var hands := get_node_or_null("Camera3D/CarryHands") as Node3D
+	if hands != null:
+		hands.visible = on
 
 func _interact() -> void:
 	_discard_dead_fold()
@@ -118,14 +164,19 @@ func _interact() -> void:
 		var room := carried_fold.get_parent() as Node3D
 		if room == null:
 			return
-		var anchor := $CarryAnchor as Node3D
-		carried_fold.place(room, room.to_local(anchor.global_position))
+		carried_fold.drop(room)
 		carried_fold = null
+		_set_hands(false)
 	else:
 		var f = nearest_fold()
 		if f != null:
 			f.pickup($CarryAnchor)
 			carried_fold = f
+			target_fold = null
+			_set_hands(true)
+			($GrabPlayer as AudioStreamPlayer).play()
+			if Input.get_connected_joypads().size() > 0:
+				Input.start_joy_vibration(0, 0.45, 0.65, 0.12)
 
 func _break_carried() -> void:
 	_discard_dead_fold()
@@ -136,9 +187,9 @@ func _break_carried() -> void:
 	var room := f.get_parent() as Node3D
 	if room == null:
 		return
-	# Set down first so contents teleport to the break point, then break.
-	var anchor := $CarryAnchor as Node3D
-	f.place(room, room.to_local(anchor.global_position))
+	# Set down where it floats so contents teleport to the break point, then break.
+	_set_hands(false)
+	f.drop(room)
 	f.break_fold(room, active_scopes)
 	f.free()
 
@@ -162,6 +213,7 @@ func respawn() -> void:
 
 func _physics_process(delta: float) -> void:
 	_discard_dead_fold()
+	_update_target()
 	_track_ground()
 	if needs_respawn():
 		respawn()

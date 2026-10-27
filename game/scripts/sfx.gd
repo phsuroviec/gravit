@@ -35,6 +35,10 @@ static func jump() -> AudioStreamWAV:
 static func land() -> AudioStreamWAV:
 	return _tone(140.0, 0.12, 0.9)
 
+# Pickup blip: low grab then lift, so latching has its own sound.
+static func grab() -> AudioStreamWAV:
+	return _sweep(220.0, 480.0, 0.1)
+
 # Rising sweep for jumps: pitch climbs with the takeoff.
 static func _sweep(freq_from: float, freq_to: float, seconds: float) -> AudioStreamWAV:
 	var frames := int(MIX * seconds)

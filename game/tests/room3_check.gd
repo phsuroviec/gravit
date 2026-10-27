@@ -41,12 +41,14 @@ func _physics_process(_delta: float) -> void:
 		_check(player.carried_fold == inner, "(r3) E grabs the deepest fold")
 		_check(inner.get_scope().parent_scope == outer_scope, "(r3) inner nests under outer")
 		player.global_position = Vector3(24, 1, 4)
-	if frames == 15:
+	# The carried shell glides to the hands (T20), so give the teleport a moment
+	# to settle before breaking: X lands where the shell visibly is.
+	if frames == 45:
 		_press(KEY_X)
-	if frames == 80:
+	if frames == 110:
 		_check(cube.global_position.x < 22.5, "(r3) outer scope throws the cube west")
 		_check(pad.last_countdown != "", "(r3) countdown shown while queued")
-	if frames == 220:
+	if frames == 260:
 		_check(door.opened_distance() > 0.5, "(r3) nested break opens the exit")
 		if failures == 0:
 			print("=== ROOM3 CHECK PASSED ===")
