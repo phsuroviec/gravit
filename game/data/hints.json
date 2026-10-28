@@ -1,5 +1,5 @@
 {
-  "meta_model": "meta-model: muse-spark-1.3 | 2026-10-26 | room briefings and hint ladders",
+  "meta_model": "meta-model: muse-spark-1.3 | 2026-10-26 | room briefing + first three hints; hand-written ride hints 2026-10-28",
   "rooms": [
     {
       "id": "room1",
@@ -7,7 +7,9 @@
       "hints": [
         "Watch the cube fall right inside the fold.",
         "Let it exit the fold and track it down to the floor pad.",
-        "Stand back while it hits the pad and waits out the countdown to blast the door."
+        "Stand back while it hits the pad and waits out the countdown to blast the door.",
+        "Walk into the green fold east of the shelf and let it lift you.",
+        "Drift east at the top onto the ledge and walk out through the open door."
       ],
       "fold_log": "The fold threw its cube right out and queued the door blast late."
     }

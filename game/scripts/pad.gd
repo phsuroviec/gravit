@@ -18,6 +18,8 @@ const Sfx = preload("res://scripts/sfx.gd")
 var active_scopes: Array = []
 var pending_item = null
 var last_countdown := ""
+# Per-instance plate material: the armed pulse must not light every pad.
+var _plate_mat: StandardMaterial3D = null
 # Fold clock sampled while the fold is alive: the pad must keep working after
 # its fold is picked up, carried off and broken (that is the whole game).
 var last_clock := 1.0
@@ -27,6 +29,12 @@ var _thudded := false
 func _ready() -> void:
 	monitoring = true
 	body_entered.connect(_on_body_entered)
+	var plate := $Plate as MeshInstance3D
+	_plate_mat = (plate.mesh as BoxMesh).material.duplicate() as StandardMaterial3D
+	_plate_mat.emission_enabled = true
+	_plate_mat.emission = Color(0.2, 0.9, 0.75)
+	_plate_mat.emission_energy_multiplier = 0.15
+	plate.material_override = _plate_mat
 	($TickPlayer as AudioStreamPlayer).stream = Sfx.tick()
 	($ThudPlayer as AudioStreamPlayer).stream = Sfx.thud()
 
@@ -57,6 +65,9 @@ func _process(_delta: float) -> void:
 		var remaining: float = pending_item.due_time - queue.sim_time
 		last_countdown = "%.1f" % maxf(0.0, remaining)
 		label.text = last_countdown
+		# Armed: the plate brightens as the shove approaches, breathing gently.
+		if is_instance_valid(_plate_mat):
+			_plate_mat.emission_energy_multiplier = 1.0 + (1.6 - remaining) * 1.2 + sin(Time.get_ticks_msec() * 0.02) * 0.5
 		var sec := int(ceil(remaining))
 		if sec != _last_tick_sec and sec > 0:
 			_last_tick_sec = sec

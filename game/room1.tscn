@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1"]
 [ext_resource type="PackedScene" path="res://fold_box.tscn" id="2"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://airlock.tscn" id="8"]
 [ext_resource type="Texture2D" path="res://assets/decals/decal_warn_fold.webp" id="9"]
 [ext_resource type="Texture2D" path="res://assets/decals/decal_arrow_side.webp" id="10"]
+[ext_resource type="Shader" path="res://assets/deck_grid.gdshader" id="11"]
 
 [sub_resource type="SphereShape3D" id="cube_shape"]
 radius = 0.35
@@ -29,11 +30,8 @@ height = 0.7
 albedo_color = Color(0.3, 0.36, 0.45, 1)
 roughness = 0.9
 
-[sub_resource type="StandardMaterial3D" id="deck_mat"]
-albedo_color = Color(0.22, 0.27, 0.35, 1)
-roughness = 0.85
-emission_enabled = true
-emission = Color(0.05, 0.08, 0.12, 1)
+[sub_resource type="ShaderMaterial" id="deck_mat"]
+shader = ExtResource("11")
 
 [sub_resource type="StandardMaterial3D" id="lip_mat"]
 albedo_color = Color(0.85, 0.55, 0.25, 1)
@@ -44,6 +42,10 @@ emission_energy_multiplier = 1.4
 [sub_resource type="BoxMesh" id="lip_mesh"]
 material = SubResource("lip_mat")
 size = Vector3(0.16, 0.16, 4.4)
+
+[sub_resource type="BoxMesh" id="shelf_strip_mesh"]
+material = SubResource("lip_mat")
+size = Vector3(0.16, 0.16, 2.2)
 
 [sub_resource type="StandardMaterial3D" id="goal_mat"]
 shading_mode = 0
@@ -135,6 +137,10 @@ material = SubResource("deck_mat")
 [node name="Lip" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.34, 1.74, 0)
 mesh = SubResource("lip_mesh")
+
+[node name="ShelfStrip" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.54, 1.54, -1.5)
+mesh = SubResource("shelf_strip_mesh")
 
 [node name="Door" parent="." instance=ExtResource("4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.9, 2.7, 0)
