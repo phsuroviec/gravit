@@ -287,6 +287,12 @@ func test_xi_held_fold_feel() -> void:
 	var player_scene: Node = load("res://player.tscn").instantiate()
 	var hands := player_scene.get_node_or_null("Camera3D/CarryHands") as Node3D
 	_assert(hands != null and hands.visible == false, "(xi) hands exist, hidden until carried")
+	var manne := player_scene.get_node_or_null("Mannequin") as Node3D
+	_assert(manne != null and manne.get_child_count() == 15, "(xi) mannequin body rides along")
+	var head := manne.get_node_or_null("Head") as Node3D
+	var cam := player_scene.get_node_or_null("Camera3D") as Node3D
+	_assert(head.position.y < cam.position.y, "(xi) head stays below the lens")
+	_assert(player_scene.get_node_or_null("WhooshPlayer") != null, "(xi) flip cue player rides along")
 	player_scene.free()
 	fold.set_targeted(true)
 	_assert(fold.get_node("Ring").visible == true, "(xi) E target marked with a ring")

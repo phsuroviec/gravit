@@ -41,6 +41,6 @@ shadow_enabled = true
 [node name="Room1" parent="." instance=ExtResource("1")]
 
 [node name="Player" parent="." instance=ExtResource("4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6, 0.95, 4.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 1.8, 0)
 
 [node name="HUD" parent="." instance=ExtResource("5")]

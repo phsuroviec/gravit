@@ -12,7 +12,7 @@ var _last_room := ""
 var _brief_until_ms := 0
 
 const OBJECTIVES := {
-	"room1": "Carry the east fold over the crate, set it down, then ride the updraft to the door",
+	"room1": "Run the ramp east, thread the uplift, land above the gate",
 }
 
 func _ready() -> void:

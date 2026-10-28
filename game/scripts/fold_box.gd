@@ -15,6 +15,8 @@ const FOLLOW_RATE := 12.0
 const CARRIED_ALPHA := 0.10
 # Shell half-extent: grab reach and the hold clamp both measure off the surface.
 const SHELL_HALF := 1.0
+# Fixed folds are architecture, not objects (ADR-6): never targeted, never
+# grabbed. The stunt level bolts everything down.
 # One colour per gravity direction: two folds can sit side by side, and without
 # a tint their shells read as one object.
 const TINT_RIGHT := Color(0.35, 0.9, 1.0)
@@ -28,6 +30,7 @@ var carry_offsets: Dictionary = {}
 var carry_anchor: Node3D = null
 # The body carrying this fold (arm's length = outside it): never a member.
 var carrier: Node3D = null
+@export var fixed := false
 var _shell_mat: StandardMaterial3D = null
 
 func get_scope() -> FoldScope:

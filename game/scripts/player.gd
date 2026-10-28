@@ -16,6 +16,11 @@ const Sfx = preload("res://scripts/sfx.gd")
 # or the box swallows the camera.
 @export var hold_distance := 2.0
 @export var hold_min := 1.5
+# Air inertia (ADR-5): flight keeps its velocity. Ground still snaps.
+const AIR_ACCEL := 30.0
+const AIR_DRAG := 0.15
+const CAM_FOV := 75.0
+const PUNCH_FOV := 12.0
 # Carried off to the right and below the eyeline: the held shell must not sit
 # exactly where you are looking.
 const HOLD_RIGHT := 0.4
@@ -30,6 +35,9 @@ var _was_airborne := false
 const KILL_Y := -12.0
 var last_safe_pos := Vector3(-4, 1, 0)
 var _safe_cool := 0
+var _last_up := Vector3.UP
+var _punch := 0.0
+var _manne_fwd := Vector3(0, 0, 1)
 
 func _ready() -> void:
 	# Rooms wire their own children in their _ready, which runs before this
@@ -38,12 +46,13 @@ func _ready() -> void:
 	($JumpPlayer as AudioStreamPlayer).stream = Sfx.jump()
 	($LandPlayer as AudioStreamPlayer).stream = Sfx.land()
 	($GrabPlayer as AudioStreamPlayer).stream = Sfx.grab()
+	($WhooshPlayer as AudioStreamPlayer).stream = Sfx.whoosh()
 
 # Eye-level point ahead of the player where a carried fold floats, pulled in by
 # a ray so a fold held near a wall stops at the wall instead of sinking into it.
 func hand_point() -> Vector3:
 	var basis := global_transform.basis
-	var origin := global_position + Vector3.UP * 1.35 + basis.x * HOLD_RIGHT - basis.y * HOLD_DOWN
+	var origin := global_position + Vector3.UP * 0.55 + basis.x * HOLD_RIGHT - basis.y * HOLD_DOWN
 	var fwd := -basis.z
 	var reach := hold_distance
 	var q := PhysicsRayQueryParameters3D.create(origin, origin + fwd * (hold_distance + HOLD_MARGIN))
@@ -117,6 +126,8 @@ func nearest_fold(reach := 3.0):
 	var best_score := INF
 	for f in get_tree().get_nodes_in_group("fold_boxes"):
 		if not is_instance_valid(f) or (f as FoldBox).is_carried():
+			continue
+		if (f as FoldBox).fixed:
 			continue
 		var d: float = global_position.distance_to((f as Node3D).global_position) - FoldBox.SHELL_HALF
 		if d > reach:
@@ -216,9 +227,21 @@ func _physics_process(delta: float) -> void:
 	var wish := cam_basis * Vector3(iv.x, 0.0, iv.y)
 	wish -= up_direction * wish.dot(up_direction)
 	var planar := up_direction * velocity.dot(up_direction)
-	if wish.length() > 0.01:
-		planar += wish.normalized() * walk_speed
-	velocity = planar
+	var lateral := velocity - planar
+	if is_on_floor():
+		# Grounded: snap to wish, exactly like before (bots depend on it).
+		lateral = Vector3.ZERO
+		if wish.length() > 0.01:
+			planar += wish.normalized() * walk_speed
+	else:
+		# Airborne: keep inertia. Steering accelerates toward wish speed but
+		# never bleeds existing motion — Quake-style, momentum survives.
+		if wish.length() > 0.01:
+			var wdir := wish.normalized()
+			var add := minf(AIR_ACCEL * delta * walk_speed, maxf(0.0, walk_speed - lateral.dot(wdir)))
+			lateral += wdir * add
+		lateral = lateral.move_toward(Vector3.ZERO, AIR_DRAG * delta)
+	velocity = planar + lateral
 	if is_on_floor():
 		if _was_airborne:
 			_was_airborne = false
@@ -229,4 +252,31 @@ func _physics_process(delta: float) -> void:
 	else:
 		_was_airborne = true
 		velocity += g * delta * cf
+	_align_mannequin(delta)
+	_punch_flip(delta)
 	move_and_slide()
+
+# Feet point along gravity: the body swings visibly while the camera stays
+# level (ADR-9). Forwards falls back to the last good one when the wish
+# degenerates (diving straight along up).
+func _align_mannequin(delta: float) -> void:
+	var manne := get_node_or_null("Mannequin") as Node3D
+	if manne == null:
+		return
+	var fwd := -global_transform.basis.z
+	fwd -= up_direction * fwd.dot(up_direction)
+	if fwd.length() > 0.15:
+		_manne_fwd = fwd.normalized()
+	var target := Basis.looking_at(_manne_fwd, up_direction)
+	var cur := (manne.global_transform.basis as Basis).get_rotation_quaternion()
+	manne.global_transform.basis = Basis(cur.slerp(target.get_rotation_quaternion(), minf(1.0, 10.0 * delta)))
+
+# Flip cue: FOV punch + whoosh when up changes (ADR-8).
+func _punch_flip(delta: float) -> void:
+	var cam := $Camera3D as Camera3D
+	if up_direction.dot(_last_up) < 0.5:
+		_punch = 1.0
+		($WhooshPlayer as AudioStreamPlayer).play()
+	_last_up = up_direction
+	_punch = maxf(0.0, _punch - 2.5 * delta)
+	cam.fov = CAM_FOV + PUNCH_FOV * _punch

@@ -37,3 +37,62 @@ is missing it drops the entry and increments `dropped`. No exception, no retry, 
 game state, not an error. Invariant (iii) is "fires exactly once", and "never fires at all if the target is gone" is the
 honest completion of it.
 **Cost:** a `dropped` counter everyone must be able to see in the test output.
+
+## ADR-5 — Air inertia, ground feel frozen (2026-10-28)
+
+**Chosen:** the player keeps velocity in the air (light drag + steering that
+never decelerates existing motion) and keeps the exact snap-to-wish on the
+ground. Momentum is a flight property, never a walking one.
+**Why:** the stunt level (launcher → thread → landing) is physically
+impossible otherwise — velocity is currently rebuilt every frame, so coasting
+does not exist. Ground code is untouched, so all existing bots behave the same.
+**Cost:** a Quake-style accelerate rule to review (`lateral += wish * add`,
+capped so holding a direction never bleeds speed).
+**Revisit if:** flight ever needs hard speed caps (then cap, don't remove).
+
+## ADR-6 — Level 1 folds are fixed architecture (2026-10-28)
+
+**Chosen:** both folds of level 1 are bolted down (`FoldBox.fixed`): E does
+nothing near them, no ring, no prompt. Carrying returns in later levels, where
+placement is the puzzle.
+**Why:** the level is a skill stunt with tuned geometry; a grabbable launcher
+lets the player dismantle the stunt.
+**Cost:** one exported bool + a skip in `nearest_fold`.
+**Revisit if:** a level wants player-placed launchers.
+
+## ADR-7 — Pure stunt level, touchdown wins (2026-10-28)
+
+**Chosen:** level 1 has no crate, no pad, no lock. The gate recess is always
+open visually; the exit zone covers the landing platform, so touchdown is the
+win. Missing means landing on the floor and walking back up the ramp — retry
+is free, there is no fail state.
+**Why:** the owner-specified design: launcher momentum → thread the upper fold
+→ land. A second precision move (drop into the gate) stacked on the landing
+would punish the first success.
+**Cost:** E, the pad and the queue sit out one level.
+**Revisit if:** the level playtests too easy — the lock returns before the
+stunt is re-tuned.
+
+## ADR-8 — Camera never rolls; flips are cued (2026-10-28)
+
+**Chosen:** the camera keeps world-upright through gravity flips. Each flip
+fires a short FOV kick plus a whoosh so the transition reads as an event.
+**Why:** facing the launcher, the player already looks where they are about to
+fall; after the upper fold they already look at the gate wall. No
+reorientation is needed, and rolling the camera would demand one.
+**Cost:** one FOV punch decay + one synthesized sweep in `sfx.gd`.
+**Revisit if:** playtesters report not noticing flips — then cue harder, still
+don't roll.
+
+## ADR-9 — First-person mannequin, head below the camera (2026-10-28)
+
+**Chosen:** a thin shiny-white humanoid rides the player: feet at the capsule
+bottom, head top just under eye height, arms static at the sides. The whole
+body slerps so its feet point along gravity — the inversion is visible on the
+body while the camera stays level.
+**Why:** looking down must show a body for the flips to feel physical, and a
+visible swinging body sells what a rolling camera would have cost in nausea.
+**Cost:** ~12 mesh instances + per-frame basis slerp with a degenerate-input
+guard.
+**Revisit if:** the head ever clips the near plane — then shrink the head,
+never move the camera.

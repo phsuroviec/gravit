@@ -39,14 +39,14 @@ func _physics_process(_delta: float) -> void:
 		_press(KEY_H)
 	if frames == 10:
 		_check(hud.get_node("Hint").text != "", "(t7) H shows a hint")
-		player.global_position = Vector3(0.4, 0.9, 2.6)
+		player.global_position = Vector3(-15.0, 0.9, 2.5)
 	if frames == 20:
 		_check(airlock.screen_text() != "", "(t7) terminal shows local fold log")
 		airlock.force_local = true
 		_press(KEY_T)
 	if frames == 30:
 		_check(airlock.screen_text() == _expected_fold_log(), "(t7) offline narration falls back to local")
-		player.global_position = Vector3(9.2, 2.6, 0)
+		player.global_position = Vector3(10.0, 7.0, 0)
 	if frames == 130:
 		_check(GameState.completions >= 1, "(t7) completion registers")
 		_check(hud.get_node("Complete").visible, "(t7) completion shown with fold log")

@@ -1,37 +1,19 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1"]
 [ext_resource type="PackedScene" path="res://fold_box.tscn" id="2"]
-[ext_resource type="PackedScene" path="res://pad.tscn" id="3"]
-[ext_resource type="PackedScene" path="res://door.tscn" id="4"]
-[ext_resource type="Script" path="res://scripts/scope_body.gd" id="5"]
-[ext_resource type="Script" path="res://scripts/consequence_queue.gd" id="6"]
-[ext_resource type="PackedScene" path="res://exit.tscn" id="7"]
-[ext_resource type="PackedScene" path="res://airlock.tscn" id="8"]
-[ext_resource type="Texture2D" path="res://assets/decals/decal_warn_fold.webp" id="9"]
-[ext_resource type="Texture2D" path="res://assets/decals/decal_arrow_side.webp" id="10"]
-[ext_resource type="Shader" path="res://assets/deck_grid.gdshader" id="11"]
-
-[sub_resource type="SphereShape3D" id="cube_shape"]
-radius = 0.35
-
-[sub_resource type="StandardMaterial3D" id="cube_mat"]
-albedo_color = Color(0.86, 0.84, 0.78, 1)
-roughness = 0.7
-emission_enabled = true
-emission = Color(0.16, 0.13, 0.1, 1)
-
-[sub_resource type="SphereMesh" id="cube_mesh"]
-material = SubResource("cube_mat")
-radius = 0.35
-height = 0.7
+[ext_resource type="PackedScene" path="res://exit.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://airlock.tscn" id="4"]
+[ext_resource type="Texture2D" path="res://assets/decals/decal_warn_fold.webp" id="5"]
+[ext_resource type="Texture2D" path="res://assets/decals/decal_arrow_side.webp" id="6"]
+[ext_resource type="Shader" path="res://assets/deck_grid.gdshader" id="7"]
 
 [sub_resource type="StandardMaterial3D" id="arch_mat"]
 albedo_color = Color(0.3, 0.36, 0.45, 1)
 roughness = 0.9
 
 [sub_resource type="ShaderMaterial" id="deck_mat"]
-shader = ExtResource("11")
+shader = ExtResource("7")
 
 [sub_resource type="StandardMaterial3D" id="lip_mat"]
 albedo_color = Color(0.85, 0.55, 0.25, 1)
@@ -41,11 +23,7 @@ emission_energy_multiplier = 1.4
 
 [sub_resource type="BoxMesh" id="lip_mesh"]
 material = SubResource("lip_mat")
-size = Vector3(0.16, 0.16, 4.4)
-
-[sub_resource type="BoxMesh" id="shelf_strip_mesh"]
-material = SubResource("lip_mat")
-size = Vector3(0.16, 0.16, 2.2)
+size = Vector3(0.16, 0.16, 5)
 
 [sub_resource type="StandardMaterial3D" id="goal_mat"]
 shading_mode = 0
@@ -54,9 +32,17 @@ emission_enabled = true
 emission = Color(0.35, 1, 0.8, 1)
 emission_energy_multiplier = 2.5
 
-[sub_resource type="BoxMesh" id="goal_mesh"]
+[sub_resource type="BoxMesh" id="frame_mesh"]
 material = SubResource("goal_mat")
-size = Vector3(0.3, 2, 2.4)
+size = Vector3(0.25, 2.2, 0.25)
+
+[sub_resource type="BoxMesh" id="header_mesh"]
+material = SubResource("goal_mat")
+size = Vector3(0.25, 0.25, 3.05)
+
+[sub_resource type="BoxMesh" id="panel_mesh"]
+material = SubResource("goal_mat")
+size = Vector3(0.1, 2.0, 2.8)
 
 [sub_resource type="QuadMesh" id="plate_mesh"]
 size = Vector2(1.5, 1.5)
@@ -64,152 +50,144 @@ size = Vector2(1.5, 1.5)
 [sub_resource type="StandardMaterial3D" id="plate_mat_a"]
 billboard_mode = 1
 shading_mode = 0
-albedo_texture = ExtResource("9")
+albedo_texture = ExtResource("5")
 
 [sub_resource type="StandardMaterial3D" id="plate_mat_b"]
 billboard_mode = 1
 shading_mode = 0
-albedo_texture = ExtResource("10")
+albedo_texture = ExtResource("6")
 
 [node name="Room1" type="Node3D"]
 script = ExtResource("1")
 
-[node name="Deck" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35, 0)
-size = Vector3(15, 0.7, 12)
+[node name="Floor" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.35, 0)
+size = Vector3(36, 0.7, 12)
 use_collision = true
 material = SubResource("deck_mat")
 
+[node name="Ceiling" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 12.3, 0)
+size = Vector3(36, 0.6, 12)
+use_collision = true
+material = SubResource("arch_mat")
+
 [node name="WestWall" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 3, 0)
-size = Vector3(0.6, 7, 12)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.3, 6, 0)
+size = Vector3(0.6, 12, 12)
+use_collision = true
+material = SubResource("arch_mat")
+
+[node name="EastWall" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.3, 6, 0)
+size = Vector3(0.6, 12, 12)
 use_collision = true
 material = SubResource("arch_mat")
 
 [node name="NorthWall" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -6)
-size = Vector3(15, 7, 0.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, -6.3)
+size = Vector3(37.2, 12, 0.6)
 use_collision = true
 material = SubResource("arch_mat")
 
 [node name="SouthWall" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 6)
-size = Vector3(15, 7, 0.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, 6.3)
+size = Vector3(37.2, 12, 0.6)
 use_collision = true
 material = SubResource("arch_mat")
 
-[node name="Shelf" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.6, 0.75, -1.5)
-size = Vector3(2.2, 1.5, 2.2)
+[node name="Ramp" type="CSGBox3D" parent="."]
+position = Vector3(-15.4, 1.325, 0)
+rotation = Vector3(0, 0, 0.2925)
+size = Vector3(9.19, 0.4, 4)
 use_collision = true
 material = SubResource("arch_mat")
 
-[node name="Ledge" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.9, 1.5, 0)
-size = Vector3(3.2, 0.4, 4.4)
+[node name="Deck" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.5, 1.8, 0)
+size = Vector3(5, 0.4, 4)
 use_collision = true
 material = SubResource("deck_mat")
 
-[node name="EastWall" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 1.1, -3.45)
-size = Vector3(0.6, 1.2, 5.1)
+[node name="RailN" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.5, 2.5, -1.75)
+size = Vector3(5, 1, 0.3)
 use_collision = true
 material = SubResource("arch_mat")
 
-[node name="EastWallB" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 1.1, 3.45)
-size = Vector3(0.6, 1.2, 5.1)
+[node name="RailS" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.5, 2.5, 1.75)
+size = Vector3(5, 1, 0.3)
 use_collision = true
 material = SubResource("arch_mat")
 
-[node name="EastWallHigh" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 5.25, 0)
-size = Vector3(0.6, 2.5, 12)
-use_collision = true
-material = SubResource("arch_mat")
-
-[node name="EastExitDeck" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.4, 1.5, 0)
-size = Vector3(4, 0.4, 4)
+[node name="Platform" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 4.1, 0)
+size = Vector3(8, 0.4, 5)
 use_collision = true
 material = SubResource("deck_mat")
+
+[node name="GateFrameL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.65, 3.5, -1.4)
+mesh = SubResource("frame_mesh")
+
+[node name="GateFrameR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.65, 3.5, 1.4)
+mesh = SubResource("frame_mesh")
+
+[node name="GateHeader" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.65, 3.6, 0)
+mesh = SubResource("header_mesh")
+
+[node name="GatePanel" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.68, 2.5, 0)
+mesh = SubResource("panel_mesh")
 
 [node name="Lip" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.34, 1.74, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.05, 4.34, 0)
 mesh = SubResource("lip_mesh")
 
-[node name="ShelfStrip" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.54, 1.54, -1.5)
-mesh = SubResource("shelf_strip_mesh")
+[node name="Sling" parent="." instance=ExtResource("2")]
+transform = Transform3D(3, 0, 0, 0, 1, 0, 0, 0, 1, -5, 3, 0)
+fixed = true
 
-[node name="Door" parent="." instance=ExtResource("4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.9, 2.7, 0)
-
-[node name="Cube" type="RigidBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.6, 1.85, -1.5)
-can_sleep = false
-script = ExtResource("5")
-
-[node name="Shape" type="CollisionShape3D" parent="Cube"]
-shape = SubResource("cube_shape")
-
-[node name="Mesh" type="MeshInstance3D" parent="Cube"]
-mesh = SubResource("cube_mesh")
-
-[node name="Pad" parent="." instance=ExtResource("3")]
-transform = Transform3D(1.67, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0.1, -1.5)
-door_path = NodePath("../Door")
-queue_path = NodePath("../Queue")
-fold_path = NodePath("../Throw/FoldScope")
-impulse = Vector3(-5, 0, 0)
-delay_base = 1.6
-
-[node name="Queue" type="Node3D" parent="."]
-script = ExtResource("6")
-
-[node name="Throw" parent="." instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.2, 1.2, 3.2)
-
-[node name="FoldScope" parent="Throw" groups=["fold_scopes"]]
+[node name="FoldScope" parent="Sling" groups=["fold_scopes"]]
 gravity_dir = Vector3(1, 0, 0)
 clock_factor = 1.0
 
-[node name="Updraft" parent="." instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2, 1.2, 0)
+[node name="Uplift" parent="." instance=ExtResource("2")]
+transform = Transform3D(3, 0, 0, 0, 2.75, 0, 0, 0, 1, 1, 4.75, 0)
+fixed = true
 
-[node name="FoldScope" parent="Updraft" groups=["fold_scopes"]]
+[node name="FoldScope" parent="Uplift" groups=["fold_scopes"]]
 gravity_dir = Vector3(0, 1, 0)
 clock_factor = 1.0
 
-[node name="Goal" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.35, 2.7, 0)
-mesh = SubResource("goal_mesh")
+[node name="Exit" parent="." instance=ExtResource("3")]
+transform = Transform3D(4, 0, 0, 0, 1.4, 0, 0, 0, 1.25, 10, 6.25, 0)
 
-[node name="Exit" parent="." instance=ExtResource("7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.2, 2.9, 0)
-
-[node name="Airlock" parent="." instance=ExtResource("8")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 0, 2.6)
+[node name="Airlock" parent="." instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, 2.5)
 room_id = "room1"
 
 [node name="PlateThrow" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.6, 3.6, -1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.5, 4.6, 0)
 mesh = SubResource("plate_mesh")
 material_override = SubResource("plate_mat_a")
 
 [node name="PlateUp" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2, 3.6, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 8.8, 0)
 mesh = SubResource("plate_mesh")
 material_override = SubResource("plate_mat_b")
 
 [node name="WarmKey" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.6, 4.2, -1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 4.5, 0)
 light_color = Color(1, 0.72, 0.45, 1)
 light_energy = 4.0
-omni_range = 9.0
+omni_range = 11.0
 
 [node name="CoolKey" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.4, 5.0, 0.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 7.5, 0)
 light_color = Color(0.55, 0.75, 1, 1)
 light_energy = 3.0
-omni_range = 10.0
+omni_range = 11.0

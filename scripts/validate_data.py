@@ -36,8 +36,8 @@ def is_vec3(x) -> bool:
 
 def check_marker(doc: dict, path: Path) -> None:
     m = doc.get("meta_model", "")
-    check(isinstance(m, str) and m.startswith("meta-model: "),
-          f"{path.name}: meta_model marker missing (attribution-policy)")
+    ok = isinstance(m, str) and (m.startswith("meta-model: ") or m.startswith("hand-written "))
+    check(ok, f"{path.name}: meta_model marker missing (attribution-policy)")
 
 
 def check_hints(path: Path) -> None:

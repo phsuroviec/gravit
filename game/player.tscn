@@ -1,10 +1,52 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1"]
 
 [sub_resource type="CapsuleShape3D" id="cap"]
 radius = 0.4
 height = 1.7
+
+[sub_resource type="StandardMaterial3D" id="skin_mat"]
+albedo_color = Color(0.93, 0.93, 0.95, 1)
+metallic = 0.15
+roughness = 0.25
+
+[sub_resource type="BoxMesh" id="torso_mesh"]
+material = SubResource("skin_mat")
+size = Vector3(0.32, 0.44, 0.18)
+
+[sub_resource type="BoxMesh" id="hips_mesh"]
+material = SubResource("skin_mat")
+size = Vector3(0.26, 0.18, 0.16)
+
+[sub_resource type="SphereMesh" id="head_mesh"]
+material = SubResource("skin_mat")
+radius = 0.09
+height = 0.18
+
+[sub_resource type="BoxMesh" id="upper_arm_mesh"]
+material = SubResource("skin_mat")
+size = Vector3(0.07, 0.32, 0.07)
+
+[sub_resource type="BoxMesh" id="forearm_mesh"]
+material = SubResource("skin_mat")
+size = Vector3(0.06, 0.3, 0.06)
+
+[sub_resource type="BoxMesh" id="hand_mesh"]
+material = SubResource("skin_mat")
+size = Vector3(0.07, 0.12, 0.05)
+
+[sub_resource type="BoxMesh" id="thigh_mesh"]
+material = SubResource("skin_mat")
+size = Vector3(0.1, 0.4, 0.1)
+
+[sub_resource type="BoxMesh" id="shin_mesh"]
+material = SubResource("skin_mat")
+size = Vector3(0.09, 0.4, 0.09)
+
+[sub_resource type="BoxMesh" id="foot_mesh"]
+material = SubResource("skin_mat")
+size = Vector3(0.11, 0.08, 0.24)
 
 [sub_resource type="StandardMaterial3D" id="hand_mat"]
 shading_mode = 0
@@ -13,11 +55,11 @@ emission_enabled = true
 emission = Color(0.35, 0.24, 0.17, 1)
 no_depth_test = true
 
-[sub_resource type="BoxMesh" id="forearm_mesh"]
+[sub_resource type="BoxMesh" id="carry_arm_mesh"]
 material = SubResource("hand_mat")
 size = Vector3(0.15, 0.15, 0.95)
 
-[sub_resource type="BoxMesh" id="palm_mesh"]
+[sub_resource type="BoxMesh" id="carry_palm_mesh"]
 material = SubResource("hand_mat")
 size = Vector3(0.3, 0.22, 0.34)
 
@@ -28,7 +70,7 @@ script = ExtResource("1")
 shape = SubResource("cap")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
 current = true
 
 [node name="CarryHands" type="Node3D" parent="Camera3D"]
@@ -36,19 +78,81 @@ visible = false
 
 [node name="ArmL" type="MeshInstance3D" parent="Camera3D/CarryHands"]
 transform = Transform3D(1, 0, 0, 0, 0.9511, -0.309, 0, 0.309, 0.9511, -0.78, -0.42, -1.35)
-mesh = SubResource("forearm_mesh")
+mesh = SubResource("carry_arm_mesh")
 
 [node name="ArmR" type="MeshInstance3D" parent="Camera3D/CarryHands"]
 transform = Transform3D(1, 0, 0, 0, 0.9511, -0.309, 0, 0.309, 0.9511, 0.78, -0.42, -1.35)
-mesh = SubResource("forearm_mesh")
+mesh = SubResource("carry_arm_mesh")
 
 [node name="PalmL" type="MeshInstance3D" parent="Camera3D/CarryHands"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.72, -0.16, -1.8)
-mesh = SubResource("palm_mesh")
+mesh = SubResource("carry_palm_mesh")
 
 [node name="PalmR" type="MeshInstance3D" parent="Camera3D/CarryHands"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.72, -0.16, -1.8)
-mesh = SubResource("palm_mesh")
+mesh = SubResource("carry_palm_mesh")
+
+[node name="Mannequin" type="Node3D" parent="."]
+
+[node name="Hips" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, 0)
+mesh = SubResource("hips_mesh")
+
+[node name="Torso" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.16, 0)
+mesh = SubResource("torso_mesh")
+
+[node name="Head" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.34, 0)
+mesh = SubResource("head_mesh")
+
+[node name="UpperArmL" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.21, 0.2, 0)
+mesh = SubResource("upper_arm_mesh")
+
+[node name="UpperArmR" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.21, 0.2, 0)
+mesh = SubResource("upper_arm_mesh")
+
+[node name="ForearmL" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.22, -0.1, 0)
+mesh = SubResource("forearm_mesh")
+
+[node name="ForearmR" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, -0.1, 0)
+mesh = SubResource("forearm_mesh")
+
+[node name="HandL" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.22, -0.3, 0.01)
+mesh = SubResource("hand_mesh")
+
+[node name="HandR" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, -0.3, 0.01)
+mesh = SubResource("hand_mesh")
+
+[node name="ThighL" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, -0.16, 0)
+mesh = SubResource("thigh_mesh")
+
+[node name="ThighR" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, -0.16, 0)
+mesh = SubResource("thigh_mesh")
+
+[node name="ShinL" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, -0.56, 0)
+mesh = SubResource("shin_mesh")
+
+[node name="ShinR" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, -0.56, 0)
+mesh = SubResource("shin_mesh")
+
+[node name="FootL" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, -0.81, -0.04)
+mesh = SubResource("foot_mesh")
+
+[node name="FootR" type="MeshInstance3D" parent="Mannequin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, -0.81, -0.04)
+mesh = SubResource("foot_mesh")
 
 [node name="CarryAnchor" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, -3)
@@ -58,3 +162,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, -3)
 [node name="LandPlayer" type="AudioStreamPlayer" parent="."]
 
 [node name="GrabPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="WhooshPlayer" type="AudioStreamPlayer" parent="."]

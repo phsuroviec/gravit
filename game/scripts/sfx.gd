@@ -35,6 +35,10 @@ static func jump() -> AudioStreamWAV:
 static func land() -> AudioStreamWAV:
 	return _tone(140.0, 0.12, 0.9)
 
+# Flip cue: falling pitch bend for gravity transitions.
+static func whoosh() -> AudioStreamWAV:
+	return _sweep(520.0, 170.0, 0.18)
+
 # Pickup blip: low grab then lift, so latching has its own sound.
 static func grab() -> AudioStreamWAV:
 	return _sweep(220.0, 480.0, 0.1)

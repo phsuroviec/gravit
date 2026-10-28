@@ -9,8 +9,8 @@ inside the gravity you are holding.
 
 ## Goal
 
-One room. Get the crate onto the teal pad — the door opens after a countdown —
-then ride the updraft to the ledge and walk out through the door. The win
+One room, one stunt. Run the ramp east, ride the Sling's throw, thread the
+Uplift, and come down on the platform above the gate. Touchdown wins. The win
 screen shows your time and best.
 
 ## Verbs (all you can do, all you ever need)
@@ -18,15 +18,13 @@ screen shows your time and best.
 | Input | Effect |
 | --- | --- |
 | Walk (arrows / WASD / left stick), mouse / right stick look, Space jump | ordinary movement; jump always fires away from your *current* down |
-| **E** (pad X) near a fold | pick it up: it goes inert, glides to your hands, contents freeze in place. A glowing ring on the ground marks the fold E will take |
-| **E** again | set it down where it floats in front of you: it goes live, contents wake inside it |
+| **E** (pad X) | nothing to grab this level — both folds are bolted down (fixed architecture). Carrying returns in later levels |
 | H (pad Y) | next hint |
 | T (pad Back) | airlock narration (AI when online, local fold log otherwise) |
 | R (pad Start), Esc | restart run / free the mouse cursor |
 
-Nothing else exists: no inventory, no keys, no currency, no enemies, no death,
-and nothing can be destroyed — so there is no way to get stuck that R cannot
-answer instantly.
+Nothing else exists: no inventory, no keys, no currency, no enemies, no death.
+Miss the landing and you are back on the floor — walk up the ramp and go again.
 
 Designer view of the same mechanics: [`folds-explained.md`](folds-explained.md).
 
@@ -39,28 +37,24 @@ Designer view of the same mechanics: [`folds-explained.md`](folds-explained.md).
   ring, no pickup.
 - **Hands at the bottom of the screen** — you are carrying a fold. It is
   switched off until you set it down.
-- **Green/teal strip on the floor** — a pad. Only the *crate* sets it off, not
-  you. It shoves the room's door open *after the countdown floating above it*.
-  It is not a fold and cannot be carried.
 - **White billboard plates** — signage only.
-- **Amber strip on the ledge edge, green glow in the doorway** — where to
-  land, where to leave.
+- **Amber strip on the platform edge, green glow at the gate** — where to
+  land, what you landed above.
 
 ## The room, beat by beat
 
-1. **Throw.** Pick up the cyan fold, carry it to the shelf so it covers the
-   crate, set it down. The crate slides east off the shelf and drops onto the
-   teal strip. Countdown, door opens.
-2. **Ride.** Walk into the green fold. It lifts you; drift east at the top
-   onto the ledge and walk through the open door.
+1. **Run.** Sprint east up the ramp, across the deck, and off its edge. The
+   cyan Sling catches you and throws you — exit speed is the whole game, and
+   the fold supplies all of it.
+2. **Thread.** You arrive in the green Uplift doing ~11 m/s. It trades that
+   speed for height. Keep holding forward.
+3. **Land.** Come down on the platform above the gate. Touchdown wins.
 
 ## Properties worth knowing
 
-- Folds never move physics bodies: carried bodies stay parented to the room,
-  frozen. Setting down wakes them where the fold lands.
-- You cannot carry a fold and stand inside it at the same time. Every
-  obstacle is: put the patch of down where you need it, use it, leave it to
-  move it further.
+- You cannot reach the Uplift on foot: its floor is above jump reach and
+  the deck gap is double your jump range. The only way in is Sling speed —
+  that is the anti-cheat, and it falls out of the geometry.
 - Queued consequences fire exactly once, late by design (delay × clock).
   A freed target is dropped and counted, never an error.
 - Your up flips with gravity; the camera never rolls. Walking out of a fold
