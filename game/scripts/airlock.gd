@@ -8,7 +8,7 @@ extends Area3D
 
 const GameText = preload("res://scripts/game_text.gd")
 
-@export var room_id := "room3"
+@export var room_id := "room1"
 
 var force_local := false
 var _player_inside := false

@@ -118,9 +118,8 @@ func _stick_look(delta: float) -> void:
 	if s.length() > 0.2:
 		apply_look(s.normalized() * minf(s.length(), 1.0) * 220.0 * delta)
 
-# E latches the nearest fold, E again sets it down, X breaks the carried one
-# over a plate, R restarts. Reach is measured to the shell's surface (a fold is
-# 2 m wide), and ties prefer the deeper, nested fold.
+# E latches the nearest non-fixed fold, E again sets it down. Reach is
+# measured to the shell's surface (a fold is 2 m wide).
 func nearest_fold(reach := 3.0):
 	var best = null
 	var best_score := INF

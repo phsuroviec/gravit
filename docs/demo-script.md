@@ -1,4 +1,12 @@
-# Demo script — 3:00, lossless capture, phone voice-over
+# Demo script — PARKED (superseded 2026-10-28)
+
+> The shot plan below describes rooms 1–3, crates, and the break verb — none
+> of which exist anymore. The game is now one stunt room (see
+> [`levels.md`](levels.md)). This file is kept as reference for shot
+> structure only (opening line, lossless capture, captions pipeline). It will
+> be rewritten from the as-built room when video work starts.
+
+# Demo script — 3:00, lossless capture, phone voice-over (ARCHIVAL)
 
 Target: submitted before **Nov 4, 9:00 PM ET** with a working video + repo link.
 Record Nov 3 (after the Nov 2 `v1.0-freeze`): the game must not change under the footage.

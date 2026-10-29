@@ -42,7 +42,7 @@ func show_completion() -> void:
 	if GameState.best_ms < 0 or ms < GameState.best_ms:
 		GameState.best_ms = ms
 	var best := "best " + _fmt(GameState.best_ms)
-	($Complete as Label).text = "COURSE COMPLETE in " + _fmt(ms) + " (" + best + ")\n" + GameText.fold_log("room3") + "\n[R] run it again"
+	($Complete as Label).text = "COURSE COMPLETE in " + _fmt(ms) + " (" + best + ")\n" + GameText.fold_log("room1") + "\n[R] run it again"
 	($Complete as Label).visible = true
 	($Timer as Label).visible = true
 	($Chime as AudioStreamPlayer).play()

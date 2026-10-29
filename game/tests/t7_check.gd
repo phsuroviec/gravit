@@ -50,6 +50,7 @@ func _physics_process(_delta: float) -> void:
 	if frames == 130:
 		_check(GameState.completions >= 1, "(t7) completion registers")
 		_check(hud.get_node("Complete").visible, "(t7) completion shown with fold log")
+		_check(_expected_fold_log() in hud.get_node("Complete").text, "(t7) completion names the stunt")
 		_check(hud.timer_unlocked(), "(t7) replay timer unlocked")
 		if failures == 0:
 			print("=== T7 CHECK PASSED ===")

@@ -93,7 +93,7 @@ func hold_target() -> Vector3:
 # brighter membrane, cleared the moment the target changes.
 func set_targeted(on: bool) -> void:
 	$Ring.visible = on and not is_carried()
-	_ensure_shell_mat().emission_energy_multiplier = 1.6 if on else 0.7
+	_ensure_shell_mat().emission_energy_multiplier = 2.0 if on else 1.0
 
 func _set_carried_look(on: bool) -> void:
 	$Ring.visible = false
@@ -101,7 +101,7 @@ func _set_carried_look(on: bool) -> void:
 	mat.albedo_color.a = CARRIED_ALPHA if on else 0.22
 	# The hex membrane is an emission texture: killing emission is what stops a
 	# carried shell from washing out the whole view.
-	mat.emission_energy_multiplier = 0.3 if on else 0.7
+	mat.emission_energy_multiplier = 0.3 if on else 1.0
 
 # Particle stream falls the fold's way. The process material is duplicated
 # per fold: instances share the scene's sub-resource, and scopes differ.

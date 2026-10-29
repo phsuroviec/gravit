@@ -2,14 +2,12 @@
 
 Godot 4 project root. Open this folder (not the repository root) in Godot.
 
-Planned node layout (filled in from the roadmap, not final):
+As-built node layout (2026-10-28, one stunt room):
 
 ```
 Main.tscn
-├── Course           # 3-4 rooms, grey-boxed
-│   ├── Room1..3
-│   └── Exit         # reachable only via the fold law
-├── Player           # CharacterBody3D
-├── Folds            # each fold is a placed scene with its own gravity
-└── HUD              # start/restart only
+├── Course           # Room1 + Player + HUD
+│   ├── Room1        # ramp, deck, Sling + Uplift (fixed), platform, gate, exit, airlock
+│   ├── Player       # CharacterBody3D + Camera3D (+CarryHands, +Mannequin)
+│   └── HUD          # objective, prompt, hints, timer, completion
 ```
