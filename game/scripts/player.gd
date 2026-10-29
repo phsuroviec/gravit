@@ -35,9 +35,17 @@ var _was_airborne := false
 const KILL_Y := -12.0
 var last_safe_pos := Vector3(-4, 1, 0)
 var _safe_cool := 0
-var _last_up := Vector3.UP
+# Orientation hysteresis (ADR-11): one eased state drives camera roll and body
+# alignment together. Eases toward a fold's down on ENTRY, holds through
+# airborne exits (no strobing), eases back upright only on grounded touchdown.
+var _up_vec := Vector3.UP
+var _target_up := Vector3.UP
+var _last_scope = null
+var _up_speed := 0.0
+var _up_accel := 14.0
 var _punch := 0.0
 var _manne_fwd := Vector3(0, 0, 1)
+var _pitch := 0.0
 
 func _ready() -> void:
 	# Rooms wire their own children in their _ready, which runs before this
@@ -69,11 +77,11 @@ func align_to_gravity(g: Vector3) -> void:
 	if not g.is_zero_approx():
 		up_direction = -g.normalized()
 
-# Yaw on the body, pitch on the camera, roll nowhere.
+# Yaw on the body, pitch as a stored float (never incrementally edited — a
+# rolled basis would corrupt euler reads and the view would drift mid-flip).
 func apply_look(rel: Vector2) -> void:
 	rotate_y(-rel.x * mouse_sens)
-	var cam := $Camera3D as Camera3D
-	cam.rotation.x = clampf(cam.rotation.x - rel.y * mouse_sens, -pitch_limit, pitch_limit)
+	_pitch = clampf(_pitch - rel.y * mouse_sens, -pitch_limit, pitch_limit)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
@@ -251,31 +259,71 @@ func _physics_process(delta: float) -> void:
 	else:
 		_was_airborne = true
 		velocity += g * delta * cf
-	_align_mannequin(delta)
-	_punch_flip(delta)
+	_update_orientation(delta)
 	move_and_slide()
 
-# Feet point along gravity: the body swings visibly while the camera stays
-# level (ADR-9). Forwards falls back to the last good one when the wish
-# degenerates (diving straight along up).
-func _align_mannequin(delta: float) -> void:
+# Orientation state machine. Entry into a fold eases camera+body toward its
+# down; leaving to open air holds (the moonshot stays inverted); touching
+# world-down ground eases back upright. FOV punch + whoosh fire on entry.
+func _update_orientation(delta: float) -> void:
+	var deep = FoldScope.deepest_scope_for_body(self, active_scopes)
+	if deep != _last_scope:
+		if deep != null:
+			# Fold ENTRY: ease toward its down. Slow start, fast finish, like
+			# gravity itself (ADR-11).
+			_target_up = -(deep.gravity_dir.normalized())
+			_up_speed = 0.0
+			_up_accel = 14.0
+			_punch = 1.0
+			($WhooshPlayer as AudioStreamPlayer).play()
+		_last_scope = deep
+	elif deep == null:
+		if is_on_floor():
+			# Touchdown in world gravity: ease back upright, quicker.
+			_target_up = Vector3.UP
+			_up_accel = 28.0
+		else:
+			# Airborne exit: hold. No strobing, the moonshot stays inverted.
+			_target_up = _up_vec
+	_ease_up_toward_target(delta)
+	_orient_camera()
+	_align_mannequin()
+
+# Gravity-like ease: accelerating angular step, antipodal-safe (a raw lerp
+# normalize would explode passing through zero on a 180-degree flip).
+func _ease_up_toward_target(delta: float) -> void:
+	var angle := _up_vec.angle_to(_target_up)
+	if angle < 0.005:
+		_up_vec = _target_up
+		return
+	_up_speed = minf(_up_speed + _up_accel * delta, 7.0)
+	var axis := _up_vec.cross(_target_up)
+	if axis.length() < 0.001:
+		axis = _up_vec.cross(Vector3.RIGHT)
+		if axis.length() < 0.001:
+			axis = _up_vec.cross(Vector3.FORWARD)
+	_up_vec = _up_vec.rotated(axis.normalized(), minf(angle, _up_speed * delta)).normalized()
+
+# Deterministic facing every frame: yaw (body) + pitch (stored float), rolled
+# onto the eased up. Nothing incremental, so nothing drifts mid-flip.
+func _orient_camera() -> void:
+	var cam := $Camera3D as Camera3D
+	var fwd := (-global_transform.basis.z).rotated((global_transform.basis as Basis).x.normalized(), _pitch)
+	var right := fwd.cross(_up_vec)
+	if right.length() < 0.05:
+		return
+	right = right.normalized()
+	var up2 := right.cross(fwd).normalized()
+	cam.global_transform.basis = Basis(right, up2, -fwd)
+
+# Body matches the camera's world: same eased up, body yaw for facing.
+func _align_mannequin() -> void:
 	var manne := get_node_or_null("Mannequin") as Node3D
 	if manne == null:
 		return
+	var cam_up := (($Camera3D as Camera3D).global_transform.basis as Basis).y.normalized()
 	var fwd := -global_transform.basis.z
-	fwd -= up_direction * fwd.dot(up_direction)
+	fwd -= cam_up * fwd.dot(cam_up)
 	if fwd.length() > 0.15:
 		_manne_fwd = fwd.normalized()
-	var target := Basis.looking_at(_manne_fwd, up_direction)
-	var cur := (manne.global_transform.basis as Basis).get_rotation_quaternion()
-	manne.global_transform.basis = Basis(cur.slerp(target.get_rotation_quaternion(), minf(1.0, 10.0 * delta)))
-
-# Flip cue: FOV punch + whoosh when up changes (ADR-8).
-func _punch_flip(delta: float) -> void:
-	var cam := $Camera3D as Camera3D
-	if up_direction.dot(_last_up) < 0.5:
-		_punch = 1.0
-		($WhooshPlayer as AudioStreamPlayer).play()
-	_last_up = up_direction
-	_punch = maxf(0.0, _punch - 2.5 * delta)
-	cam.fov = CAM_FOV + PUNCH_FOV * _punch
+	manne.global_transform.basis = Basis.looking_at(_manne_fwd, cam_up)

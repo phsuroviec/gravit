@@ -103,6 +103,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.16, 0)
 mesh = SubResource("torso_mesh")
 
 [node name="Head" type="MeshInstance3D" parent="Mannequin"]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.34, 0)
 mesh = SubResource("head_mesh")
 
@@ -153,6 +154,12 @@ mesh = SubResource("foot_mesh")
 [node name="FootR" type="MeshInstance3D" parent="Mannequin"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, -0.81, -0.04)
 mesh = SubResource("foot_mesh")
+
+[node name="BodyLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, -0.7)
+light_color = Color(1, 0.95, 0.88, 1)
+light_energy = 0.7
+omni_range = 3.5
 
 [node name="CarryAnchor" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, -3)

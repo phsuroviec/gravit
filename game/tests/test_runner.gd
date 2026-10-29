@@ -292,6 +292,7 @@ func test_xi_held_fold_feel() -> void:
 	var head := manne.get_node_or_null("Head") as Node3D
 	var cam := player_scene.get_node_or_null("Camera3D") as Node3D
 	_assert(head.position.y < cam.position.y, "(xi) head stays below the lens")
+	_assert((head as MeshInstance3D).visible == false, "(xi) head hidden: the camera is the head")
 	_assert(player_scene.get_node_or_null("WhooshPlayer") != null, "(xi) flip cue player rides along")
 	player_scene.free()
 	fold.set_targeted(true)

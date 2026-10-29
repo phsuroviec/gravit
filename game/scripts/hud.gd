@@ -12,7 +12,7 @@ var _last_room := ""
 var _brief_until_ms := 0
 
 const OBJECTIVES := {
-	"room1": "Run the ramp east, thread the uplift, land above the gate",
+	"room1": "Throw east across the void, moonshot the skyblock underside",
 }
 
 func _ready() -> void:

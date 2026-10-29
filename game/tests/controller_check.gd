@@ -38,21 +38,23 @@ func _physics_process(_delta: float) -> void:
 	if frames == 35:
 		_check(absf(player.rotation.y - yaw0) > 0.05, "(c) right stick looks")
 		_check($HUD.get_node("Objective").text != "", "(c) objective shows")
-		_check(not $HUD.get_node("Prompt").visible, "(c) no prompt: folds are fixed")
-		player.global_position = Vector3(-5.0, 0.9, 0.0)
+		_check($HUD.get_node("Prompt").visible, "(c) grab prompt shows near fold")
 		var off := InputEventJoypadMotion.new()
 		off.device = 0
 		off.axis = JOY_AXIS_RIGHT_X
 		off.axis_value = 0.0
 		Input.parse_input_event(off)
 	if frames == 40:
-		_check(not $HUD.get_node("Prompt").visible, "(c) still no prompt inside a fixed fold")
 		_joy_button(JOY_BUTTON_X)
 	if frames == 55:
-		_check(player.carried_fold == null, "(c) pad X cannot grab a fixed fold")
+		_check(player.carried_fold != null, "(c) pad X picks up")
 	if frames == 60:
-		_joy_button(JOY_BUTTON_B)
+		_joy_button(JOY_BUTTON_X)
 	if frames == 75:
+		_check(player.carried_fold == null, "(c) pad X sets down")
+	if frames == 78:
+		_joy_button(JOY_BUTTON_B)
+	if frames == 85:
 		_check(player.carried_fold == null, "(c) pad B stays inert")
 		_joy_button(JOY_BUTTON_Y)
 	if frames == 95:

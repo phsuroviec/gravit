@@ -9,22 +9,24 @@ inside the gravity you are holding.
 
 ## Goal
 
-One room, one stunt. Run the ramp east, ride the Sling's throw, thread the
-Uplift, and come down on the platform above the gate. Touchdown wins. The win
-screen shows your time and best.
+One room. Chain two folds to the skyblock and touch its underside. Touchdown
+wins — the run ends while you are still upside-down. The win screen shows
+your time and best.
 
 ## Verbs (all you can do, all you ever need)
 
 | Input | Effect |
 | --- | --- |
 | Walk (arrows / WASD / left stick), mouse / right stick look, Space jump | ordinary movement; jump always fires away from your *current* down |
-| **E** (pad X) | nothing to grab this level — both folds are bolted down (fixed architecture). Carrying returns in later levels |
+| **E** (pad X) near a fold | pick it up: it goes inert and glides to your hands. A glowing ring marks the fold E will take |
+| **E** again | set it down where it floats: it goes live |
 | H (pad Y) | next hint |
 | T (pad Back) | airlock narration (AI when online, local fold log otherwise) |
 | R (pad Start), Esc | restart run / free the mouse cursor |
 
 Nothing else exists: no inventory, no keys, no currency, no enemies, no death.
-Miss the landing and you are back on the floor — walk up the ramp and go again.
+Miss the moonshot and you land back on the plate — walk into the fold again.
+Fall in the void and you wake back on the west plate. R restarts anytime.
 
 Designer view of the same mechanics: [`folds-explained.md`](folds-explained.md).
 
@@ -37,6 +39,9 @@ Designer view of the same mechanics: [`folds-explained.md`](folds-explained.md).
   ring, no pickup.
 - **Hands at the bottom of the screen** — you are carrying a fold. It is
   switched off until you set it down.
+- **White body when you look down** — that is you: torso, arms, legs, feet.
+  The camera is your head (hidden), and the whole body swings feet-first
+  along gravity when a fold flips you.
 - **White billboard plates** — signage only.
 - **Amber strip on the platform edge, green glow at the gate** — where to
   land, what you landed above.

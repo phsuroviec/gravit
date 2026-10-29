@@ -10,14 +10,14 @@ this repository predates the window: the first commit is Oct 26, and `git log` b
 ## Play it
 
 Godot 4.7 — open the `game/` folder as a project and press play (or `godot --path game`).
-One room, one stunt: run the ramp east, ride the Sling, thread the Uplift,
-land on the platform above the gate.
+One room: place two small folds, chain a flight across the void into a
+moonshot, touch the skyblock underside.
 
 | Input | Action |
 | --- | --- |
 | Mouse / arrows | look / walk (Up is forward) |
 | Space | jump (away from your current down) |
-| E | nothing to grab this level (folds are fixed) |
+| E | pick up the nearest fold (goes inert) / set it down (goes live) |
 | H | next hint |
 | T | airlock narration (AI when online, local fold log otherwise) |
 | R | restart |

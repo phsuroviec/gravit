@@ -1,15 +1,15 @@
 {
-  "meta_model": "hand-written 2026-10-28 for the stunt room; 2026-10-26 muse-spark-1.3 entries retired",
+  "meta_model": "hand-written 2026-10-29 for the placement chain; 2026-10-28 stunt entries retired",
   "rooms": [
     {
       "id": "room1",
-      "briefing": "RUN THE RAMP. RIDE THE SLING EAST. THREAD THE UPLIFT. LAND ABOVE THE GATE.",
+      "briefing": "TWO FOLDS BY THE WEST WALL. THROW EAST ACROSS THE VOID. MOONSHOT THE SKYBLOCK.",
       "hints": [
-        "Sprint east up the ramp and off the deck \u2014 the cyan fold throws you.",
-        "Keep holding forward through the green fold; it trades your speed for height.",
-        "Come down on the platform above the gate. Miss it and walk back up \u2014 retry is free."
+        "Carry the cyan fold up the ramp and set it at the ledge edge facing east.",
+        "Pick up the green fold and ride the cyan flight carrying it across the void.",
+        "Set the green fold down, walk in slow, steer east into the skyblock."
       ],
-      "fold_log": "The sling threw you east and the uplift traded it for sky."
+      "fold_log": "The east flight carried the lift across, and the sky took you."
     }
   ]
 }
