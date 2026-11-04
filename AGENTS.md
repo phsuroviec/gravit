@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.10.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.11.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -50,6 +50,11 @@ and a deliberate project-owned document cleanup to globally increasing startup c
 - **Substantial multi-step work:** use `planning-with-files` when available and keep one selected task
   plan/current findings. Otherwise maintain a small repository-local plan. Do not create parallel plans
   for the same task or load a full planning package for a one-step edit.
+- **Persistent knowledge docs:** when a batch changes a project's purpose, architecture, platforms,
+  backend, gates or a major decision, update `docs/knowledge_base/overview.md` in the same batch.
+  Keep it short, current-state and secret-free; it feeds NotebookLM through the shared
+  `agent-policy/scripts/sync-notebooklm.py`. Teaching (`teach`) and visual-explainer skills run only
+  when the owner asks to learn something, never by default.
 - **Bounded fixes and small edits:** reuse the established contract and approved seams, investigate the
   root cause, make a focused plan/reproducer as needed, and validate the change. New behavior or material
   scope changes return to feature/spec decisions; routine work needs no fresh interview.
