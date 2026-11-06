@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.12.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.13.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -201,6 +201,11 @@ the harness, say so and apply the one-line summary.
 - **Scope discipline:** touch only what the batch asks for, no unrequested refactors or renames,
   declare intended edits before large changes. Full list: `anti-overengineering.md`.
 - **Skill catalog and discovery directories:** `skill-catalog.md`.
+- **"Full regression" / "full sweep" / "test everything":** load the `full-regression` skill and run
+  the whole sweep (every screen, path, button, edge and boundary input, clipping/layout, a11y,
+  memory, offline/error states, security) from `docs/qa/REGRESSION_CATALOG.md`, building the catalog
+  first if missing. A project's own sweep skill or rule overrides it. Feature batches add or edit
+  catalog rows in the same commit when the catalog exists.
 
 ### Mandatory Git Persistence: Always Pull, Always Commit, Always Push
 
