@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.13.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.14.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -97,14 +97,15 @@ and a deliberate project-owned document cleanup to globally increasing startup c
   batch or publish work.
 - Work directly for a small or tightly coupled task. For a larger task, use **serial** delegation by
   default: finish, validate, and checkpoint one independent slice before starting the next.
-- Use parallel delegation only when the workstreams have disjoint concrete file scopes, no ordering
-  dependency, and an explicit merge/verification plan. Reserve shared plans, handoffs, changelogs, and
-  instruction files for the orchestrator.
+- **Never run subagents in parallel** (owner rule: parallel runs exhaust quota, crash the session and
+  force a harness switch). Run one delegated agent at a time, even when a skill suggests parallel
+  dispatch; slower is acceptable. Background build, test or CI jobs are not subagents. Reserve shared
+  plans, handoffs, changelogs, and instruction files for the orchestrator.
 - Give every delegated agent a task contract: bounded objective, non-goals, repository and branch, allowed
   file paths or worktree, expected evidence, and a prohibition on reading secrets, committing, pushing,
   deploying, or changing test assertions merely to pass.
-- Implementation → independent review → repair → final gates is serial. Independent research or test-design
-  work may run in parallel; a verifier of the final diff cannot review a change that has not stabilized.
+- Implementation → independent review → repair → final gates is serial; a verifier of the final diff
+  cannot review a change that has not stabilized.
 - Keep a coordination reserve for the parent agent. Do not start a new implementation slice when the
   remaining context or usage is unlikely to close it. Finish the current atomic slice when safe; otherwise
   stop at a clean checkpoint with the exact next step, evidence, blockers, branch/HEAD, and uncommitted
@@ -202,9 +203,11 @@ the harness, say so and apply the one-line summary.
   declare intended edits before large changes. Full list: `anti-overengineering.md`.
 - **Skill catalog and discovery directories:** `skill-catalog.md`.
 - **"Full regression" / "full sweep" / "test everything":** load the `full-regression` skill and run
-  the whole sweep (every screen, path, button, edge and boundary input, clipping/layout, a11y,
-  memory, offline/error states, security) from `docs/qa/REGRESSION_CATALOG.md`, building the catalog
-  first if missing. A project's own sweep skill or rule overrides it. Feature batches add or edit
+  the whole sweep every time it is said: every screen, path and button, boundary inputs, adversarial
+  bug hunting, security and rate limits, billing, legal and store compliance, clipping/layout, a11y,
+  memory, performance, concurrency and code slop, from the project-specific
+  `docs/qa/REGRESSION_CATALOG.md` (built first if missing). Serial subagents only; grill the owner on
+  open decisions. A project's own sweep skill adds project commands. Feature batches add or edit
   catalog rows in the same commit when the catalog exists.
 
 ### Mandatory Git Persistence: Always Pull, Always Commit, Always Push
