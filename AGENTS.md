@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.15.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.16.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -202,6 +202,10 @@ the harness, say so and apply the one-line summary.
 - **Scope discipline:** touch only what the batch asks for, no unrequested refactors or renames,
   declare intended edits before large changes. Full list: `anti-overengineering.md`.
 - **Skill catalog and discovery directories:** `skill-catalog.md`.
+- **Named protocols** ("quick check", "full regression", "security watch", "security sweep", "ship
+  check", "promote to staging/beta/production", "post-release check"): load the
+  `workflow-protocols` skill, which defines each and the local -> CI -> staging -> beta ->
+  production ladder. Every promotion needs the owner.
 - **"Full regression" / "full sweep" / "test everything":** load the `full-regression` skill and run
   the whole sweep every time it is said: every screen, path and button, boundary inputs, adversarial
   bug hunting, security and rate limits, billing, legal and store compliance, clipping/layout, a11y,
