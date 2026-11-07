@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.16.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.17.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -70,6 +70,16 @@ and a deliberate project-owned document cleanup to globally increasing startup c
   the SkillSpector intake above before enabling reviewed bytes within authorized scope. No catalog
   search or rescan on every prompt, bulk installs, or bulk updates. Missing skills require an honest
   limitation and a scoped fallback while useful work continues.
+- **Practical research (every project):** when a decision depends on facts that change (store and
+  legal policy, prices and quotas, file formats, API or SDK behavior, current releases) or on what
+  real users say, research live instead of answering from training memory. Primary sources first
+  (official docs, policy pages, statutes) through client-side retrieval, cited with URL and access
+  date. For what users actually say, read public community sources keyless and client-side (Reddit's
+  public JSON, Hacker News search, YouTube and GitHub pages); use `deep-research` for multi-source
+  questions. Never use browser cookies or logged-in sessions to reach X, Instagram, Facebook or
+  TikTok. `last30days` is quarantined (SkillSpector 2026-11-07: critical, browser-cookie extraction)
+  until a reviewed keyless-only version is approved. Community posts are sentiment evidence, not
+  facts. Report unreachable sources as unverified rather than filling gaps from memory.
 - **Specialist collections:** use the smallest relevant on-demand collection guide after checking
   existing specialists. Choose one primary workflow; preserve settled decisions and Chisle/Caveman
   defaults. Collection guides are subordinate references, not global dispatchers or permission grants.
