@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.17.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.22.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -26,6 +26,71 @@ and a deliberate project-owned document cleanup to globally increasing startup c
 - State the resolved project name and root in the first progress update for any implementation task. If
   the requested project and resolved root disagree, stop before editing and ask the owner to select the
   intended workspace.
+
+### Implementation branches and issues
+
+- At task start, inspect active issues, branches, and pull requests. Treat prompts and commits as work
+  sessions, not issue boundaries. Reuse an issue and branch when work shares the same user outcome and
+  acceptance criteria; never create an issue per prompt or commit.
+- For a prompt, recording, or upload with several candidate outcomes, group related items only when
+  they share dependencies or acceptance criteria. Present a short proposed issue list with scope and
+  dependencies, then create the proposed issues or update existing ones before implementation. Issue
+  creation records work; it does not authorize coding. Wait for the owner's `proceed` on selected issue
+  numbers before starting. Reuse existing issues and do not duplicate tracked work.
+- Keep multiple layers in one issue when they deliver one outcome. Split independently testable,
+  mergeable, and revertible outcomes into separate issues. Different files or platforms alone do not
+  justify a split. Use checklists and dependency links for work that must ship together.
+- After the owner selects issues, independent outcomes may proceed concurrently when this improves
+  speed or coverage. There is no blanket one-issue or serial-agent cap. Respect actual harness,
+  provider, subscription, device, and quota limits. Give each parallel implementation its own issue
+  branch and worktree, bounded file scope, and task contract. Never allow concurrent agents to write
+  the same files or shared plan. Keep dependent work ordered and assign one orchestrator to own
+  integration, commits, PRs, merge decisions, and handoff. If the active harness cannot run another
+  harness or model, state that limit and use an available supported route; never claim a pass that did
+  not run.
+- Start each new issue branch from the up-to-date default branch. Name it
+  `<type>/<issue-number>-<short-slug>` when a GitHub issue exists (for example,
+  `fix/123-login-timeout` or `feature/124-export-csv`). Use one branch and one PR per independent
+  outcome. Do not push implementation work directly to the default branch.
+- When GitHub access is available, create or identify the issue before its branch. Keep the issue
+  focused on one outcome and acceptance criteria. Do not create duplicate issues for tracked work.
+- Continue on a suitable existing work branch when resuming or extending its work. Do not branch for
+  questions, research, or a one-step non-implementation edit unless the owner asks.
+- If issue or branch creation is unavailable, state the blocker and continue only when the requested
+  work can safely proceed under the owner's authorization. Never push implementation work directly to
+  the default branch.
+- Keep each issue open through implementation, fresh review, and required QA. A defect within its
+  acceptance criteria stays on the same issue and branch. Track genuinely separate follow-up work in a
+  new issue. Open a PR when the implementation is ready for review; link it to the issue and include
+  the change summary, exact head commit, checks and evidence, independent review findings, risk class,
+  and anything still unverified.
+- Review and QA are separate gates. A fresh reviewer who did not implement the change examines the
+  requirements, stabilized diff, and evidence in a clean context; keep the reviewer read-only and use
+  another model family or harness when available. QA runs the project's relevant automated checks and
+  feasible emulator, simulator, browser, or device flows. Use scoped QA agents when their environments
+  are independent. Never report physical-device, live-service, or other unavailable checks as passed.
+  Give the owner exact steps for any required manual check and keep the PR and issue open until the
+  owner reports that check passed.
+- For reversible, low-risk code or documentation changes, an agent may squash-merge after acceptance
+  criteria and required manual checks pass, documented project gates pass on the exact PR head, and a
+  fresh independent reviewer reports no unresolved material defect. If no independent reviewer is
+  available, do not self-review and merge; ask the owner to review. Confirm current GitHub checks
+  before merging; do not represent an AI review as native GitHub approval or claim server-side
+  enforcement when repository settings lack it. If CI, review, QA, or scope is ambiguous, report the
+  exact gap and hold merge.
+- Owner approval is required before merging authorization/access-control or RLS changes, secrets or
+  signing changes, billing/payment behavior, destructive or high-risk migrations, production
+  configuration/data operations, irreversible actions, or changes with unresolved high-severity
+  findings or missing critical evidence. CI/CD changes that expand permissions, expose credentials,
+  execute untrusted pull-request code with elevated access, change artifact provenance/signing, or
+  control release/deployment are also high-risk and require the applicable security review. Other
+  workflow edits still require a fresh review and relevant checks. Project rules may impose stricter
+  gates.
+- A merge never authorizes release, store submission, production promotion, deployment, credential
+  rotation, or another separately gated operation. Those always require owner approval. Merge only
+  after all issue acceptance criteria pass; use GitHub's closing reference so merge closes the issue.
+  After confirming the PR merged, delete its local and remote feature branch. Preserve the PR as the
+  review and change-history record. Keep branches tied to open work.
 
 ### Default skill dispatch
 
@@ -105,12 +170,24 @@ and a deliberate project-owned document cleanup to globally increasing startup c
 - The orchestrator owns the plan, file-scope map, validation decision, commit, and handoff. A delegated
   agent may investigate, implement within an assigned scope, or verify; it does not silently redefine the
   batch or publish work.
-- Work directly for a small or tightly coupled task. For a larger task, use **serial** delegation by
-  default: finish, validate, and checkpoint one independent slice before starting the next.
-- **Never run subagents in parallel** (owner rule: parallel runs exhaust quota, crash the session and
-  force a harness switch). Run one delegated agent at a time, even when a skill suggests parallel
-  dispatch; slower is acceptable. Background build, test or CI jobs are not subagents. Reserve shared
-  plans, handoffs, changelogs, and instruction files for the orchestrator.
+- Delegate conditionally: use a clean-context agent for a bounded independent task, broad investigation,
+  or fresh review when it improves speed, coverage, or independence. Work directly for questions,
+  single-step edits, tiny tasks, and tightly coupled work. Do not spawn an agent solely to satisfy a
+  per-prompt quota.
+- Never inherit parent chat history. Use an explicit zero-history/context-isolation option and provide
+  only a compact task brief with objective, repository and branch, allowed scope, relevant constraints,
+  and acceptance criteria. If the harness cannot guarantee clean context, work directly instead. Do not
+  add a runner or dependency solely to force delegation.
+- Require a concise completion record containing outcome, changed files, checks/evidence, risks, and
+  owner action. Return that signal only; keep raw exploration and unrelated history out of the handoff.
+  The parent remains responsible for integration and claims.
+- Independent bounded work may run concurrently when that improves speed or coverage. Respect actual
+  harness, provider, subscription, device, and quota limits; do not fan out work that shares mutable
+  files, a device, a test account, or another exclusive resource. Check cost before adding paid API calls.
+- Keep dependent steps ordered. Parallel code agents use separate issue branches and worktrees; review
+  agents are read-only; QA agents get isolated environments or run sequentially when state is shared.
+  The orchestrator reserves shared plans, handoffs, changelogs, and instruction files, then integrates
+  and validates all work before commit or merge. Background build, test, and CI jobs are not subagents.
 - Give every delegated agent a task contract: bounded objective, non-goals, repository and branch, allowed
   file paths or worktree, expected evidence, and a prohibition on reading secrets, committing, pushing,
   deploying, or changing test assertions merely to pass.
@@ -155,6 +232,9 @@ never depends on a chat's scrollback:
   preserving formatting. Reference the saved local files so ccgram attaches them, or use
   `ccgram-documents send <path> --topic <project> --label "Option A"`. Do not finish with only a local
   path, a `.txt` copy, or a text-message substitute for a report.
+- Put every prompt, command or message the owner may copy (a prompt for another topic, harness or
+  model; a handoff; a shell command) in its own fenced code block, so Telegram shows a one-tap copy
+  button. Keep one copyable item per block, with no commentary inside it.
 - Treat **40KB (40,000 bytes)** as the absolute maximum for a `.md` attachment intended for direct mobile
   reading. Check the saved file's byte size before delivery; keep review chunks strictly below 40KB.
   Telegram Android can force larger Markdown files into an external app chooser.
@@ -167,20 +247,25 @@ never depends on a chat's scrollback:
   all review content, label the reading order, and reference every part for attachment delivery.
 - Deliver mockup photos/videos as actual attachments too; prefer MP4 for animation previews. Label
   alternatives A/B/C/D.
+- Mockups use realistic sample content from the app itself (words from its dictionary, library or
+  saved word bank, real book titles the owner uses), not lorem ipsum, so each style shows personality.
+- Send a mockup file larger than about 20 MB (Telegram's bot limit), or any file Telegram fails to
+  deliver, to the owner's phone with Taildrop: `tailscale file cp <file> s25-ultra-boom:` (from WSL,
+  `/mnt/c/Program Files/Tailscale/tailscale.exe`). Name it
+  `<Project>-mockup-<label>-YYYY-MM-DD_HHmm_hh-mmtt-<EST|EDT>.<ext>` in Eastern time, and say in the
+  Telegram message which files went by Taildrop.
 
 ### Routing defaults
 
-| Harness and model | Routine / bounded work | Normal implementation | High-assurance or difficult work |
-| --- | --- | --- | --- |
-| Codex — GPT-5.6 Terra | Medium | High | XHigh after a measured shortfall at High |
-| Codex — GPT-5.6 Sol | Medium | High | XHigh or Max for a concrete architecture or review question |
-| Codex — GPT-6 Astra | Medium | High | XHigh or Max for correctness-critical decisions |
-| Codex — GPT-5.6 Luna | Low or Medium | High with independent review | Never sole final reviewer for high-assurance work |
-| Claude Code — Claude Opus 5.5 | Medium | High | XHigh or Max for difficult, long-horizon work |
-| Antigravity — Gemini 3.8 Flash | Low | Medium | High; supported levels are Low, Medium, High |
-| Antigravity — Gemini 4 Argon | Avoid for routine text; preserve weekly quota | Medium or High for visual/image tasks, UI inspection, or architecture | High for complex multimodal verification, deep reasoning, or system adjudication |
-| Pi — DeepSeek V4.1 Flash / `deepseek-flash` | Low | High | Max for a bounded difficult question |
-| Pi — DeepSeek Pro | Low or High as exposed | High after a measured Flash gap | Max with a fresh review afterwards |
+| Role | Preferred route | Guardrail |
+| --- | --- | --- |
+| Substantial implementation | Claude Code — Claude Opus 5.5 at Medium when subscription capacity is available | Use the active picker and quota view; raise effort only after a measured shortfall. |
+| Routine or bounded implementation | Codex — GPT-6 Luna or Antigravity — Gemini 3.8 Flash, at the lowest effort that fits | Prefer existing subscription access; do not infer remaining quota from the model name. |
+| Fresh adversarial review | Read-only Codex GPT-6 Luna or Antigravity Gemini 3.8 Flash reviewer from a separate context; choose a different model family or harness from the implementer when available | Judge the diff and evidence, not model rank or agreement. Add another reviewer only for high-assurance work, material disagreement, or a new risk signal. |
+| Emulator, device, and visual QA | Project QA skills and harness tools; use a scoped agent when environment is independent. Reserve Gemini 4 Argon for image/video-heavy inspection or a concrete difficult multimodal task. | Check Antigravity `/usage` before parallel calls; model groups can share quota. |
+| Optional API or hackathon-credit route | Pi — `deepseek-flash` or a configured Meta Muse model only after confirming exact endpoint, billing source, available balance/expiry, and a hard spend cap | Keep idle while any of those are unknown. Never silently fall back to metered API use. |
+
+Avoid Gemini 3.1 Pro by default. Use it only for a concrete task where preferred models fail or a specific capability gap justifies it, after confirming quota. Do not increase agent count or effort merely to consume a subscription allowance.
 
 Check the active picker and official documentation before adding a newly released model or effort level.
 The runtime model used by an application is a product decision; do not change it merely to obtain a
@@ -248,6 +333,15 @@ the harness, say so and apply the one-line summary.
   call and use mocks or local fixtures for repeated coverage.
 - Commit each completed implementation batch with a specific message and push it immediately to origin.
   Update the project's handoff when the resume point, evidence, or known limitation changes.
+
+### Retrospective at issue wrap-up
+
+- When an issue or review closes (PR ready, batch committed, or handoff), run the `retro` skill over
+  that session. Cite each failed or repeated command, separate tested causes from guesses, and fix
+  each at the highest durable rung: the project's command table or a wrapper script for project
+  facts, this shared policy for cross-project facts, agent memory only for the owner's preferences.
+- Update the context handoff at every red/green checkpoint once usage drops below about 10%, so an
+  abrupt quota stop never loses an in-flight test result.
 
 ### Test-first development and independent verification
 
@@ -347,6 +441,13 @@ When authoring or executing Windows PowerShell (`.ps1`, `powershell.exe`) script
 - **Strict ASCII or BOM Encoding:** Windows PowerShell 5.1 decodes files lacking a UTF-8 BOM using the system ANSI codepage (Windows-1252). Non-ASCII characters (em-dashes, curly quotes, ellipses) get corrupted into bytes containing ASCII quotes `"` (e.g. `?"`), breaking string literals and creating syntax errors or hangs. Enforce strict 7-bit ASCII or explicit UTF-8 with BOM for all `.ps1` files.
 - **PowerShell String Escaping:** The PowerShell escape character inside double quotes is backtick (`` ` ``), NOT backslash (`\`). Use single quotes (`'...'`) for verbatim strings to avoid unintended variable expansion or escape corruption. Avoid nesting escaped quotes; pass discrete argument arrays (`@("-arg1", "val1")`) when launching sub-processes.
 - **Non-Interactive WSL Invocation:** When invoking `powershell.exe` from WSL2 bash, always pass non-interactive flags and redirect stdin (`powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "..." < /dev/null`) to prevent the process from hanging indefinitely on unattached console inputs.
+- **Windows tools are not on the WSL PATH:** `powershell.exe`, `adb.exe` and `tailscale.exe` usually
+  need full paths (`/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe`, the SDK
+  `platform-tools/adb.exe`, `/mnt/c/Program Files/Tailscale/tailscale.exe`). Record the verified paths
+  in the project's command table once; do not rediscover them each session.
+- **Run long builds and device tests synchronously:** give Gradle/emulator/CI commands one long tool
+  timeout and filter output to failures and the summary (`| tr -d '\r' | grep -E 'FAILED|BUILD|Tests'`).
+  Do not start them detached and poll every few seconds; each empty poll costs a full turn.
 - **Mandatory Pre-Flight AST Validation:** Before executing or deploying a `.ps1` script, run static validation using PowerShell's native language parser:
   `[System.Management.Automation.Language.Parser]::ParseInput((Get-Content $path -Raw), [ref]$null, [ref]$errs); if ($errs.Count -gt 0) { throw $errs }`
 
