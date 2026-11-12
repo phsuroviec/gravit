@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.23.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.23.1 | profiles:  -->
 
 ## Shared agent policy
 
@@ -334,6 +334,11 @@ the harness, say so and apply the one-line summary.
   row naming its lint, mock/emulated-service, unit, integration, performance and security checks, with
   `none` for any it lacks. Report actual results and clearly record any live
   verification blocked by credentials, rate limits, an unavailable device, or an external service.
+- Commit only on a passing gate: capture its exit code and chain the commit to it (`rc=$?; [ $rc -eq 0 ] && git
+  commit ...`); a `;` or a trailing `grep | head` hides a failure and publishes a broken commit.
+- Headless agent CLIs (`codex exec`, `gemini -p`) read stdin; run them with `< /dev/null` or they wait forever.
+- Before coding against a new SDK, check the shipped binary's signatures (for Android, `javap` on the AAR's
+  classes.jar): beta docs can lag the release.
 - Never loop or retry paid, rate-limited, destructive, or production operations. Bound a deliberate live
   call and use mocks or local fixtures for repeated coverage.
 - Commit each completed implementation batch with a specific message and push it immediately to origin.
