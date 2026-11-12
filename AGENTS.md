@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.22.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.23.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -139,7 +139,9 @@ and a deliberate project-owned document cleanup to globally increasing startup c
   legal policy, prices and quotas, file formats, API or SDK behavior, current releases) or on what
   real users say, research live instead of answering from training memory. Primary sources first
   (official docs, policy pages, statutes) through client-side retrieval, cited with URL and access
-  date. For what users actually say, read public community sources keyless and client-side (Reddit's
+  date. Search with the local SearXNG instance first (`curl -s 'http://127.0.0.1:8888/search?format=json&q=...'`,
+  owner-approved 2026-11-12, benchmarked 12/12 against 0/12 for scraped DuckDuckGo); if it is down,
+  fetch known primary URLs directly and record the gap. For what users actually say, read public community sources keyless and client-side (Reddit's
   public JSON, Hacker News search, YouTube and GitHub pages); use `deep-research` for multi-source
   questions. Never use browser cookies or logged-in sessions to reach X, Instagram, Facebook or
   TikTok. `last30days` is quarantined (SkillSpector 2026-11-07: critical, browser-cookie extraction)
@@ -189,7 +191,8 @@ and a deliberate project-owned document cleanup to globally increasing startup c
   The orchestrator reserves shared plans, handoffs, changelogs, and instruction files, then integrates
   and validates all work before commit or merge. Background build, test, and CI jobs are not subagents.
 - Give every delegated agent a task contract: bounded objective, non-goals, repository and branch, allowed
-  file paths or worktree, expected evidence, and a prohibition on reading secrets, committing, pushing,
+  file paths or worktree, the tests to add and the exact validation commands with pass criteria (including
+  any project coverage bar for new code), and a prohibition on reading secrets, committing, pushing,
   deploying, or changing test assertions merely to pass.
 - Implementation → independent review → repair → final gates is serial; a verifier of the final diff
   cannot review a change that has not stabilized.
@@ -327,7 +330,9 @@ the harness, say so and apply the one-line summary.
 - Treat authorization/RLS, secrets, migrations, payment or billed APIs, lifecycle/memory safety,
   financial or point-in-time validity, and irreversible deployments as high-assurance work. Require a
   fresh independent review; use another model family when practical.
-- Run the affected project's documented local gates. Report actual results and clearly record any live
+- Run the affected project's documented local gates. Each project keeps a `Fast local loop` command-table
+  row naming its lint, mock/emulated-service, unit, integration, performance and security checks, with
+  `none` for any it lacks. Report actual results and clearly record any live
   verification blocked by credentials, rate limits, an unavailable device, or an external service.
 - Never loop or retry paid, rate-limited, destructive, or production operations. Bound a deliberate live
   call and use mocks or local fixtures for repeated coverage.
@@ -337,9 +342,13 @@ the harness, say so and apply the one-line summary.
 ### Retrospective at issue wrap-up
 
 - When an issue or review closes (PR ready, batch committed, or handoff), run the `retro` skill over
-  that session. Cite each failed or repeated command, separate tested causes from guesses, and fix
+  that session. Cite each failed or repeated command and each agent mistake or owner correction, ask
+  what instruction, skill or tool context was missing, separate tested causes from guesses, and fix
   each at the highest durable rung: the project's command table or a wrapper script for project
   facts, this shared policy for cross-project facts, agent memory only for the owner's preferences.
+- When the owner adopts a new default model, run one bounded pruning pass: list rules and skill text
+  that compensate for an older model's weakness, test whether each is still needed, and delete or
+  shorten those that are not. Keep safety, security and owner-gate rules.
 - Update the context handoff at every red/green checkpoint once usage drops below about 10%, so an
   abrupt quota stop never loses an in-flight test result.
 
@@ -371,7 +380,9 @@ the harness, say so and apply the one-line summary.
 
 - **Wiring hierarchy:** fix a recurring mistake at the highest rung that holds: architecture/data shape
   (bug impossible) → strict types → custom lint rule whose message states the fix → automated test →
-  Markdown instructions last.
+  Markdown instructions last. A tool or wrapper error that names the fix counts as the lint rung. When
+  the same friction recurs, propose a separate investment batch (clearer tool errors, a new tool or
+  MCP server, a restructure) for owner selection instead of adding more prose.
 - **No workarounds or excuse comments:** fix the producer, never patch symptoms in the UI/consumer layer.
   Comments excusing hacks (e.g. `// temporary workaround`) are banned; future agents copy them.
 - **Single way:** one folder per feature; no second way to do the same task, manual sync lists, or
