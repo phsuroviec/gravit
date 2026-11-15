@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.25.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.25.1 | profiles:  -->
 
 ## Shared agent policy
 
@@ -262,9 +262,9 @@ never depends on a chat's scrollback:
 
 | Role | Preferred route | Guardrail |
 | --- | --- | --- |
-| Substantial implementation | Claude Code — Claude Opus 5.5 at Medium when subscription capacity is available | Use the active picker and quota view; raise effort only after a measured shortfall. |
-| Routine or bounded implementation | Codex — GPT-6.1 Sol at Medium, or Antigravity — Gemini 3.8 Flash at High (generous quota) | Prefer existing subscription access; do not infer remaining quota from the model name. |
-| Fresh adversarial review | Read-only Codex GPT-6.1 Sol or Antigravity Gemini 3.8 Flash reviewer from a separate context; choose a different model family or harness from the implementer when available | Judge the diff and evidence, not model rank or agreement. Add another reviewer only for high-assurance work, material disagreement, or a new risk signal. |
+| Substantial implementation | Claude Code — Claude Opus at Medium when subscription capacity is available | Use the active picker and quota view; raise effort only after a measured shortfall. |
+| Routine or bounded implementation | Codex — GPT Sol at Medium, or Antigravity — Gemini Flash at High (generous quota) | Prefer existing subscription access; do not infer remaining quota from the model name. |
+| Fresh adversarial review | Read-only Codex GPT Sol or Antigravity Gemini Flash reviewer from a separate context; choose a different model family or harness from the implementer when available | Judge the diff and evidence, not model rank or agreement. Add another reviewer only for high-assurance work, material disagreement, or a new risk signal. |
 | Emulator, device, and visual QA | Project QA skills and harness tools; use a scoped agent when environment is independent. Reserve Gemini 4 Argon for image/video-heavy inspection or a concrete difficult multimodal task. | Check Antigravity `/usage` before parallel calls; model groups can share quota. |
 | Optional API or hackathon-credit route | Pi — `deepseek-flash` at High (its levels are low/high/max; there is no medium) or a configured Meta Muse model only after confirming exact endpoint, billing source, available balance/expiry, and a hard spend cap | Keep idle while any of those are unknown. Never silently fall back to metered API use. |
 
@@ -297,24 +297,28 @@ clear scopes to coordinate agents; do not raise every orchestrator to Ultra mere
     and the owner merge gate. Raise effort only after a measured failure.
   - `needs:owner` (decision, credential or action), `needs:mac` (iOS build or verification),
     `needs:multimodal` (image or video inspection) block work until resolved.
-- **Routing table** (owner decision 2026-11-14; code, route, default effort, tiers):
+- **Routing table** (owner decisions 2026-11-14). Names mean the latest model of that family, so a
+  version bump changes nothing here:
 
-  | Code | Route | Effort | Tiers |
+  | Model | Route | Effort | Tiers |
   | --- | --- | --- | --- |
-  | F5.2 | Claude Code, Claude Fable 5.2 | Medium | deep, standard, light |
-  | O5.5 | Claude Code, Claude Opus 5.5 | Medium | standard, light |
-  | S5.5 | Claude Code, Claude Sonnet 5.5 | Medium | light |
-  | SOL6.1 | Codex, GPT-6.1 Sol | Medium | standard, light |
-  | GF3.8 | Antigravity or Gemini CLI, Gemini 3.8 Flash | High | light |
-  | DSF | Pi, `deepseek-flash` (metered API, bounded) | High | light |
+  | Fable | Claude Code | Medium | deep, standard, light |
+  | Opus | Claude Code | Medium | standard, light |
+  | Sonnet | Claude Code | Medium | light |
+  | Astra | Codex (GPT), only when the owner names it: it burns usage fast | Medium | deep, standard, light |
+  | Sol | Codex (GPT) | Medium | standard, light |
+  | Terra | Codex (GPT) | Medium | standard, light |
+  | Luna | Codex (GPT) | Medium | light |
+  | Gemini Flash | Antigravity or Gemini CLI (generous quota) | High | light |
+  | DeepSeek Flash | Pi, `deepseek-flash` (metered API, bounded; levels low/high/max) | High | light |
 
   DeepSeek Pro is not routed by default (API cost); use it only when the owner names it. A new model
-  (for example Kimi K3 or Meta) starts at `tier:light`. Record each review rejection or test escape on
-  the PR with the model and tier; move a model in this table when its record supports it.
+  family (for example Kimi or Meta) starts at `tier:light`. Record each review rejection or test escape
+  on the PR with the model and tier; move a model in this table when its record supports it.
 - **Run the queue** takes open issues whose tier the active model may take and that carry no `needs:*`
   label. If an issue proves harder than its tier, relabel it with a one-line reason and move on.
-- **A model change edits this table and the label descriptions in `ensure-issue-labels.sh`, then
-  reruns the script per project. Never relabel issues because the model lineup changed.**
+- **A new family or a tier change edits this table and the label descriptions in
+  `ensure-issue-labels.sh`, then reruns the script per project. Never relabel issues for a model change.**
 
 ### Multimodal, visual, and quota-asymmetric routing
 
