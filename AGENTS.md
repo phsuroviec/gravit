@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.23.1 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.25.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -70,7 +70,7 @@ and a deliberate project-owned document cleanup to globally increasing startup c
   feasible emulator, simulator, browser, or device flows. Use scoped QA agents when their environments
   are independent. Never report physical-device, live-service, or other unavailable checks as passed.
   Give the owner exact steps for any required manual check and keep the PR and issue open until the
-  owner reports that check passed.
+  owner reports that check passed, except low-risk work under the run-the-queue protocol below.
 - For reversible, low-risk code or documentation changes, an agent may squash-merge after acceptance
   criteria and required manual checks pass, documented project gates pass on the exact PR head, and a
   fresh independent reviewer reports no unresolved material defect. If no independent reviewer is
@@ -263,10 +263,10 @@ never depends on a chat's scrollback:
 | Role | Preferred route | Guardrail |
 | --- | --- | --- |
 | Substantial implementation | Claude Code — Claude Opus 5.5 at Medium when subscription capacity is available | Use the active picker and quota view; raise effort only after a measured shortfall. |
-| Routine or bounded implementation | Codex — GPT-6 Luna or Antigravity — Gemini 3.8 Flash, at the lowest effort that fits | Prefer existing subscription access; do not infer remaining quota from the model name. |
-| Fresh adversarial review | Read-only Codex GPT-6 Luna or Antigravity Gemini 3.8 Flash reviewer from a separate context; choose a different model family or harness from the implementer when available | Judge the diff and evidence, not model rank or agreement. Add another reviewer only for high-assurance work, material disagreement, or a new risk signal. |
+| Routine or bounded implementation | Codex — GPT-6.1 Sol at Medium, or Antigravity — Gemini 3.8 Flash at High (generous quota) | Prefer existing subscription access; do not infer remaining quota from the model name. |
+| Fresh adversarial review | Read-only Codex GPT-6.1 Sol or Antigravity Gemini 3.8 Flash reviewer from a separate context; choose a different model family or harness from the implementer when available | Judge the diff and evidence, not model rank or agreement. Add another reviewer only for high-assurance work, material disagreement, or a new risk signal. |
 | Emulator, device, and visual QA | Project QA skills and harness tools; use a scoped agent when environment is independent. Reserve Gemini 4 Argon for image/video-heavy inspection or a concrete difficult multimodal task. | Check Antigravity `/usage` before parallel calls; model groups can share quota. |
-| Optional API or hackathon-credit route | Pi — `deepseek-flash` or a configured Meta Muse model only after confirming exact endpoint, billing source, available balance/expiry, and a hard spend cap | Keep idle while any of those are unknown. Never silently fall back to metered API use. |
+| Optional API or hackathon-credit route | Pi — `deepseek-flash` at High (its levels are low/high/max; there is no medium) or a configured Meta Muse model only after confirming exact endpoint, billing source, available balance/expiry, and a hard spend cap | Keep idle while any of those are unknown. Never silently fall back to metered API use. |
 
 Avoid Gemini 3.1 Pro by default. Use it only for a concrete task where preferred models fail or a specific capability gap justifies it, after confirming quota. Do not increase agent count or effort merely to consume a subscription allowance.
 
@@ -278,6 +278,43 @@ Ultra or Max is a reasoning escalation for a concrete hard decision, not a switc
 multi-agent workflow better by itself. Use it for a correctness-critical design with a weak test oracle,
 an unresolved failure after focused attempts, or a final bounded adjudication. Use normal routing and
 clear scopes to coordinate agents; do not raise every orchestrator to Ultra merely because it delegates.
+
+### Issue intake and model routing
+
+- **Owner lists become issues.** When the owner lists bugs, ideas or requests in free form, file them as
+  GitHub issues in the current project without waiting for "punch list" or "draft it". Search open
+  issues first and extend a matching one instead of duplicating; one issue per independently shippable
+  outcome, with same-surface items grouped under a checklist. Reply with one line per issue.
+- **Issue body:** what the owner reported, expected behaviour, acceptance criteria and open questions.
+  No solution design: grilling, spec, plan and tickets happen when the queue runs, against current code.
+- **Labels:** one type (`bug`, `enhancement`, `idea`, ...), exactly one tier, plus `risk:high` and
+  `needs:*` when they apply. `scripts/ensure-issue-labels.sh <owner/repo>` in agent-policy creates them.
+  - `tier:light`: docs, tooling, copy, mechanical or small single-file changes.
+  - `tier:standard`: bounded fixes with a known cause, features with settled decisions, UI, tests.
+  - `tier:deep`: open design, concurrency, data semantics, security, auth or rules, migrations.
+  - `risk:high`: authorization, security rules, secrets, migrations, billing, production operations,
+    releases. Keeps the default effort; adds a second independent reviewer from another model family
+    and the owner merge gate. Raise effort only after a measured failure.
+  - `needs:owner` (decision, credential or action), `needs:mac` (iOS build or verification),
+    `needs:multimodal` (image or video inspection) block work until resolved.
+- **Routing table** (owner decision 2026-11-14; code, route, default effort, tiers):
+
+  | Code | Route | Effort | Tiers |
+  | --- | --- | --- | --- |
+  | F5.2 | Claude Code, Claude Fable 5.2 | Medium | deep, standard, light |
+  | O5.5 | Claude Code, Claude Opus 5.5 | Medium | standard, light |
+  | S5.5 | Claude Code, Claude Sonnet 5.5 | Medium | light |
+  | SOL6.1 | Codex, GPT-6.1 Sol | Medium | standard, light |
+  | GF3.8 | Antigravity or Gemini CLI, Gemini 3.8 Flash | High | light |
+  | DSF | Pi, `deepseek-flash` (metered API, bounded) | High | light |
+
+  DeepSeek Pro is not routed by default (API cost); use it only when the owner names it. A new model
+  (for example Kimi K3 or Meta) starts at `tier:light`. Record each review rejection or test escape on
+  the PR with the model and tier; move a model in this table when its record supports it.
+- **Run the queue** takes open issues whose tier the active model may take and that carry no `needs:*`
+  label. If an issue proves harder than its tier, relabel it with a one-line reason and move on.
+- **A model change edits this table and the label descriptions in `ensure-issue-labels.sh`, then
+  reruns the script per project. Never relabel issues because the model lineup changed.**
 
 ### Multimodal, visual, and quota-asymmetric routing
 
@@ -300,6 +337,30 @@ the harness, say so and apply the one-line summary.
 - **Scope discipline:** touch only what the batch asks for, no unrequested refactors or renames,
   declare intended edits before large changes. Full list: `anti-overengineering.md`.
 - **Skill catalog and discovery directories:** `skill-catalog.md`.
+- **Run the queue** ("run the queue"; also "continue through issues", "keep going", "work next
+  issues", "gun it", or "continue"/"proceed" while issues are queued). Owner decision 2026-11-14.
+  Current project only. Work the issue queue continuously; do not stop to hand over a build.
+  - **Start:** confirm the active model and effort from the session; ask once if unknown. Pick open
+    issues whose difficulty fits that model (bounded fixes, UI, tooling and decided features for a
+    mid-tier model; deep design, security and migrations for a stronger model or the owner). Batch
+    by dependency so earlier slices unblock later ones; state the batch in one line.
+  - **Decide first:** grill (`grill-me`) every open decision in the batch at its start, and use the
+    Council for strategic, cross-cutting or contested choices. Both are mandatory whenever such
+    decisions exist, even if the owner does not name them. Load other relevant skills automatically.
+  - **Per issue:** branch/worktree, test first, implement, gates, fresh independent review, repair,
+    then drive the changed flows yourself on the emulator, simulator or browser. Open the PR.
+  - **Mid-loop decisions:** take a reversible recommended default and log it on the issue/PR;
+    otherwise park the issue in the owner checklist and move to the next one.
+  - **Merge:** low-risk PRs (UI, features, tooling, docs) squash-merge after gates, independent
+    review and automated device QA; the owner's physical-device check moves to the checklist, and a
+    failure reopens as a bug. Auth/rules/RLS, migrations, billing, secrets, production operations
+    and releases still wait for the owner.
+  - **Deliver:** after each merged batch, build and deliver the device build (for example Taildrop)
+    without stopping. Keep one owner checklist file (`docs/qa/OWNER_CHECKLIST.md`) with each
+    unchecked device check, its steps and the build that carries it; send it at milestones and stop.
+  - **Stop only when:** no workable issue remains, every remaining item needs the owner, the
+    context/usage reserve is reached (update the handoff first), or the owner says stop. Report one
+    short line per merged issue, not a status essay.
 - **Named protocols** ("quick check", "full regression", "security watch", "security sweep", "ship
   check", "promote to staging/beta/production", "post-release check"): load the
   `workflow-protocols` skill, which defines each and the local -> CI -> staging -> beta ->
