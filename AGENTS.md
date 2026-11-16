@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.25.1 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.25.2 | profiles:  -->
 
 ## Shared agent policy
 
@@ -90,7 +90,11 @@ and a deliberate project-owned document cleanup to globally increasing startup c
   rotation, or another separately gated operation. Those always require owner approval. Merge only
   after all issue acceptance criteria pass; use GitHub's closing reference so merge closes the issue.
   After confirming the PR merged, delete its local and remote feature branch. Preserve the PR as the
-  review and change-history record. Keep branches tied to open work.
+  review and change-history record. Keep branches tied to open work: when inspecting branches at
+  task start and after each merge, run `bash ../agent-policy/scripts/prune-merged-branches.sh` from the
+  project's main checkout (dry run), then again with `--apply`. It deletes local and remote branches
+  whose same-repository PR merged and whose tip has no later commits; it keeps open, closed-unmerged
+  and PR-less branches and any branch checked out in a worktree.
 
 ### Default skill dispatch
 
