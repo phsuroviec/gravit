@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.27.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.28.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -184,7 +184,6 @@ and a deliberate project-owned document cleanup to globally increasing startup c
   to satisfy a per-prompt quota.
 - Concurrent subagent cap by the main chat's model (each subagent or headless agent CLI counts):
   - Claude Opus or Codex Sol: at most two at a time.
-  - Claude Fable or Codex Astra: at most one, or work in the main chat.
   - Pi with DeepSeek: as many as the work splits into; fan out to keep the main chat small.
   - Other models: at most two. Lower the cap further for actual harness, quota or device limits.
 - Never inherit parent chat history. Use an explicit zero-history/context-isolation option and provide
@@ -306,26 +305,27 @@ clear scopes to coordinate agents; do not raise every orchestrator to Ultra mere
   - `risk:high`: authorization, security rules, secrets, migrations, billing, production operations,
     releases. Keeps the default effort; adds a second independent reviewer from another model family
     and the owner merge gate. Raise effort only after a measured failure.
-  - `needs:owner` (decision, credential or action), `needs:mac` (iOS build or verification),
-    `needs:multimodal` (image or video inspection) block work until resolved.
-- **Routing table** (owner decisions 2026-11-14). Names mean the latest model of that family, so a
-  version bump changes nothing here:
+  - `needs:owner` (decision, credential or action), `needs:mac` (iOS build or verification: use hosted
+    Mac CI; the owner has no Mac), `needs:multimodal` (image or video inspection) block work until
+    resolved.
+- **Routing table** (owner decisions 2026-11-14, revised 2026-11-17). Names mean the latest model of
+  that family, so a version bump changes nothing here:
 
   | Model | Route | Effort | Tiers |
   | --- | --- | --- | --- |
-  | Fable | Claude Code | Medium | deep, standard, light |
-  | Opus | Claude Code | Medium | standard, light |
+  | Opus 5.5 | Claude Code | Medium | deep, standard, light |
   | Sonnet | Claude Code | Medium | light |
-  | Astra | Codex (GPT), only when the owner names it: it burns usage fast | Medium | deep, standard, light |
-  | Sol | Codex (GPT) | Medium | standard, light |
+  | Sol 6.1 | Codex (GPT) | Medium | deep, standard, light |
   | Terra | Codex (GPT) | Medium | standard, light |
   | Luna | Codex (GPT) | Medium | light |
   | Gemini Flash | Antigravity or Gemini CLI (generous quota) | High | light |
   | DeepSeek Flash | Pi, `deepseek-flash` (metered API, bounded; levels low/high/max) | High | light |
 
-  DeepSeek Pro is not routed by default (API cost); use it only when the owner names it. A new model
-  family (for example Kimi or Meta) starts at `tier:light`. Record each review rejection or test escape
-  on the PR with the model and tier; move a model in this table when its record supports it.
+  Owner decision 2026-11-17: Fable (Claude Code) and Astra (Codex) are retired for cost and are not
+  assigned. `tier:deep` and `risk:high` work goes to Opus 5.5 or Sol 6.1 at Medium. DeepSeek Pro is not
+  routed by default (API cost); use it only when the owner names it. A new model family (for example
+  Kimi or Meta) starts at `tier:light`. Record each review rejection or test escape on the PR with the
+  model and tier; move a model in this table when its record supports it.
 - **Run the queue** takes open issues whose tier the active model may take and that carry no `needs:*`
   label. If an issue proves harder than its tier, relabel it with a one-line reason and move on.
 - **A new family or a tier change edits this table and the label descriptions in
@@ -453,8 +453,8 @@ the harness, say so and apply the one-line summary.
 - A fresh verifier is read-only unless it finds a defect. It must form its own view from the requirements,
   diff, and evidence instead of accepting the implementer’s conclusion or merely rerunning green tests.
 - Review every PR with fresh read-only verifiers launched in parallel once the diff is stable (owner
-  decision 2026-11-16, for speed), as many as the subagent cap allows (two on Opus or Sol, one on Fable
-  or Astra), each with a distinct lens: correctness and races, adversarial input and security, and test
+  decision 2026-11-16, for speed), as many as the subagent cap allows (two on Opus or Sol), each with a
+  distinct lens: correctness and races, adversarial input and security, and test
   quality against the acceptance criteria. Include another model family when
   available. Merge their findings, repair, then re-review only the delta; repeated identical reviews
   without a new risk signal waste time. Implementation stays with one agent per file scope.
