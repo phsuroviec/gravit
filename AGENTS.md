@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.25.3 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.27.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -177,10 +177,16 @@ and a deliberate project-owned document cleanup to globally increasing startup c
 - The orchestrator owns the plan, file-scope map, validation decision, commit, and handoff. A delegated
   agent may investigate, implement within an assigned scope, or verify; it does not silently redefine the
   batch or publish work.
-- Delegate conditionally: use a clean-context agent for a bounded independent task, broad investigation,
-  or fresh review when it improves speed, coverage, or independence. Work directly for questions,
-  single-step edits, tiny tasks, and tightly coupled work. Do not spawn an agent solely to satisfy a
-  per-prompt quota.
+- Delegate by default (owner decision 2026-11-16): hand each task (investigation, implementation slice,
+  review, QA) to a clean-context subagent so the main chat stays small and later prompts in the same
+  session cost less. Stay in the main chat only when delegating would clearly cost more tokens than it
+  saves: a question, a one-step edit, or work too tightly coupled to brief. Do not spawn an agent solely
+  to satisfy a per-prompt quota.
+- Concurrent subagent cap by the main chat's model (each subagent or headless agent CLI counts):
+  - Claude Opus or Codex Sol: at most two at a time.
+  - Claude Fable or Codex Astra: at most one, or work in the main chat.
+  - Pi with DeepSeek: as many as the work splits into; fan out to keep the main chat small.
+  - Other models: at most two. Lower the cap further for actual harness, quota or device limits.
 - Never inherit parent chat history. Use an explicit zero-history/context-isolation option and provide
   only a compact task brief with objective, repository and branch, allowed scope, relevant constraints,
   and acceptance criteria. If the harness cannot guarantee clean context, work directly instead. Do not
@@ -269,7 +275,7 @@ never depends on a chat's scrollback:
 | --- | --- | --- |
 | Substantial implementation | Claude Code — Claude Opus at Medium when subscription capacity is available | Use the active picker and quota view; raise effort only after a measured shortfall. |
 | Routine or bounded implementation | Codex — GPT Sol at Medium, or Antigravity — Gemini Flash at High (generous quota) | Prefer existing subscription access; do not infer remaining quota from the model name. |
-| Fresh adversarial review | Read-only Codex GPT Sol or Antigravity Gemini Flash reviewer from a separate context; choose a different model family or harness from the implementer when available | Judge the diff and evidence, not model rank or agreement. Add another reviewer only for high-assurance work, material disagreement, or a new risk signal. |
+| Fresh adversarial review | Parallel read-only reviewers from separate contexts, up to the subagent cap for the main chat's model: a Codex GPT Sol or Antigravity Gemini Flash reviewer plus subagents with distinct lenses; include a different model family or harness from the implementer when available | Judge the diff and evidence, not model rank or agreement. Give each reviewer a different lens; re-review only the repaired delta. |
 | Emulator, device, and visual QA | Project QA skills and harness tools; use a scoped agent when environment is independent. Reserve Gemini 4 Argon for image/video-heavy inspection or a concrete difficult multimodal task. | Check Antigravity `/usage` before parallel calls; model groups can share quota. |
 | Optional API or hackathon-credit route | Pi — `deepseek-flash` at High (its levels are low/high/max; there is no medium) or a configured Meta Muse model only after confirming exact endpoint, billing source, available balance/expiry, and a hard spend cap | Keep idle while any of those are unknown. Never silently fall back to metered API use. |
 
@@ -446,10 +452,12 @@ the harness, say so and apply the one-line summary.
   tests alone do not substitute for independent verification on a high-assurance batch.
 - A fresh verifier is read-only unless it finds a defect. It must form its own view from the requirements,
   diff, and evidence instead of accepting the implementer’s conclusion or merely rerunning green tests.
-- Use one fresh independent verifier for high-assurance or substantial multi-file work. Add a second
-  independent verifier only for security/authorization, financial or point-in-time correctness, data
-  migrations, release-critical changes, or a material disagreement; repeated identical reviews without a
-  new risk signal waste time.
+- Review every PR with fresh read-only verifiers launched in parallel once the diff is stable (owner
+  decision 2026-11-16, for speed), as many as the subagent cap allows (two on Opus or Sol, one on Fable
+  or Astra), each with a distinct lens: correctness and races, adversarial input and security, and test
+  quality against the acceptance criteria. Include another model family when
+  available. Merge their findings, repair, then re-review only the delta; repeated identical reviews
+  without a new risk signal waste time. Implementation stays with one agent per file scope.
 
 ### Root-cause wiring (`pstack`)
 
