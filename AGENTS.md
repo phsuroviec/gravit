@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.29.1 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.29.2 | profiles:  -->
 
 ## Shared agent policy
 
@@ -390,7 +390,7 @@ the harness, say so and apply the one-line summary.
   bug hunting, security and rate limits, billing, legal and store compliance, clipping/layout, a11y,
   memory, performance, concurrency and code slop, from the project-specific
   `docs/qa/REGRESSION_CATALOG.md` (built first if missing). Current project only; from a
-  cross-project chat, ask which project first and run one at a time. Serial subagents only; grill
+  cross-project chat, ask which project first and run one at a time. Subagents follow the concurrent cap above; grill
   the owner on open decisions. A project's own sweep skill adds project commands. Feature batches add or edit
   catalog rows in the same commit when the catalog exists.
 
