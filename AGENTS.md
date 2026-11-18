@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.28.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.29.1 | profiles:  -->
 
 ## Shared agent policy
 
@@ -182,10 +182,15 @@ and a deliberate project-owned document cleanup to globally increasing startup c
   session cost less. Stay in the main chat only when delegating would clearly cost more tokens than it
   saves: a question, a one-step edit, or work too tightly coupled to brief. Do not spawn an agent solely
   to satisfy a per-prompt quota.
-- Concurrent subagent cap by the main chat's model (each subagent or headless agent CLI counts):
-  - Claude Opus or Codex Sol: at most two at a time.
-  - Pi with DeepSeek: as many as the work splits into; fan out to keep the main chat small.
-  - Other models: at most two. Lower the cap further for actual harness, quota or device limits.
+- Concurrent subagent cap by the main chat's model (owner decision 2026-11-17; each subagent or
+  headless agent CLI counts):
+  - Claude Code — Opus 5.5 at Medium: at most two at a time.
+  - Codex — GPT-6.1 Sol: at most one at a time.
+  - Antigravity CLI (`agy`) — Gemini 3.8 Flash at High: as many as the work splits into.
+  - Antigravity — Gemini Argon or Carbon: at most one at a time.
+  - Pi — DeepSeek Flash: as many as the work splits into; fan out to keep the main chat small.
+  - Pi — DeepSeek Pro (rarely used): at most one at a time.
+  - Other models: at most one. Lower any cap further for actual harness, quota or device limits.
 - Never inherit parent chat history. Use an explicit zero-history/context-isolation option and provide
   only a compact task brief with objective, repository and branch, allowed scope, relevant constraints,
   and acceptance criteria. If the harness cannot guarantee clean context, work directly instead. Do not
@@ -275,7 +280,7 @@ never depends on a chat's scrollback:
 | Substantial implementation | Claude Code — Claude Opus at Medium when subscription capacity is available | Use the active picker and quota view; raise effort only after a measured shortfall. |
 | Routine or bounded implementation | Codex — GPT Sol at Medium, or Antigravity — Gemini Flash at High (generous quota) | Prefer existing subscription access; do not infer remaining quota from the model name. |
 | Fresh adversarial review | Parallel read-only reviewers from separate contexts, up to the subagent cap for the main chat's model: a Codex GPT Sol or Antigravity Gemini Flash reviewer plus subagents with distinct lenses; include a different model family or harness from the implementer when available | Judge the diff and evidence, not model rank or agreement. Give each reviewer a different lens; re-review only the repaired delta. |
-| Emulator, device, and visual QA | Project QA skills and harness tools; use a scoped agent when environment is independent. Reserve Gemini 4 Argon for image/video-heavy inspection or a concrete difficult multimodal task. | Check Antigravity `/usage` before parallel calls; model groups can share quota. |
+| Emulator, device, and visual QA | Project QA skills and harness tools; use a scoped agent when environment is independent. Reserve Gemini 4 Argon for image/video-heavy inspection or a concrete difficult multimodal task. | Antigravity Gemini Flash has no parallel-call limit; Argon/Carbon are capped at one subagent at a time. |
 | Optional API or hackathon-credit route | Pi — `deepseek-flash` at High (its levels are low/high/max; there is no medium) or a configured Meta Muse model only after confirming exact endpoint, billing source, available balance/expiry, and a hard spend cap | Keep idle while any of those are unknown. Never silently fall back to metered API use. |
 
 Avoid Gemini 3.1 Pro by default. Use it only for a concrete task where preferred models fail or a specific capability gap justifies it, after confirming quota. Do not increase agent count or effort merely to consume a subscription allowance.
@@ -453,7 +458,7 @@ the harness, say so and apply the one-line summary.
 - A fresh verifier is read-only unless it finds a defect. It must form its own view from the requirements,
   diff, and evidence instead of accepting the implementer’s conclusion or merely rerunning green tests.
 - Review every PR with fresh read-only verifiers launched in parallel once the diff is stable (owner
-  decision 2026-11-16, for speed), as many as the subagent cap allows (two on Opus or Sol), each with a
+  decision 2026-11-16, for speed), as many as the subagent cap allows (two on Opus, one on Sol, unlimited on agy Gemini Flash), each with a
   distinct lens: correctness and races, adversarial input and security, and test
   quality against the acceptance criteria. Include another model family when
   available. Merge their findings, repair, then re-review only the delta; repeated identical reviews
