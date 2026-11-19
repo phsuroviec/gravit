@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.29.2 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.30.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -279,11 +279,16 @@ never depends on a chat's scrollback:
 | --- | --- | --- |
 | Substantial implementation | Claude Code — Claude Opus at Medium when subscription capacity is available | Use the active picker and quota view; raise effort only after a measured shortfall. |
 | Routine or bounded implementation | Codex — GPT Sol at Medium, or Antigravity — Gemini Flash at High (generous quota) | Prefer existing subscription access; do not infer remaining quota from the model name. |
-| Fresh adversarial review | Parallel read-only reviewers from separate contexts, up to the subagent cap for the main chat's model: a Codex GPT Sol or Antigravity Gemini Flash reviewer plus subagents with distinct lenses; include a different model family or harness from the implementer when available | Judge the diff and evidence, not model rank or agreement. Give each reviewer a different lens; re-review only the repaired delta. |
+| Fresh adversarial review | Parallel read-only reviewers from separate contexts, up to the subagent cap for the main chat's model: reviewers may come from any harness and model with usage headroom, including a higher tier than the implementer (for example Claude Code Opus reviewing a Codex Sol implementation), plus subagents with distinct lenses; include a different model family or harness from the implementer when available | Judge the diff and evidence, not model rank or agreement. Give each reviewer a different lens; re-review only the repaired delta. |
 | Emulator, device, and visual QA | Project QA skills and harness tools; use a scoped agent when environment is independent. Reserve Gemini 4 Argon for image/video-heavy inspection or a concrete difficult multimodal task. | Antigravity Gemini Flash has no parallel-call limit; Argon/Carbon are capped at one subagent at a time. |
 | Optional API or hackathon-credit route | Pi — `deepseek-flash` at High (its levels are low/high/max; there is no medium) or a configured Meta Muse model only after confirming exact endpoint, billing source, available balance/expiry, and a hard spend cap | Keep idle while any of those are unknown. Never silently fall back to metered API use. |
 
 Avoid Gemini 3.1 Pro by default. Use it only for a concrete task where preferred models fail or a specific capability gap justifies it, after confirming quota. Do not increase agent count or effort merely to consume a subscription allowance.
+
+Current reviewer availability (owner status 2026-11-18): every harness and model above may be used for
+cross-harness review, chosen by actual headroom; Claude Code has reset limits and plenty of usage. Keep
+this status until the owner says they have resubscribed; then ask for or apply the new status. Do not
+assume a subscription change from quota readings alone.
 
 Check the active picker and official documentation before adding a newly released model or effort level.
 The runtime model used by an application is a product decision; do not change it merely to obtain a
