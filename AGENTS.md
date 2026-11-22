@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.30.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.31.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -365,10 +365,32 @@ the harness, say so and apply the one-line summary.
 - **Run the queue** ("run the queue"; also "continue through issues", "keep going", "work next
   issues", "gun it", or "continue"/"proceed" while issues are queued). Owner decision 2026-11-14.
   Current project only. Work the issue queue continuously; do not stop to hand over a build.
-  - **Start:** confirm the active model and effort from the session; ask once if unknown. Pick open
-    issues whose difficulty fits that model (bounded fixes, UI, tooling and decided features for a
-    mid-tier model; deep design, security and migrations for a stronger model or the owner). Batch
-    by dependency so earlier slices unblock later ones; state the batch in one line.
+  - **Start: fan out, do not serialise.** These phrases all mean the same thing: assign eligible
+    issues to separate agents on the best harness for each issue's tier, run independent ones
+    concurrently, and keep the active chat as orchestrator only (plan, branch/worktree map,
+    integration, review, merge, delivery).
+    - `tier:deep` / `risk:high` → Claude Code Opus 5.5 (`claude --model <opus> --effort medium`) or
+      Codex Sol (`codex exec -m <sol>`), one issue per agent, isolated branch and worktree.
+    - `tier:standard` → Codex Sol or Terra at medium, Claude Sonnet at medium, or Gemini Flash at high.
+    - `tier:light` → Pi DeepSeek Flash at high (Pi's default thinking level), Gemini Flash at high, or
+      Codex Luna.
+    - Kimi and other in-house models: light and standard only, at the harness's own top thinking level
+      unless the owner says otherwise.
+    - Gemini 3.1 Pro only for a concrete capability gap or on the owner's request. Gemini 4 Argon for
+      multimodal or visual work and one difficult reasoning dead-end; it has a weekly quota.
+    - Pin model and effort whenever the harness allows it (Pi agent frontmatter `model:`,
+      `claude --model --effort`, `codex exec -m`, `agy`). Prefer adding a pinned agent definition over
+      repeating the model in every brief; when the harness cannot pin it, use its default and record the
+      exact picker in the batch line.
+    - One issue per agent, one branch or worktree per issue, disjoint file scope. Two agents never write
+      the same files, and no delegated agent writes instruction, plan, handoff or changelog files.
+      Dependency-ordered issues stay serial; the orchestrator integrates and owns every claim.
+    - Fan-out changes no gate: each issue still gets its tests, fresh independent review from another
+      context, QA on the changed flows, and the merge rules below.
+    - Blocked issues are skipped and reported in one line each, never handed to a weaker agent:
+      `needs:owner`, `needs:multimodal`, a project's hosted-run suspension, or an unverified external
+      dependency.
+    - Do not spawn an agent for a question, a one-step edit, or a status check.
   - **Decide first:** grill (`grill-me`) every open decision in the batch at its start, and use the
     Council for strategic, cross-cutting or contested choices. Both are mandatory whenever such
     decisions exist, even if the owner does not name them. Load other relevant skills automatically.
