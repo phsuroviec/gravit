@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.31.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.32.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -298,6 +298,33 @@ Ultra or Max is a reasoning escalation for a concrete hard decision, not a switc
 multi-agent workflow better by itself. Use it for a correctness-critical design with a weak test oracle,
 an unresolved failure after focused attempts, or a final bounded adjudication. Use normal routing and
 clear scopes to coordinate agents; do not raise every orchestrator to Ultra merely because it delegates.
+
+### Provider availability is checked, not assumed
+
+Check live availability before assigning work, and again whenever a batch changes owner, model or harness:
+the active picker, the provider's quota view, whether the CLI is logged in, and whether a trivial call
+succeeds. Never infer capacity from a model name, a plan tier or yesterday's result, and never leave work
+queued behind a provider that is visibly at capacity while another route is idle.
+
+Known failure modes to expect (owner-observed 2026-11-23): Pi / DeepSeek reaches peak hours, and Claude Code
+can sit out a weekly limit even while its CLI is installed and authenticated. A quota refusal is a routing
+fact: it is not a bug to work around, and it is never a reason to self-approve weaker review or to silently
+drop a gate.
+
+Pivot in the same turn and say which route you used:
+
+- implementation and bounded repair: Codex (`codex exec -s workspace-write`), Kimi (`kimi -p`), or
+  Antigravity (`agy -p`);
+- review: whichever family has headroom and differs from the implementer (Codex, Kimi, agy Gemini, Claude
+  Code when its limits have reset);
+- never fall back to metered API spend to "keep going" unless the owner has set an explicit spend cap for it.
+
+Delegation is the default, not an escalation. Hand reviews and bounded implementation slices to separate
+contexts on other models, and keep the orchestrator on the plan, file-scope map, gates, commits, PRs, merges
+and delivery. Every delegated task carries an objective, allowed and forbidden files, acceptance criteria and
+a required final record; workers never commit, push, install, or run the project's gates. Fan-out is not a
+privilege grant: the orchestrator owns every claim. A single-harness session with no second model available
+reports that limit rather than self-reviewing.
 
 ### Issue intake and model routing
 
