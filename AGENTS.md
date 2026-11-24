@@ -1,6 +1,6 @@
 # AGENTS.md — working agreement for Gravit
 
-<!-- BEGIN MANAGED AGENT POLICY v1.32.0 | profiles:  -->
+<!-- BEGIN MANAGED AGENT POLICY v1.33.0 | profiles:  -->
 
 ## Shared agent policy
 
@@ -182,14 +182,18 @@ and a deliberate project-owned document cleanup to globally increasing startup c
   session cost less. Stay in the main chat only when delegating would clearly cost more tokens than it
   saves: a question, a one-step edit, or work too tightly coupled to brief. Do not spawn an agent solely
   to satisfy a per-prompt quota.
-- Concurrent subagent cap by the main chat's model (owner decision 2026-11-17; each subagent or
-  headless agent CLI counts):
-  - Claude Code — Opus 5.5 at Medium: at most two at a time.
-  - Codex — GPT-6.1 Sol: at most one at a time.
-  - Antigravity CLI (`agy`) — Gemini 3.8 Flash at High: as many as the work splits into.
-  - Antigravity — Gemini Argon or Carbon: at most one at a time.
-  - Pi — DeepSeek Flash: as many as the work splits into; fan out to keep the main chat small.
-  - Pi — DeepSeek Pro (rarely used): at most one at a time.
+- Concurrent subagent cap by the main chat's model (owner decision 2026-11-17, revised 2026-11-24; each
+  subagent or headless agent CLI counts):
+  - Claude Code — Opus 5.5 at Medium: at most two concurrent agents (~2 max; watch 5-hour and weekly limits).
+  - Codex — GPT-6.2 Sol at Medium: at most one concurrent agent (~1 max; strict ChatGPT Plus rolling window).
+  - Antigravity CLI (`agy`) — Gemini 3.8 Flash at High: high concurrency as many as the work splits into
+    (generous rolling 5-hour quota, zero marginal cost).
+  - Antigravity — Gemini 4 Neon or Hydrogen at High: high concurrency.
+  - Antigravity — Gemini 4 Argon or Carbon at High: at most one at a time (Argon strictly bound by 7-day
+    weekly quota; Carbon reserved for deep planning).
+  - Kimi — K3.1 Pro, K3, or K2.8: at most one to two at a time (subscription concurrency limit).
+  - Pi — DeepSeek Flash at High: at most one to two at a time (metered API, bounded; strictly avoid expensive
+    DeepSeek Pro).
   - Other models: at most one. Lower any cap further for actual harness, quota or device limits.
 - Never inherit parent chat history. Use an explicit zero-history/context-isolation option and provide
   only a compact task brief with objective, repository and branch, allowed scope, relevant constraints,
@@ -277,27 +281,80 @@ never depends on a chat's scrollback:
 
 | Role | Preferred route | Guardrail |
 | --- | --- | --- |
-| Substantial implementation | Claude Code — Claude Opus at Medium when subscription capacity is available | Use the active picker and quota view; raise effort only after a measured shortfall. |
-| Routine or bounded implementation | Codex — GPT Sol at Medium, or Antigravity — Gemini Flash at High (generous quota) | Prefer existing subscription access; do not infer remaining quota from the model name. |
-| Fresh adversarial review | Parallel read-only reviewers from separate contexts, up to the subagent cap for the main chat's model: reviewers may come from any harness and model with usage headroom, including a higher tier than the implementer (for example Claude Code Opus reviewing a Codex Sol implementation), plus subagents with distinct lenses; include a different model family or harness from the implementer when available | Judge the diff and evidence, not model rank or agreement. Give each reviewer a different lens; re-review only the repaired delta. |
+| Substantial implementation (`tier:deep`, `risk:high`) | Claude Code — Claude Opus 5.5 at Medium, Codex — GPT Sol 6.2 at Medium, Kimi — K3.1 Pro at High, or Antigravity — Gemini 4 Carbon at High | Use the active picker and quota view; prefer subscription capacity; raise effort only after a measured shortfall. |
+| Routine or bounded implementation (`tier:standard`, `tier:light`) | Antigravity — Gemini 3.8 Flash or Gemini 4 Neon at High, Kimi — K3 / K2.8 at High, Codex — Sol 6.2 / Terra / Luna at Medium, or Claude Sonnet at Medium | Prefer existing subscription access; do not infer remaining quota from the model name. |
+| Cross-family independent review | Two parallel read-only reviewers from separate contexts and different model families, also differing from the implementer (e.g. Claude impl → Kimi + Gemini; Gemini impl → Claude + Kimi; Codex impl → Gemini + Claude/Kimi) | Genuinely independent passes; judge diff and evidence without cross-agent anchoring. Reconcile findings; re-review only the repaired delta. |
 | Emulator, device, and visual QA | Project QA skills and harness tools; use a scoped agent when environment is independent. Reserve Gemini 4 Argon for image/video-heavy inspection or a concrete difficult multimodal task. | Antigravity Gemini Flash has no parallel-call limit; Argon/Carbon are capped at one subagent at a time. |
-| Optional API or hackathon-credit route | Pi — `deepseek-flash` at High (its levels are low/high/max; there is no medium) or a configured Meta Muse model only after confirming exact endpoint, billing source, available balance/expiry, and a hard spend cap | Keep idle while any of those are unknown. Never silently fall back to metered API use. |
+| Optional API or hackathon-credit route | Pi — `deepseek-flash` at High (levels low/high/max) only after confirming exact endpoint, billing source, available balance/expiry, and a hard spend cap | Strictly avoid expensive `deepseek-pro`. Keep idle while any parameters are unknown. Never silently fall back to metered API use. |
 
 Avoid Gemini 3.1 Pro by default. Use it only for a concrete task where preferred models fail or a specific capability gap justifies it, after confirming quota. Do not increase agent count or effort merely to consume a subscription allowance.
 
-Current reviewer availability (owner status 2026-11-18): every harness and model above may be used for
-cross-harness review, chosen by actual headroom; Claude Code has reset limits and plenty of usage. Keep
-this status until the owner says they have resubscribed; then ask for or apply the new status. Do not
-assume a subscription change from quota readings alone.
+Current reviewer availability (owner status 2026-11-24): all configured harnesses (Antigravity Gemini, Claude Code, Codex, Kimi, Pi) are available for cross-family review, chosen by actual headroom. Keep this status until live checks show capacity exhaustion; then adapt route dynamically. Do not assume a subscription change from quota readings alone.
 
-Check the active picker and official documentation before adding a newly released model or effort level.
-The runtime model used by an application is a product decision; do not change it merely to obtain a
-stronger work agent.
+Check the active picker and official documentation before adding a newly released model or effort level. The runtime model used by an application is a product decision; do not change it merely to obtain a stronger work agent.
 
-Ultra or Max is a reasoning escalation for a concrete hard decision, not a switch that makes a
-multi-agent workflow better by itself. Use it for a correctness-critical design with a weak test oracle,
-an unresolved failure after focused attempts, or a final bounded adjudication. Use normal routing and
-clear scopes to coordinate agents; do not raise every orchestrator to Ultra merely because it delegates.
+Ultra or Max is a reasoning escalation for a concrete hard decision, not a switch that makes a multi-agent workflow better by itself. Use it for a correctness-critical design with a weak test oracle, an unresolved failure after focused attempts, or a final bounded adjudication. Use normal routing and clear scopes to coordinate agents; do not raise every orchestrator to Ultra merely because it delegates.
+
+### Available subscriptions, entitlements, and provider resources
+
+Audit and configure routing around the owner's active resources. Never expose credentials, auth tokens, or passwords, and never automatically purchase additional usage or upgrade tiers:
+
+- **Claude Pro ($20/month):** Claude Code CLI (`claude`), models `claude-opus-5-5` and `claude-sonnet-5-5`. Authenticated via consumer credentials (`~/.claude/.credentials.json`). Default effort Medium (`--effort medium`). Governed by a rolling 5-hour window and weekly quota. Concurrency cap: at most two concurrent agents (~2 max). Quota refusal is a routing fact; pivot to Codex, Kimi, or Antigravity rather than stalling.
+- **ChatGPT Plus ($20/month):** Codex CLI (`codex`), models `gpt-6.2-sol` (Sol 6.2) and `gpt-6-luna`. Authenticated via consumer tokens (`~/.codex/auth.json`). Default effort Medium (`model_reasoning_effort = "medium"`). Strict rolling 5-hour window. Concurrency cap: at most one concurrent agent (~1 max) to prevent rate limit lockouts. Non-interactive execution via `codex exec -s workspace-write` or `codex review`.
+- **Google AI Pro (annual):** Antigravity CLI (`agy`) and Gemini integrations, authenticated via Antigravity OAuth (`antigravity-oauth-token`). Supported models include:
+  - `gemini-3.8-flash` (High): Generous quota on a rapid rolling 5-hour window (resets to 100% every few hours), high concurrency, zero marginal cost. Primary high-throughput workhorse and default coordinator.
+  - `gemini-4-neon` (Low to XHigh): Balanced, fast, high concurrency for standard/light implementation and fast review.
+  - `gemini-4-carbon` (Low to High): High reasoning for deep planning and architecture.
+  - `gemini-4-hydrogen` (Low to XHigh): Fast execution worker for mechanical code changes.
+  - `gemini-4-argon` (Low to High): Specialized multimodal & visual inspection, complex reasoning dead-ends. Strictly bound by a 7-day weekly quota; capped at one subagent at a time. Never burn on routine text or linting.
+  - `gemini-pro-orchestrator`: Native multi-agent plan-and-execute (Neon, Carbon, Argon planner + Hydrogen executor).
+  - **Google AI Studio Credits:** Annual Google AI Pro includes $10 USD/month recurring Google Cloud credits (each grant valid 12 months) linked via Google Cloud Billing / AI Studio under the primary subscriber account. These credits automatically absorb Pay-As-You-Go API costs for Gemini models before charging cards. Free tier rate limits (15 RPM / 1M TPM / 1500 RPD) vs paid tier (up to 1000 RPM).
+- **Kimi subscription:** Kimi Code CLI (`kimi`), authenticated via managed OAuth (`managed:kimi-code`). Models include:
+  - `kimi-code/k3.1-pro` (K3.1 Pro, 256k context, efforts low/high/max, default high): Capable of deep/standard implementation and review.
+  - `kimi-code/k3` (K3, 256k context, default high) and `kimi-code/kimi-for-coding` (K2.8 Preview, 1M context, default max): Standard/light implementation and review.
+  - `kimi-code/kimi-for-coding-highspeed` (K2.7 Highspeed, 262k context): Fast routine tasks.
+  - Avoid `k3.1-pro-highspeed` (2x usage cost) unless 1M context is required.
+  - Concurrency cap: at most one to two concurrent agents (~1-2 max).
+- **Pi harness:** Pi CLI (`pi`), default model `deepseek-flash` at High thinking. Authenticated via DeepSeek API key. Metered pay-as-you-go ($0.14-$0.28 / 1M tokens). Keep strictly bounded with spend caps; strictly avoid expensive `deepseek-pro` usage.
+
+### Cross-family independent reviewers
+
+Every non-trivial change (`tier:standard`, `tier:deep`, `risk:high`) requires genuine verification:
+
+- **Two independent cross-family reviewers:** Prefer two independent reviewers from different model families, ideally also different from the implementing model's family:
+  - **Claude implementation** (Anthropic) → Reviewer 1: Kimi (Moonshot), Reviewer 2: Gemini (Google).
+  - **Gemini implementation** (Google) → Reviewer 1: Claude (Anthropic), Reviewer 2: Kimi (Moonshot) or Codex (OpenAI).
+  - **Codex implementation** (OpenAI) → Reviewer 1: Gemini (Google), Reviewer 2: Claude (Anthropic) or Kimi (Moonshot).
+  - **Kimi implementation** (Moonshot) → Reviewer 1: Gemini (Google), Reviewer 2: Claude (Anthropic) or Codex (OpenAI).
+  - **Pi DeepSeek implementation** (DeepSeek) → Reviewer 1: Gemini (Google), Reviewer 2: Claude (Anthropic) or Kimi (Moonshot).
+- **Headroom and availability adaptation:** When a preferred family is in cooldown, at capacity, or hitting rate limits, adapt dynamically to the remaining available families with headroom. If only one other family is available, report that constraint honestly rather than self-reviewing or pretending two independent reviews occurred.
+- **Genuine independence:** Run separate review passes in isolated contexts. Reviewers must never see each other's assessments, comments, or conclusions; no shared history and no rubber-stamping.
+- **Comprehensive review scope:** Each reviewer evaluates correctness, security, architecture, regressions, and maintainability against the original issue and spec.
+- **Reconciliation and verification:** The orchestrator reconciles conflicting findings between the two reviewers. Required repairs must be verified by re-reviewing only the repaired delta, not the whole file tree.
+- **Cost and quota discipline:** Do not spend premium-model quotas (Opus 5.5, Sol 6.2, Argon) on trivial reviews (docs, typos, minor tooling). Use capable lower-cost models (Gemini 3.8 Flash, Kimi K2.8/K3, Codex Luna, Claude Sonnet, DeepSeek Flash) for routine review passes. Reserve premium reviewers for `tier:deep` and `risk:high`.
+
+### Adaptive usage and cost management
+
+- **Hierarchy of spend:**
+  1. Flat-rate subscriptions with rapid resets: Antigravity Gemini 3.8 Flash (rolling 5-hour window, zero marginal cost).
+  2. Flat-rate subscriptions with rolling windows: Claude Pro, ChatGPT Plus, Kimi subscription.
+  3. Included recurring developer credits: Google AI Studio $10/month credit (absorbed before card charges).
+  4. Low-cost metered API: Pi DeepSeek Flash, strictly bounded by an explicit spend cap.
+  5. Strictly prohibited: Expensive metered models (`deepseek-pro`), un-capped API usage, or automatic purchases.
+- **Quota balancing:** Avoid exhausting a single provider when other suitable providers have available capacity. Distribute work across families based on live availability.
+- **Complexity matching:** Lightweight models handle routine issue triage, documentation, mechanical edits, and straightforward implementation. Stronger models are reserved for complex implementation, debugging, architecture, and difficult review findings.
+- **Live availability checks:** Check live availability through supported mechanisms (`agy models`, `codex doctor`, `pi auth check`, `kimi doctor`, or a 1-token test call) without inventing remaining quota estimates.
+- **Graceful fallback:** When a provider returns a rate limit (429) or quota refusal, pivot in the same turn and log the pivot route. Never silently substitute expensive paid API calls for exhausted subscription access.
+
+### Coordinating harness selection
+
+Evaluating orchestration entry points across multi-provider coordination, issue delegation, progress tracking, git worktree/branch management, concurrency enforcement, policy preservation, unattended reliability, and overhead costs:
+
+- **Default coordinating harness: Google / Antigravity CLI (`agy`) with Gemini 3.8 Flash.**
+  - *Rationale:* Operating under the annual Google AI Pro subscription, Gemini 3.8 Flash has a generous rolling 5-hour quota and rapid resets, incurring zero marginal cost for supervisory turns. It features native background task execution (`run_command`, `manage_task`), workflow scripts (`run_workflow`), subagent context isolation (`invoke_subagent`), and Git worktree handling. Using Claude or Codex as the coordinator wastes precious rate-limited reasoning tokens on supervision.
+- **Secondary / Headless queue coordinator: Pi (`pi`) with DeepSeek Flash.**
+  - *Rationale:* Suitable as a backup lightweight coordinator for CLI-only or headless batch queue scripts where Antigravity is unavailable, but incurs slight metered API cost and lacks native multi-provider subagent daemon primitives compared to Antigravity.
+- **The coordinator role:** The orchestrator owns the plan, file-scope map, issue delegation, concurrency enforcement, cross-family review reconciliation, test gates, commits, PRs, and delivery. Delegated workers never commit, push, or self-approve.
 
 ### Provider availability is checked, not assumed
 
@@ -345,24 +402,30 @@ reports that limit rather than self-reviewing.
   - `needs:owner` (decision, credential or action), `needs:mac` (iOS build or verification: use hosted
     Mac CI; the owner has no Mac), `needs:multimodal` (image or video inspection) block work until
     resolved.
-- **Routing table** (owner decisions 2026-11-14, revised 2026-11-17). Names mean the latest model of
+- **Routing table** (owner decisions 2026-11-14, revised 2026-11-17, 2026-11-24). Names mean the latest model of
   that family, so a version bump changes nothing here:
 
   | Model | Route | Effort | Tiers |
   | --- | --- | --- | --- |
   | Opus 5.5 | Claude Code | Medium | deep, standard, light |
   | Sonnet | Claude Code | Medium | light |
-  | Sol 6.1 | Codex (GPT) | Medium | deep, standard, light |
+  | Sol 6.2 | Codex (GPT) | Medium | deep, standard, light |
   | Terra | Codex (GPT) | Medium | standard, light |
   | Luna | Codex (GPT) | Medium | light |
-  | Gemini Flash | Antigravity or Gemini CLI (generous quota) | High | light |
+  | Kimi K3.1 Pro | Kimi Code (`kimi-code/k3.1-pro`) | High | deep, standard, light |
+  | Kimi K2.8 / K3 | Kimi Code (`kimi-code/kimi-for-coding`, `k3`) | High | standard, light |
+  | Gemini 4 Carbon | Antigravity (`gemini-4-carbon`) | High | deep, standard |
+  | Gemini 4 Neon | Antigravity (`gemini-4-neon`) | High | standard, light |
+  | Gemini 4 Hydrogen | Antigravity (`gemini-4-hydrogen`) | High | standard, light |
+  | Gemini 3.8 Flash | Antigravity (`gemini-3.8-flash`) (generous quota) | High | light (default coordinator) |
+  | Gemini 4 Argon | Antigravity (`gemini-4-argon`) (weekly quota) | High | multimodal, visual QA, deep architectural dead-end |
   | DeepSeek Flash | Pi, `deepseek-flash` (metered API, bounded; levels low/high/max) | High | light |
 
-  Owner decision 2026-11-17: Fable (Claude Code) and Astra (Codex) are retired for cost and are not
-  assigned. `tier:deep` and `risk:high` work goes to Opus 5.5 or Sol 6.1 at Medium. DeepSeek Pro is not
-  routed by default (API cost); use it only when the owner names it. A new model family (for example
-  Kimi or Meta) starts at `tier:light`. Record each review rejection or test escape on the PR with the
-  model and tier; move a model in this table when its record supports it.
+  Owner decisions 2026-11-17 & 2026-11-24: Fable (Claude Code) and Astra (Codex) are retired for cost and are
+  not assigned. `tier:deep` and `risk:high` work goes to Opus 5.5, Sol 6.2, Kimi K3.1 Pro, or Gemini 4 Carbon.
+  DeepSeek Pro is not routed by default (API cost); use it only when the owner names it. A new model family
+  starts at `tier:light`. Record each review rejection or test escape on the PR with the model and tier; move
+  a model in this table when its record supports it.
 - **Run the queue** takes open issues whose tier the active model may take and that carry no `needs:*`
   label. If an issue proves harder than its tier, relabel it with a one-line reason and move on.
 - **A new family or a tier change edits this table and the label descriptions in
@@ -389,29 +452,29 @@ the harness, say so and apply the one-line summary.
 - **Scope discipline:** touch only what the batch asks for, no unrequested refactors or renames,
   declare intended edits before large changes. Full list: `anti-overengineering.md`.
 - **Skill catalog and discovery directories:** `skill-catalog.md`.
-- **Run the queue** ("run the queue"; also "continue through issues", "keep going", "work next
-  issues", "gun it", or "continue"/"proceed" while issues are queued). Owner decision 2026-11-14.
-  Current project only. Work the issue queue continuously; do not stop to hand over a build.
-  - **Start: fan out, do not serialise.** These phrases all mean the same thing: assign eligible
-    issues to separate agents on the best harness for each issue's tier, run independent ones
-    concurrently, and keep the active chat as orchestrator only (plan, branch/worktree map,
-    integration, review, merge, delivery).
-    - `tier:deep` / `risk:high` → Claude Code Opus 5.5 (`claude --model <opus> --effort medium`) or
-      Codex Sol (`codex exec -m <sol>`), one issue per agent, isolated branch and worktree.
-    - `tier:standard` → Codex Sol or Terra at medium, Claude Sonnet at medium, or Gemini Flash at high.
-    - `tier:light` → Pi DeepSeek Flash at high (Pi's default thinking level), Gemini Flash at high, or
+- **Run the queue** ("run the queue", "Work through the open GitHub issues"; also "continue through issues",
+  "work through open issues", "keep going", "work next issues", "gun it", or "continue"/"proceed" while issues
+  are queued). Owner decisions 2026-11-14, 2026-11-17, 2026-11-24. Current project only. Intelligently
+  coordinate the complete development, testing, review, and delivery workflow continuously:
+  - **Start: fan out, do not serialise.** Assign eligible open issues to separate agents on the best harness
+    for each issue's tier. Run independent issues concurrently within concurrency limits, keeping the active
+    chat as orchestrator only (plan, worktree map, integration, review reconciliation, gates, merge, delivery).
+    - `tier:deep` / `risk:high` (complex issues) → Claude Code Opus 5.5 (`claude --model claude-opus-5-5 --effort medium`),
+      Codex Sol 6.2 (`codex exec -m gpt-6.2-sol`), Kimi K3.1 Pro (`kimi -m kimi-code/k3.1-pro`), or
+      Gemini 4 Carbon (`agy --model gemini-4-carbon-high`), one issue per agent, isolated branch and worktree.
+    - `tier:standard` → Codex Sol 6.2 or Terra at medium, Claude Sonnet at medium, Kimi K3 / K2.8 at high,
+      or Gemini 4 Neon / Flash at high.
+    - `tier:light` → Antigravity Gemini 3.8 Flash at high, Kimi K2.8 at high, Pi DeepSeek Flash at high, or
       Codex Luna.
-    - Kimi and other in-house models: light and standard only, at the harness's own top thinking level
-      unless the owner says otherwise.
     - Gemini 3.1 Pro only for a concrete capability gap or on the owner's request. Gemini 4 Argon for
       multimodal or visual work and one difficult reasoning dead-end; it has a weekly quota.
     - Pin model and effort whenever the harness allows it (Pi agent frontmatter `model:`,
       `claude --model --effort`, `codex exec -m`, `agy`). Prefer adding a pinned agent definition over
       repeating the model in every brief; when the harness cannot pin it, use its default and record the
       exact picker in the batch line.
-    - One issue per agent, one branch or worktree per issue, disjoint file scope. Two agents never write
-      the same files, and no delegated agent writes instruction, plan, handoff or changelog files.
-      Dependency-ordered issues stay serial; the orchestrator integrates and owns every claim.
+    - One issue per agent, one branch or worktree per issue, disjoint file scope (`<type>/<issue-number>-<slug>`).
+      Two agents never write the same files, and no delegated agent writes instruction, plan, handoff or
+      changelog files. Dependency-ordered issues stay serial; the orchestrator integrates and owns every claim.
     - Fan-out changes no gate: each issue still gets its tests, fresh independent review from another
       context, QA on the changed flows, and the merge rules below.
     - Blocked issues are skipped and reported in one line each, never handed to a weaker agent:
@@ -421,14 +484,22 @@ the harness, say so and apply the one-line summary.
   - **Decide first:** grill (`grill-me`) every open decision in the batch at its start, and use the
     Council for strategic, cross-cutting or contested choices. Both are mandatory whenever such
     decisions exist, even if the owner does not name them. Load other relevant skills automatically.
-  - **Per issue:** branch/worktree, test first, implement, gates, fresh independent review, repair,
-    then drive the changed flows yourself on the emulator, simulator or browser. Open the PR.
+  - **Per issue:** branch/worktree, test first, implement, gates, fresh cross-family independent review
+    (two reviewers from distinct model families), repair, then drive changed flows on the emulator, simulator
+    or browser. Open the PR.
+  - **Android implementation, emulator QA, and APK delivery pipeline:** For Android/KMP repositories:
+    1. Implement in isolated worktree per `android-kmp` profile rules.
+    2. Run project build and unit test suite (`./gradlew test`).
+    3. Execute emulator QA via `adb.exe` / `connected*AndroidTest` or `reticle` driving changed user flows.
+    4. Run two independent cross-family review passes on the stabilized diff.
+    5. Assemble debug APK and immediately Taildrop to the owner's phone (`s25-ultra-boom:`) with Eastern time
+       naming convention before declaring the issue turn complete.
   - **Mid-loop decisions:** take a reversible recommended default and log it on the issue/PR;
     otherwise park the issue in the owner checklist and move to the next one.
   - **Merge:** low-risk PRs (UI, features, tooling, docs) squash-merge after gates, independent
     review and automated device QA; the owner's physical-device check moves to the checklist, and a
     failure reopens as a bug. Auth/rules/RLS, migrations, billing, secrets, production operations
-    and releases still wait for the owner.
+    and releases still wait for the owner. Delete merged local and remote feature branches.
   - **Deliver:** after each merged batch, build and deliver the device build (for example Taildrop)
     without stopping. Keep one owner checklist file (`docs/qa/OWNER_CHECKLIST.md`) with each
     unchecked device check, its steps and the build that carries it; send it at milestones and stop.
